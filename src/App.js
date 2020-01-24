@@ -8,12 +8,39 @@ const VBox = ({children, className = "", ...rest}) => {
     return <div className={"vbox " + className} {...rest}>{children}</div>
 }
 
+const EditableLabel = ({value, editing, doneEditing})=>{
+    if(editing) {
+        return <input type="text" value={value} onChange={(e)=>{
+            console.log("changed")
+        }}
+                      onKeyDown={(e)=>{
+                      if(e.key === 'Enter') {
+                          doneEditing(e.target.value)
+                      }
+                      }}
+        />
+    }
+    return <label>{value}</label>
+}
 const ListItemView = ({realItem, selected, onSelect}) => {
     const [item, setItem] = useState(realItem)
-    return <HBox className={((selected&&selected.includes(item)))?"selected":""}>
-        <label onClick={()=>{
-            onSelect(item)
-        }}>{item.title}</label>
+    const [editing, setEditing] = useState(false)
+    let sel = false
+    if(selected) {
+        if(selected.includes && selected.includes(item)) sel = true
+        if(selected === realItem) sel = true
+    }
+    return <HBox className={" list-view-item "+(sel?"selected":"")}
+                 onClick={()=>onSelect(item)}
+                 onDoubleClick={()=>{
+                     console.log('double clicked')
+                     setEditing(true)
+                 }}
+    >
+        <EditableLabel value={item.title} editing={editing} doneEditing={(value)=>{
+            console.log("fully done",value)
+            setEditing(false)
+        }}/>
     </HBox>
 }
 
@@ -32,7 +59,7 @@ const ListView = ({query, selected, onSelect}) => {
         query.on(update)
         return () => query.off(update)
     },[query])
-    return <VBox>
+    return <VBox className={"list-view"}>
         {items.map(item => <ListItemView key={item.id} realItem={item} selected={selected} onSelect={onSelect}/>)}
     </VBox>
 }
@@ -140,6 +167,7 @@ const ALL_PROJECTS = storage.createQuery('projects',() => true)
 function App() {
     const [selection,setSelection] = useState([trash])
     const [query,setQuery] = useState(storage.createEmptyQuery())
+    const [selItem,setSelItem] = useState(null)
 
     return <HBox>
         <VBox>
@@ -147,7 +175,7 @@ function App() {
                 setSelection([project])
                 setQuery(storage.createQuery('items',(item)=>item.project === project.id))
             }}/>
-            <button onClick={() => {
+            <button className={'primary'} onClick={() => {
                 storage.insert('items', {
                     title: 'empty item',
                     tags: [],
@@ -156,7 +184,7 @@ function App() {
             }}>add
             </button>
         </VBox>
-        <ListView query={query} selected={null} onSelect={null}/>
+        <ListView query={query} selected={selItem} onSelect={(item)=>setSelItem(item)}/>
     </HBox>
 }
 
