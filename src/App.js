@@ -10,9 +10,8 @@ const VBox = ({children, className = "", ...rest}) => {
 
 const ListItemView = ({realItem, selected, onSelect}) => {
     const [item, setItem] = useState(realItem)
-    return <HBox className={(item===selected)?"selected":""}>
+    return <HBox className={((selected&&selected.includes(item)))?"selected":""}>
         <label onClick={()=>{
-            console.log('selecting the item')
             onSelect(item)
         }}>{item.title}</label>
     </HBox>
@@ -28,13 +27,25 @@ function countRender() {
 const ListView = ({query, selected, onSelect}) => {
     const [items, setItems] = useState(query.results())
     useEffect(() => {
+        setItems(query.results())
         const update = () => setItems(query.results())
         query.on(update)
         return () => query.off(update)
-    })
+    },[query])
     return <VBox>
         {items.map(item => <ListItemView key={item.id} realItem={item} selected={selected} onSelect={onSelect}/>)}
     </VBox>
+}
+
+class EmptyQuery {
+    results() {
+        return []
+    }
+    on() {}
+    off() {}
+    toString() {
+        return `empty []`
+    }
 }
 
 class QueryStorage {
@@ -50,6 +61,7 @@ class QueryStorage {
             this._idcount++
             obj.id = this._idcount
         }
+        obj.table = table
         this.tables[table].push(obj)
         this.queries.forEach(query => {
             if (query.table === table) {
@@ -74,6 +86,10 @@ class QueryStorage {
         const query = new Query(this, table, filter)
         this.queries.push(query)
         return query
+    }
+
+    createEmptyQuery() {
+        return new EmptyQuery()
     }
 }
 
@@ -100,18 +116,15 @@ class Query {
     fire() {
         this.listeners.slice().forEach(cb => cb(this))
     }
+    toString() {
+        return `${this.table} where ${this.filter}`
+    }
 }
 
 const storage = new QueryStorage()
-storage.insert('projects',{
-    title:'good',
-})
-const forget = storage.insert('projects',{
-    title:'forget'
-})
-storage.insert('projects',{
-    title:'trash'
-})
+const good = storage.insert('projects',{ title:'good',})
+const forget = storage.insert('projects',{ title:'forget'})
+const trash = storage.insert('projects',{ title:'trash'})
 
 storage.insert("items", {id: 1,
     title: 'first, that I can forget',
@@ -119,41 +132,31 @@ storage.insert("items", {id: 1,
     tags: ['foo'],
     project:forget.id
 })
-storage.insert("items", {id: 2, title: 'second', tags: ['foo','bar']})
-storage.insert("items", {id: 3, title: 'third', tags: ['bar']})
-const INBOX_LIST = [1, 3]
-const INBOX = storage.createQuery("items", (item => INBOX_LIST.includes(item.id)))
-INBOX.title = 'INBOX'
-const ALL = storage.createQuery('items', () => true)
-const PROJECTS = storage.createQuery('projects',() => true)
+storage.insert("items", {id: 2, title: 'second is good', tags: ['foo','bar'], project:good.id})
+storage.insert("items", {id: 3, title: 'third is good', tags: ['bar'], project:good.id})
 
+const ALL_PROJECTS = storage.createQuery('projects',() => true)
 
 function App() {
-    const [selected, setSelected] = useState(INBOX)
-    const [selectedItem, setSelectedItem] = useState(null)
-    const [selectedQuery, setSelectedQuery] = useState(INBOX)
+    const [selection,setSelection] = useState([trash])
+    const [query,setQuery] = useState(storage.createEmptyQuery())
+
     return <HBox>
-    <VBox>
-        <ListItemView realItem={INBOX} selected={selected} onSelect={setSelected}/>
-        <hr/>
-        <ListView query={PROJECTS} selected={selected} onSelect={(proj)=>{
-            setSelected(proj)
-            console.log("new proj is",proj)
-            setSelectedQuery(storage.createQuery('items',
-                (item) => item.project === proj.id
-            ))
-        }}/>
-        <button onClick={() => {
-            const obj = storage.insert('items', {
-                title: 'another',
-                tags: []
-            })
-            INBOX_LIST.push(obj.id)
-            storage.refresh('items')
-        }}>add
-        </button>
-    </VBox>
-        <ListView query={selectedQuery} selected={selectedItem} onSelect={setSelectedItem}/>
+        <VBox>
+            <ListView query={ALL_PROJECTS} selected={selection} onSelect={(project)=>{
+                setSelection([project])
+                setQuery(storage.createQuery('items',(item)=>item.project === project.id))
+            }}/>
+            <button onClick={() => {
+                storage.insert('items', {
+                    title: 'empty item',
+                    tags: [],
+                    project:good.id
+                })
+            }}>add
+            </button>
+        </VBox>
+        <ListView query={query} selected={null} onSelect={null}/>
     </HBox>
 }
 
