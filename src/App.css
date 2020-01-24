@@ -23,6 +23,9 @@ hr {
   border:1px solid black;
   min-width: 10em;
 }
+.list-view:focus {
+  border: 2px solid red;
+}
 .list-view-item {
   border: 1px solid black;
   padding: 1em;

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import './App.css'
 
 const HBox = ({children, className = "", ...rest}) => {
@@ -10,8 +10,12 @@ const VBox = ({children, className = "", ...rest}) => {
 
 const EditableLabel = ({value, editing, doneEditing}) => {
     const [temp, setTemp] = useState(value)
+    const input = useRef()
+    useEffect(()=>{
+        if(input.current) input.current.focus()
+    },[editing])
     if (editing) {
-        return <input type="text"
+        return <input ref={input} type="text"
                       value={temp}
                       onChange={(e) => setTemp(e.target.value)}
                       onKeyDown={(e) => {
@@ -23,7 +27,8 @@ const EditableLabel = ({value, editing, doneEditing}) => {
     }
     return <label>{temp}</label>
 }
-const ListItemView = ({realItem, selected, onSelect}) => {
+
+const ListItemView = ({realItem, selected, onSelect, editable}) => {
     const [item, setItem] = useState(realItem)
     const [editing, setEditing] = useState(false)
     let sel = false
@@ -34,13 +39,12 @@ const ListItemView = ({realItem, selected, onSelect}) => {
     return <HBox className={" list-view-item " + (sel ? "selected" : "")}
                  onClick={() => onSelect(item)}
                  onDoubleClick={() => {
-                     console.log('double clicked')
-                     setEditing(true)
+                     if(editable) setEditing(true)
                  }}
     >
         <EditableLabel value={item.title} editing={editing} doneEditing={(value) => {
-            console.log("fully done", value)
             setEditing(false)
+            storage.update('items',realItem,'title',value)
         }}/>
     </HBox>
 }
@@ -52,7 +56,25 @@ function countRender() {
     if (RENDER_COUNT > 10) throw new Error("")
 }
 
-const ListView = ({query, selected, onSelect}) => {
+function findAction(e) {
+    return (items,selected,onSelect, editable)=>{
+        if(e.key === 'Enter') {
+            if(editable) {
+
+            }
+        }
+        if(e.key === 'ArrowDown') {
+            const index = items.indexOf(selected)
+            if(index < items.length-1)  onSelect(items[index+1])
+        }
+        if(e.key === 'ArrowUp') {
+            const index = items.indexOf(selected)
+            if(index > 0) onSelect(items[index-1])
+        }
+    }
+}
+
+const ListView = ({query, selected, onSelect, storage, editable=false}) => {
     const [items, setItems] = useState(query.results())
     useEffect(() => {
         setItems(query.results())
@@ -60,8 +82,11 @@ const ListView = ({query, selected, onSelect}) => {
         query.on(update)
         return () => query.off(update)
     }, [query])
-    return <VBox className={"list-view"}>
-        {items.map(item => <ListItemView key={item.id} realItem={item} selected={selected} onSelect={onSelect}/>)}
+    return <VBox className={"list-view"}
+                 tabIndex={0}
+                 onKeyDown={(e)=> findAction(e)(items,selected,onSelect, editable)}
+    >
+        {items.map(item => <ListItemView key={item.id} realItem={item} selected={selected} onSelect={onSelect} storage={storage} editable={editable}/>)}
     </VBox>
 }
 
@@ -99,12 +124,19 @@ class QueryStorage {
         this.queries.forEach(query => {
             if (query.table === table) {
                 if (query.filter(obj)) {
-                    console.log("must update this query")
                     query.fire()
                 }
             }
         })
         return obj
+    }
+    update(table, obj, prop, value) {
+        obj[prop] = value
+        this.queries.forEach(query => {
+            if(query.table === table) {
+                query.fire()
+            }
+        })
     }
 
     refresh(table) {
@@ -180,7 +212,7 @@ function App() {
     return <HBox>
         <VBox>
             <ListView query={ALL_PROJECTS} selected={selection} onSelect={(project) => {
-                setSelection([project])
+                setSelection(project)
                 setQuery(storage.createQuery('items', (item) => item.project === project.id))
             }}/>
             <button className={'primary'} onClick={() => {
@@ -192,7 +224,7 @@ function App() {
             }}>add
             </button>
         </VBox>
-        <ListView query={query} selected={selItem} onSelect={(item) => setSelItem(item)}/>
+        <ListView query={query} selected={selItem} onSelect={(item) => setSelItem(item)} storage={storage} editable={true}/>
     </HBox>
 }
 
