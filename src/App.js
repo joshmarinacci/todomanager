@@ -8,37 +8,38 @@ const VBox = ({children, className = "", ...rest}) => {
     return <div className={"vbox " + className} {...rest}>{children}</div>
 }
 
-const EditableLabel = ({value, editing, doneEditing})=>{
-    if(editing) {
-        return <input type="text" value={value} onChange={(e)=>{
-            console.log("changed")
-        }}
-                      onKeyDown={(e)=>{
-                      if(e.key === 'Enter') {
-                          doneEditing(e.target.value)
-                      }
+const EditableLabel = ({value, editing, doneEditing}) => {
+    const [temp, setTemp] = useState(value)
+    if (editing) {
+        return <input type="text"
+                      value={temp}
+                      onChange={(e) => setTemp(e.target.value)}
+                      onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                              doneEditing(temp)
+                          }
                       }}
         />
     }
-    return <label>{value}</label>
+    return <label>{temp}</label>
 }
 const ListItemView = ({realItem, selected, onSelect}) => {
     const [item, setItem] = useState(realItem)
     const [editing, setEditing] = useState(false)
     let sel = false
-    if(selected) {
-        if(selected.includes && selected.includes(item)) sel = true
-        if(selected === realItem) sel = true
+    if (selected) {
+        if (selected.includes && selected.includes(item)) sel = true
+        if (selected === realItem) sel = true
     }
-    return <HBox className={" list-view-item "+(sel?"selected":"")}
-                 onClick={()=>onSelect(item)}
-                 onDoubleClick={()=>{
+    return <HBox className={" list-view-item " + (sel ? "selected" : "")}
+                 onClick={() => onSelect(item)}
+                 onDoubleClick={() => {
                      console.log('double clicked')
                      setEditing(true)
                  }}
     >
-        <EditableLabel value={item.title} editing={editing} doneEditing={(value)=>{
-            console.log("fully done",value)
+        <EditableLabel value={item.title} editing={editing} doneEditing={(value) => {
+            console.log("fully done", value)
             setEditing(false)
         }}/>
     </HBox>
@@ -58,7 +59,7 @@ const ListView = ({query, selected, onSelect}) => {
         const update = () => setItems(query.results())
         query.on(update)
         return () => query.off(update)
-    },[query])
+    }, [query])
     return <VBox className={"list-view"}>
         {items.map(item => <ListItemView key={item.id} realItem={item} selected={selected} onSelect={onSelect}/>)}
     </VBox>
@@ -68,8 +69,13 @@ class EmptyQuery {
     results() {
         return []
     }
-    on() {}
-    off() {}
+
+    on() {
+    }
+
+    off() {
+    }
+
     toString() {
         return `empty []`
     }
@@ -103,7 +109,7 @@ class QueryStorage {
 
     refresh(table) {
         this.queries.forEach(query => {
-            if(query.table === table) {
+            if (query.table === table) {
                 query.fire()
             }
         })
@@ -143,48 +149,50 @@ class Query {
     fire() {
         this.listeners.slice().forEach(cb => cb(this))
     }
+
     toString() {
         return `${this.table} where ${this.filter}`
     }
 }
 
 const storage = new QueryStorage()
-const good = storage.insert('projects',{ title:'good',})
-const forget = storage.insert('projects',{ title:'forget'})
-const trash = storage.insert('projects',{ title:'trash'})
+const good = storage.insert('projects', {title: 'good',})
+const forget = storage.insert('projects', {title: 'forget'})
+const trash = storage.insert('projects', {title: 'trash'})
 
-storage.insert("items", {id: 1,
+storage.insert("items", {
+    id: 1,
     title: 'first, that I can forget',
-    notes:'this is some notes: https://www.mozilla.com/',
+    notes: 'this is some notes: https://www.mozilla.com/',
     tags: ['foo'],
-    project:forget.id
+    project: forget.id
 })
-storage.insert("items", {id: 2, title: 'second is good', tags: ['foo','bar'], project:good.id})
-storage.insert("items", {id: 3, title: 'third is good', tags: ['bar'], project:good.id})
+storage.insert("items", {id: 2, title: 'second is good', tags: ['foo', 'bar'], project: good.id})
+storage.insert("items", {id: 3, title: 'third is good', tags: ['bar'], project: good.id})
 
-const ALL_PROJECTS = storage.createQuery('projects',() => true)
+const ALL_PROJECTS = storage.createQuery('projects', () => true)
 
 function App() {
-    const [selection,setSelection] = useState([trash])
-    const [query,setQuery] = useState(storage.createEmptyQuery())
-    const [selItem,setSelItem] = useState(null)
+    const [selection, setSelection] = useState([trash])
+    const [query, setQuery] = useState(storage.createEmptyQuery())
+    const [selItem, setSelItem] = useState(null)
 
     return <HBox>
         <VBox>
-            <ListView query={ALL_PROJECTS} selected={selection} onSelect={(project)=>{
+            <ListView query={ALL_PROJECTS} selected={selection} onSelect={(project) => {
                 setSelection([project])
-                setQuery(storage.createQuery('items',(item)=>item.project === project.id))
+                setQuery(storage.createQuery('items', (item) => item.project === project.id))
             }}/>
             <button className={'primary'} onClick={() => {
                 storage.insert('items', {
                     title: 'empty item',
                     tags: [],
-                    project:good.id
+                    project: good.id
                 })
             }}>add
             </button>
         </VBox>
-        <ListView query={query} selected={selItem} onSelect={(item)=>setSelItem(item)}/>
+        <ListView query={query} selected={selItem} onSelect={(item) => setSelItem(item)}/>
     </HBox>
 }
 
