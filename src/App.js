@@ -74,7 +74,7 @@ function findAction(e) {
     }
 }
 
-const ListView = ({query, selected, onSelect, storage, editable=false}) => {
+function useQuery (query)  {
     const [items, setItems] = useState(query.results())
     useEffect(() => {
         setItems(query.results())
@@ -82,6 +82,13 @@ const ListView = ({query, selected, onSelect, storage, editable=false}) => {
         query.on(update)
         return () => query.off(update)
     }, [query])
+    return [
+        items
+    ]
+}
+
+const ListView = ({query, selected, onSelect, storage, editable=false}) => {
+    const [items] = useQuery(query)
     return <VBox className={"list-view"}
                  tabIndex={0}
                  onKeyDown={(e)=> findAction(e)(items,selected,onSelect, editable)}
