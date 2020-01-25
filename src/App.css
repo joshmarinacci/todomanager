@@ -1,6 +1,25 @@
+.fillbox {
+  display: flex;
+  border:0px solid red;
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  /*justify-items: center;*/
+  /*align-content: center;*/
+  align-items: center;
+  /*justify-content: center;*/
+}
 .hbox {
   display: flex;
   flex-direction: row;
+}
+.hbox.grow {
+  flex: 1.0;
+}
+.hbox.stretch {
+  align-self: stretch;
 }
 
 .hbox.selected {
@@ -24,7 +43,7 @@ hr {
   min-width: 10em;
 }
 .list-view:focus {
-  border: 2px solid red;
+  border: 1px solid red;
 }
 .list-view-item {
   border: 1px solid black;
@@ -37,4 +56,22 @@ button {
 }
 button.primary {
   background-color: aqua;
+}
+
+
+ul.shortcuts {
+  list-style: none;
+}
+ul > li {
+  border:0px solid red;
+}
+ul > li > ul {
+  padding:0;
+  padding-left: 0.5em;
+  display: block;
+}
+ul > li > ul > li {
+  display: inline;
+  padding-left: 0.5em;
+  font-weight: bold;
 }
