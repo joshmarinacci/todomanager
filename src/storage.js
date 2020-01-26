@@ -48,6 +48,9 @@ export class QueryStorage {
             }
         })
     }
+    find(table,filter) {
+        return this.tables[table].find(filter)
+    }
 
     refresh(table) {
         this.queries.forEach(query => {

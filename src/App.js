@@ -87,6 +87,12 @@ function useObjectUpdate(storage,table, item) {
         }
     ]
 }
+const getProjectTitle = (storage,item) => {
+    const proj = storage.find('projects',(proj)=>proj.id===item.project)
+    if(proj) return proj.title
+    return ""
+}
+
 
 const ItemEditPanel = ({item, setEditing}) => {
     const title = useRef()
@@ -118,7 +124,7 @@ const ItemEditPanel = ({item, setEditing}) => {
         <HBox>
             <label>today</label>
             <input type={'checkbox'} checked={item.today} onChange={toggleToday}/>
-            <button>{item.project}</button>
+            <button>{getProjectTitle(storage,item)}</button>
             <Spacer/>
             <button onClick={endEditing}>done</button>
         </HBox>
@@ -134,10 +140,8 @@ const TodayIndicator = ({item})=>{
 }
 const TodoItemView = ({setSelected, isSelected, item})=>{
     const hbox = useRef()
-    useEffect(()=>{
-        if(isSelected) {
-            if(hbox.current) hbox.current.focus()
-        }
+    useEffect(()=> {
+        if(isSelected && hbox.current) hbox.current.focus()
     })
 
     const [setProp] = useObjectUpdate(storage,'items',item)
@@ -166,7 +170,7 @@ const TodoItemView = ({setSelected, isSelected, item})=>{
             <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
             <TodayIndicator item={item}/>
             <b>{item.title}</b>
-            <i>{item.project}</i>
+            <i>{getProjectTitle(storage,item)}</i>
         </div>
     }
 }
@@ -176,6 +180,10 @@ const ItemsListView = ({project}) => {
         return storage.createQuery('items',(it)=>it.project === project.id)
     })
     useEffect(()=>{
+        if(project.special && project.title === 'today') {
+            setQuery(storage.createQuery('items',it=>it.today===true))
+            return
+        }
         setQuery(storage.createQuery('items',it=>it.project===project.id))
     },[project])
     const [items] = useQuery(query)
