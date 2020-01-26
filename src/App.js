@@ -1,60 +1,28 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import './App.css'
 import {FillBox, HBox, VBox} from './layout.js'
-import {AM, ShortcutsPanel} from './actions.js'
+import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
 import {QueryStorage, useQuery} from './storage.js'
 
-const EditableLabel = ({value, editing, doneEditing}) => {
-    const [temp, setTemp] = useState(value)
-    const input = useRef()
-    useEffect(() => {
-        if (input.current) input.current.focus()
-    }, [editing])
-    if (editing) {
-        return <input ref={input} type="text"
-                      value={temp}
-                      onChange={(e) => setTemp(e.target.value)}
-                      onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                              doneEditing(temp)
-                          }
-                      }}
-        />
-    }
-    return <label>{temp}</label>
-}
-
-const ListItemView = ({realItem, selected, onSelect, editable}) => {
-    const [item, setItem] = useState(realItem)
-    const [editing, setEditing] = useState(false)
-    let sel = false
-    if (selected) {
-        if (selected.includes && selected.includes(item)) sel = true
-        if (selected === realItem) sel = true
-    }
-    return <HBox className={" list-view-item " + (sel ? "selected" : "")}
-                 onClick={() => onSelect(item)}
-                 onDoubleClick={() => {
-                     if (editable) setEditing(true)
-                 }}
-    >
-        <EditableLabel value={item.title} editing={editing} doneEditing={(value) => {
-            setEditing(false)
-            storage.update('items', realItem, 'title', value)
-        }}/>
-    </HBox>
-}
-
-const ListView = ({am, query, selected, onSelect, storage, editable = false}) => {
-    const [items] = useQuery(query)
-    return <VBox className={"list-view"}
-                 tabIndex={0}
-                 onKeyDown={(e) => am.handleKeyDown(e, items, selected, onSelect, editable)}
-    >
-        {items.map(item => <ListItemView key={item.id} realItem={item} selected={selected} onSelect={onSelect}
-                                         storage={storage} editable={editable}/>)}
-    </VBox>
-}
+// const EditableLabel = ({value, editing, doneEditing}) => {
+//     const [temp, setTemp] = useState(value)
+//     const input = useRef()
+//     useEffect(() => {
+//         if (input.current) input.current.focus()
+//     }, [editing])
+//     if (editing) {
+//         return <input ref={input} type="text"
+//                       value={temp}
+//                       onChange={(e) => setTemp(e.target.value)}
+//                       onKeyDown={(e) => {
+//                           if (e.key === 'Enter') {
+//                               doneEditing(temp)
+//                           }
+//                       }}
+//         />
+//     }
+//     return <label>{temp}</label>
+// }
 
 const storage = new QueryStorage()
 const good = storage.insert('projects', {title: 'good'})
@@ -71,39 +39,69 @@ storage.insert("items", {
 storage.insert("items", {id: 2, title: 'second is good', tags: ['foo', 'bar'], project: good.id})
 storage.insert("items", {id: 3, title: 'third is good', tags: ['bar'], project: good.id})
 
-const ALL_PROJECTS = storage.createQuery('projects', () => true)
+const ALLPROJECTS = storage.createQuery('projects',()=>true)
+
+const ProjectsListView = ({selectedProject, setSelectedProject})=> {
+    const [projects] = useQuery(ALLPROJECTS)
+    return <VBox className={'list-view'}>
+        {projects.map(project => {
+            return <HBox
+                onClick={()=>setSelectedProject(project)}
+                className={(project===selectedProject)?'selected':''}
+                key={project.id}>{project.title}</HBox>
+        })}
+    </VBox>
+}
+
+const TodoItemView = ({setSelected, isSelected, item})=>{
+    // const handlers = useActionScope('item',{item:item})
+    return <HBox
+        onClick={()=>setSelected(item)}
+        // tabIndex={0}
+        // onKeyPress={handlers.onKeyPress}
+        className={isSelected?"selected":""}
+    >
+        <b>{item.title}</b>
+        <i>{item.project}</i>
+    </HBox>
+}
+
+const ItemsListView = ({project}) => {
+    const [query,setQuery] = useState(()=>{
+        return storage.createQuery('items',(it)=>it.project === project.id)
+    })
+    useEffect(()=>{
+        setQuery(storage.createQuery('items',it=>it.project===project.id))
+    },[project])
+    const [items] = useQuery(query)
+    const [sel, setSel] = useState(items[0])
+    const handlers = useActionScope('list',{project:project})
+    const am = useContext(ActionContext)
+    return <VBox className={'list-view'} tabIndex={0} onKeyDown={handlers.onKeyDown}>
+        {items.map(item => <TodoItemView key={item.id} isSelected={item===sel} item={item} setSelected={setSel}/>)}
+        <HBox>
+            <button
+                onClick={()=>am.getAction("add-item-to-target-list")(storage,project)}
+            >add</button>
+        </HBox>
+    </VBox>
+}
 
 function App() {
-    const [selection, setSelection] = useState([trash])
-    const [query, setQuery] = useState(storage.createEmptyQuery())
-    const [selItem, setSelItem] = useState(null)
-    const am = AM
-
+    const [selectedProject,setSelectedProject] = useState(good)
     return <FillBox>
-        <HBox className={'grow stretch'}>
-            <ListView am={am} query={ALL_PROJECTS} selected={selection} onSelect={(project) => {
-                setSelection(project)
-                setQuery(storage.createQuery('items', (item) => item.project === project.id))
-            }}/>
-            <VBox>
-                <ListView query={query} selected={selItem}
-                am={am}
-                          onSelect={(item) => setSelItem(item)} storage={storage}
-                          editable={true}/>
-                <button className={'primary'} onClick={() => {
-                    storage.insert('items', {
-                        title: 'empty item',
-                        tags: [],
-                        project: good.id
-                    })
-                }}>add
-                </button>
-            </VBox>
-            <VBox>
-                <h3>Shortcuts</h3>
-                <ShortcutsPanel actionManager={am}/>
-            </VBox>
-        </HBox>
+        <ActionContext.Provider value={AM}>
+            <HBox className={'grow stretch'}>
+                <ProjectsListView selectedProject={selectedProject} setSelectedProject={setSelectedProject}/>
+                <VBox>
+                    <ItemsListView project={selectedProject}/>
+                </VBox>
+                <VBox>
+                    <h3>Shortcuts</h3>
+                    <ShortcutsPanel/>
+                </VBox>
+            </HBox>
+        </ActionContext.Provider>
     </FillBox>
 }
 
