@@ -83,6 +83,13 @@ ul > li > ul > li {
 .todo-item {
   border: 1px solid black;
 }
+.todo-item:focus {
+  border: 5px solid red;
+}
+
+.project-item:focus {
+  border: 5px solid red;
+}
 
 
 .edit-panel {

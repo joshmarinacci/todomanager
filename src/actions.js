@@ -200,6 +200,17 @@ am.registerKeys([
         action: 'shift-selection-next',
     },
 
+    {
+        key:'ArrowLeft',
+        scope:'list',
+        action:'nav-lists'
+    },
+
+    {
+        key:'ArrowRight',
+        scope:'list',
+        action:'nav-items'
+    },
 
 
     {

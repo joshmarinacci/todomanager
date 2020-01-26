@@ -58,6 +58,19 @@ storage.insert("items", {
 
 const ALLPROJECTS = storage.createQuery('projects',()=>true)
 
+const ProjectItemView = ({selectedProject, setSelectedProject, project})=> {
+    const hbox = useRef()
+    return <div
+        ref={hbox}
+        onClick={()=>{
+            setSelectedProject(project)
+            hbox.current.focus()
+        }}
+        tabIndex={0}
+        className={((project===selectedProject)?'selected':'') + " hbox project-item"}
+        key={project.id}>{project.title}</div>
+}
+
 const ProjectsListView = ({selectedProject, setSelectedProject})=> {
     const [projects] = useQuery(ALLPROJECTS)
     const handlers = useActionScope('list',{
@@ -68,15 +81,13 @@ const ProjectsListView = ({selectedProject, setSelectedProject})=> {
         'move-selection-next':()=>{
             const index = projects.indexOf(selectedProject)
             if(index < projects.length-1) setSelectedProject(projects[index+1])
+        },
+        'nav-items': () => {
+            console.log("going to the items")
         }
     })
     return <VBox className={'list-view'} tabIndex={0} onKeyDown={handlers.onKeyDown}>
-        {projects.map(project => {
-            return <HBox
-                onClick={()=>setSelectedProject(project)}
-                className={(project===selectedProject)?'selected':''}
-                key={project.id}>{project.title}</HBox>
-        })}
+        {projects.map(project => <ProjectItemView key={project.id} project={project} selectedProject={selectedProject} setSelectedProject={setSelectedProject}/>)}
     </VBox>
 }
 
@@ -140,10 +151,6 @@ const TodayIndicator = ({item})=>{
 }
 const TodoItemView = ({setSelected, isSelected, item})=>{
     const hbox = useRef()
-    useEffect(()=> {
-        if(isSelected && hbox.current) hbox.current.focus()
-    })
-
     const [setProp] = useObjectUpdate(storage,'items',item)
     const toggleCompleted = () => setProp('completed',!item.completed)
 
@@ -161,7 +168,10 @@ const TodoItemView = ({setSelected, isSelected, item})=>{
         return <ItemEditPanel item={item} setEditing={setEditing}/>
     } else {
         return <div ref={hbox}
-                    onClick={() => setSelected(item)}
+                    onClick={() => {
+                        setSelected(item)
+                        hbox.current.focus()
+                    }}
                     tabIndex={0}
                     className={(isSelected ? "selected" : "") + " hbox todo-item"}
                     onKeyDown={handlers.onKeyDown}
@@ -199,6 +209,9 @@ const ItemsListView = ({project}) => {
         },
         'add-item-to-target-list':(am)=>{
             am.getAction('add-item-to-target-list')(storage,project)
+        },
+        'nav-lists':()=>{
+            console.log("going to the lists")
         }
     })
     const am = useContext(ActionContext)
