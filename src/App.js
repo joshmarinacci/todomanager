@@ -79,49 +79,63 @@ function useObjectUpdate(storage,table, item) {
     ]
 }
 
-const TodoItemView = ({setSelected, isSelected, item})=>{
-    const hbox = useRef()
+const ItemEditPanel = ({item, setEditing}) => {
     const title = useRef()
     const [setProp] = useObjectUpdate(storage,'items',item)
+    const toggleCompleted = () => setProp('completed',!item.completed)
+    const editTitle = (e) => setProp('title',e.target.value)
+    const editNotes = (e) => setProp('notes',e.target.value)
+    const endEditing = () => setEditing(false)
+
+    const handlers = useActionScope('item',{
+        'toggle-completed': toggleCompleted,
+        'exit-edit-item': endEditing,
+    })
+
+    //focus when first opening
+    useEffect(()=>{
+        if(title.current) title.current.focus()
+    },[item])
+
+    return <div className={"edit-panel"} onKeyDown={handlers.onKeyDown}>
+        <HBox>
+            <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
+            <input type="text" value={item.title} className="grow" onChange={editTitle} ref={title}/>
+        </HBox>
+        <HBox>
+            <textarea className={"grow"} value={item.notes} onChange={editNotes}/>
+        </HBox>
+        <HBox>
+            <button>{item.project}</button>
+            <Spacer/>
+            <button onClick={endEditing}>done</button>
+        </HBox>
+    </div>
+}
+
+const TodoItemView = ({setSelected, isSelected, item})=>{
+    const hbox = useRef()
     useEffect(()=>{
         if(isSelected) {
             if(hbox.current) hbox.current.focus()
         }
-        // if(title.current) title.current.focus()
     })
-    const toggleItem = () => storage.update('items',item,'completed',!item.completed)
+
+    const [setProp] = useObjectUpdate(storage,'items',item)
+    const toggleCompleted = () => setProp('completed',!item.completed)
+
     const [editing, setEditing] = useState(false)
     const startEditing = () => setEditing(true)
     const endEditing = () => setEditing(false)
 
     const handlers = useActionScope('item',{
-        'toggle-completed': toggleItem,
+        'toggle-completed': toggleCompleted,
         'edit-item': startEditing,
         'exit-edit-item': endEditing,
     })
-    const editTitle = (e) => setProp('title',e.target.value)//storage.update('items',item,'title',e.target.value)
-    const editNotes = (e) => setProp('notes',e.target.value)//storage.update('items',item,'notes',e.target.value)
 
     if(editing) {
-        return <div ref={hbox}
-                 className={"edit-panel"}
-                onKeyDown={handlers.onKeyDown}
-        >
-            <HBox>
-                <input type="checkbox" checked={item.completed} onChange={toggleItem}/>
-                <input type="text" value={item.title} className="grow" onChange={editTitle}
-                       ref={title}
-                />
-            </HBox>
-            <HBox>
-                <textarea className={"grow"} value={item.notes} onChange={editNotes}/>
-            </HBox>
-            <HBox>
-                <button>{item.project}</button>
-                <Spacer/>
-                <button onClick={endEditing}>done</button>
-            </HBox>
-        </div>
+        return <ItemEditPanel item={item} setEditing={setEditing}/>
     } else {
         return <div ref={hbox}
                     onClick={() => setSelected(item)}
@@ -130,7 +144,7 @@ const TodoItemView = ({setSelected, isSelected, item})=>{
                     onKeyDown={handlers.onKeyDown}
                     onDoubleClick={startEditing}
         >
-            <input type="checkbox" checked={item.completed} onChange={toggleItem}/>
+            <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
             <b>{item.title}</b>
             <i>{item.project}</i>
         </div>
