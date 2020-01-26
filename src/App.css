@@ -84,15 +84,17 @@ ul > li > ul > li {
   border: 1px solid black;
 }
 .todo-item:focus {
-  border: 0px solid red;
 }
 
 .project-item:focus {
   border: 0px solid red;
 }
 
+.list-view {
+  border: 2px solid black;
+}
 .list-view.focused {
-  border: 1px solid red;
+  border: 2px solid red;
 }
 
 .edit-panel {

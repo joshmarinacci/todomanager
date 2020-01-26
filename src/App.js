@@ -150,7 +150,9 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
     })
 
     useEffect(()=>{
-        if(listFocused && isSelected && hbox.current) hbox.current.focus()
+        if(listFocused && isSelected && hbox.current) {
+            hbox.current.focus()
+        }
     },[listFocused, isSelected])
     const cls = makeClassNames({
         'selected':isSelected,
@@ -194,26 +196,17 @@ function makeClassNames(map) {
     return classNames
 }
 
-const ItemsListView = ({project, focused}) => {
-    const [query,setQuery] = useState(()=>{
-        return storage.createQuery('items',(it)=>it.project === project.id)
-    })
+const ItemsListView = ({query, project, focused}) => {
     const [items] = useQuery(query)
     const [sel, setSel] = useState(items[0])
     useEffect(()=>{
+        console.log("project changed")
         if(items.length > 0) {
             setSel(items[0])
         } else {
             setSel(null)
         }
-    },[items])
-    useEffect(()=>{
-        if(project.special && project.title === 'today') {
-            setQuery(storage.createQuery('items',it=>it.today===true))
-            return
-        }
-        setQuery(storage.createQuery('items',it=>it.project===project.id))
-    },[project])
+    },[project,query,focused])
     const handlers = useActionScope('list',{
         'move-selection-prev':()=>{
             const index = items.indexOf(sel)
@@ -254,6 +247,17 @@ const ItemsListView = ({project, focused}) => {
 function App() {
     const [selectedProject,setSelectedProject] = useState(good)
     const [focusedList, setFocusedList] = useState("lists")
+    const [query,setQuery] = useState(()=>{
+        return storage.createQuery('items',(it)=>it.project === selectedProject.id)
+    })
+    const changeSelectedProject = (project) => {
+        setSelectedProject(project)
+        if(project.special && project.title === 'today') {
+            setQuery(storage.createQuery('items',it=>it.today===true))
+        } else {
+            setQuery(storage.createQuery('items',it=>it.project===project.id))
+        }
+    }
     const handlers = useActionScope('list',{
         'nav-items': () => setFocusedList("items"),
         'nav-lists': () => setFocusedList("lists"),
@@ -261,10 +265,8 @@ function App() {
     return <FillBox>
         <ActionContext.Provider value={AM}>
             <HBox className={'grow stretch'} onKeyDown={handlers.onKeyDown}>
-                <ProjectsListView selectedProject={selectedProject} setSelectedProject={setSelectedProject} focusedList={focusedList}/>
-                <VBox>
-                    <ItemsListView project={selectedProject} focused={focusedList}/>
-                </VBox>
+                <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject} focusedList={focusedList}/>
+                <ItemsListView query={query} project={selectedProject} focused={focusedList}/>
                 <VBox>
                     <h3>Shortcuts</h3>
                     <ShortcutsPanel/>
