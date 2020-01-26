@@ -42,23 +42,24 @@ const ALLPROJECTS = storage.createQuery('projects',()=>true)
 const ProjectItemView = ({selectedProject, setSelectedProject, project, listFocused})=> {
     const hbox = useRef()
     useEffect(()=>{
-        if(listFocused && selectedProject === project) {
-            hbox.current.focus()
-        }
+        if(listFocused && selectedProject === project) hbox.current.focus()
     },[listFocused, selectedProject])
-    return <div
-        ref={hbox}
+    const cls = makeClassNames({
+        selected:(project===selectedProject),
+        hbox:true,
+        'project-item':true,
+    })
+    return <div ref={hbox} tabIndex={0} className={cls} key={project.id}
         onClick={()=>{
             setSelectedProject(project)
             hbox.current.focus()
         }}
-        tabIndex={0}
-        className={((project===selectedProject)?'selected':'') + " hbox project-item"}
-        key={project.id}>{project.title}</div>
+    >{project.title}</div>
 }
 
 const ProjectsListView = ({selectedProject, setSelectedProject, focusedList})=> {
     const [projects] = useQuery(ALLPROJECTS)
+    const box = useRef()
     const handlers = useActionScope('list',{
         'move-selection-prev':()=>{
             const index = projects.indexOf(selectedProject)
@@ -69,16 +70,15 @@ const ProjectsListView = ({selectedProject, setSelectedProject, focusedList})=> 
             if(index < projects.length-1) setSelectedProject(projects[index+1])
         },
     })
-    const box = useRef()
     useEffect(()=>{
-        if(focusedList === 'lists' && box.current) {
-            box.current.focus()
-        }
+        if(focusedList === 'lists' && box.current) box.current.focus()
     },[focusedList])
-    return <div ref={box} className={'vbox list-view ' + ((focusedList==='lists')?"focused":"")}
-                onKeyDown={(e)=>{
-                    handlers.onKeyDown(e)
-                }}>
+    const cls = makeClassNames({
+        vbox:true,
+        'list-view':true,
+        focused:(focusedList==='lists')
+    })
+    return <div ref={box} className={cls} onKeyDown={handlers.onKeyDown}>
         {projects.map(project => <ProjectItemView
             key={project.id}
             project={project}
@@ -160,10 +160,10 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
         'todo-item':true,
     })
     return <div ref={hbox}
-                onClick={() => setSelected(item)}
                 tabIndex={0}
                 className={cls}
                 onKeyDown={handlers.onKeyDown}
+                onClick={() => setSelected(item)}
                 onDoubleClick={()=>setEditing(true)}
     >
         <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
@@ -200,7 +200,6 @@ const ItemsListView = ({query, project, focused}) => {
     const [items] = useQuery(query)
     const [sel, setSel] = useState(items[0])
     useEffect(()=>{
-        console.log("project changed")
         if(items.length > 0) {
             setSel(items[0])
         } else {
