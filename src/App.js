@@ -71,9 +71,18 @@ const ProjectsListView = ({selectedProject, setSelectedProject})=> {
     </VBox>
 }
 
+function useObjectUpdate(storage,table, item) {
+    return [
+        (key,value)=>{
+            storage.update(table,item,key,value)
+        }
+    ]
+}
+
 const TodoItemView = ({setSelected, isSelected, item})=>{
     const hbox = useRef()
     const title = useRef()
+    const [setProp] = useObjectUpdate(storage,'items',item)
     useEffect(()=>{
         if(isSelected) {
             if(hbox.current) hbox.current.focus()
@@ -90,8 +99,8 @@ const TodoItemView = ({setSelected, isSelected, item})=>{
         'edit-item': startEditing,
         'exit-edit-item': endEditing,
     })
-    const editTitle = (e) => storage.update('items',item,'title',e.target.value)
-    const editNotes = (e) => storage.update('items',item,'notes',e.target.value)
+    const editTitle = (e) => setProp('title',e.target.value)//storage.update('items',item,'title',e.target.value)
+    const editNotes = (e) => setProp('notes',e.target.value)//storage.update('items',item,'notes',e.target.value)
 
     if(editing) {
         return <div ref={hbox}
