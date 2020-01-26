@@ -43,7 +43,17 @@ const ALLPROJECTS = storage.createQuery('projects',()=>true)
 
 const ProjectsListView = ({selectedProject, setSelectedProject})=> {
     const [projects] = useQuery(ALLPROJECTS)
-    return <VBox className={'list-view'}>
+    const handlers = useActionScope('list',{
+        'move-selection-prev':()=>{
+            const index = projects.indexOf(selectedProject)
+            if(index > 0) setSelectedProject(projects[index-1])
+        },
+        'move-selection-next':()=>{
+            const index = projects.indexOf(selectedProject)
+            if(index < projects.length-1) setSelectedProject(projects[index+1])
+        }
+    })
+    return <VBox className={'list-view'} tabIndex={0} onKeyDown={handlers.onKeyDown}>
         {projects.map(project => {
             return <HBox
                 onClick={()=>setSelectedProject(project)}
@@ -75,7 +85,16 @@ const ItemsListView = ({project}) => {
     },[project])
     const [items] = useQuery(query)
     const [sel, setSel] = useState(items[0])
-    const handlers = useActionScope('list',{project:project})
+    const handlers = useActionScope('list',{
+        'move-selection-prev':()=>{
+            const index = items.indexOf(sel)
+            if(index > 0) setSel(items[index-1])
+        },
+        'move-selection-next':()=>{
+            const index = items.indexOf(sel)
+            if(index < items.length-1) setSel(items[index+1])
+        }
+    })
     const am = useContext(ActionContext)
     return <VBox className={'list-view'} tabIndex={0} onKeyDown={handlers.onKeyDown}>
         {items.map(item => <TodoItemView key={item.id} isSelected={item===sel} item={item} setSelected={setSel}/>)}

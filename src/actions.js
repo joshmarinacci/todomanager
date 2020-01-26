@@ -120,6 +120,19 @@ class ActionManager {
             return action
         }
     }
+    matchBinding(event) {
+        // console.log("key is",event)
+        if(event.key === 'Control') return
+        const binding = this.keysList.find(binding=> {
+            if(binding.key === event.key) {
+                if(binding.control && event.ctrlKey) return true
+                if(!binding.control && !event.ctrlKey) return true
+                return false
+            }
+            return false
+        })
+        return binding
+    }
     getAction(str) {
         const action = this.actionsMap[str]
         return action
@@ -235,15 +248,18 @@ export const ShortcutsPanel = () => {
 export const AM = am
 
 
-export const useActionScope = ()=>{
+export const useActionScope = (scope,actions)=>{
     const am = useContext(ActionContext)
     return {
         onKeyPress:(e) => {
             console.log("key was pressed")
         },
         onKeyDown: (e) => {
-            console.log("down")
-            am.handleKeyDown(e)
+            console.log("keydown",e.key)
+            const binding = am.matchBinding(e)
+            console.log("matched the binding",binding)
+            console.log('actions',actions)
+            if(binding && actions[binding.action]) actions[binding.action]()
         }
     }
 }
