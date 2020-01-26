@@ -11,3 +11,12 @@ export const VBox = ({children, className = "", ...rest}) => {
 }
 export const Spacer = () => <span className="grow"/>
 
+
+export function makeClassNames(map) {
+    let classNames = ""
+    Object.keys(map).forEach(key=>{
+        if(map[key]) classNames+= (" " + key)
+    })
+    return classNames
+}
+

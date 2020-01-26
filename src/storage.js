@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {createContext, useEffect, useState} from 'react'
 
 export class EmptyQuery {
     results() {
@@ -113,3 +113,13 @@ export function useQuery (query)  {
         items
     ]
 }
+
+export function useObjectUpdate(storage,table, item) {
+    return [
+        (key,value)=>{
+            storage.update(table,item,key,value)
+        }
+    ]
+}
+
+export const StorageContext = createContext()
