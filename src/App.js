@@ -34,10 +34,18 @@ storage.insert("items", {
     title: 'first, that I can forget',
     notes: 'this is some notes: https://www.mozilla.com/',
     tags: ['foo'],
+    completed:false,
     project: forget.id
 })
-storage.insert("items", {id: 2, title: 'second is good', tags: ['foo', 'bar'], project: good.id})
-storage.insert("items", {id: 3, title: 'third is good', tags: ['bar'], project: good.id})
+storage.insert("items", {
+    id: 2, title: 'second is good', tags: ['foo', 'bar'], project: good.id,
+    completed:true,
+})
+storage.insert("items", {id: 3, title: 'third is good', tags: ['bar'],
+    project: good.id,
+    completed:false,
+
+})
 
 const ALLPROJECTS = storage.createQuery('projects',()=>true)
 
@@ -64,16 +72,68 @@ const ProjectsListView = ({selectedProject, setSelectedProject})=> {
 }
 
 const TodoItemView = ({setSelected, isSelected, item})=>{
-    // const handlers = useActionScope('item',{item:item})
-    return <HBox
-        onClick={()=>setSelected(item)}
-        // tabIndex={0}
-        // onKeyPress={handlers.onKeyPress}
-        className={isSelected?"selected":""}
-    >
-        <b>{item.title}</b>
-        <i>{item.project}</i>
-    </HBox>
+    const hbox = useRef()
+    const title = useRef()
+    useEffect(()=>{
+        if(isSelected) {
+            if(hbox.current) hbox.current.focus()
+        }
+        // if(title.current) title.current.focus()
+    })
+    const toggleItem = () => storage.update('items',item,'completed',!item.completed)
+    const [editing, setEditing] = useState(false)
+    const edit = () => {
+        console.log("editing the item")
+        setEditing(true)
+    }
+    const handlers = useActionScope('item',{
+        'toggle-completed': toggleItem,
+        'edit-item': edit,
+        'exit-edit-item': () => {
+            setEditing(false)
+        }
+    })
+    const editTitle = (e) => {
+        storage.update('items',item,'title',e.target.value)
+    }
+    const editNotes = (e) => {
+        console.log("setting notes to",e.target.value)
+        storage.update('items',item,'notes',e.target.value)
+    }
+    if(editing) {
+        return <div ref={hbox}
+                 className={"edit-panel"}
+                onKeyDown={handlers.onKeyDown}
+        >
+            <HBox>
+                <input type="checkbox" checked={item.completed} onChange={toggleItem}/>
+                <input type="text" value={item.title} className="grow" onChange={editTitle}
+                       ref={title}
+                />
+            </HBox>
+            <HBox>
+                <textarea className={"grow"} value={item.notes} onChange={editNotes}/>
+            </HBox>
+            <HBox>
+                <button>{item.project}</button>
+                <span className={"grow"}/>
+                <button onClick={()=>setEditing(false)}>done</button>
+
+            </HBox>
+        </div>
+    } else {
+        return <div ref={hbox}
+                    onClick={() => setSelected(item)}
+                    tabIndex={0}
+                    className={(isSelected ? "selected" : "") + " hbox todo-item"}
+                    onKeyDown={handlers.onKeyDown}
+                    onDoubleClick={edit}
+        >
+            <input type="checkbox" checked={item.completed} onChange={toggleItem}/>
+            <b>{item.title}</b>
+            <i>{item.project}</i>
+        </div>
+    }
 }
 
 const ItemsListView = ({project}) => {
@@ -93,10 +153,13 @@ const ItemsListView = ({project}) => {
         'move-selection-next':()=>{
             const index = items.indexOf(sel)
             if(index < items.length-1) setSel(items[index+1])
+        },
+        'add-item-to-target-list':(am)=>{
+            am.getAction('add-item-to-target-list')(storage,project)
         }
     })
     const am = useContext(ActionContext)
-    return <VBox className={'list-view'} tabIndex={0} onKeyDown={handlers.onKeyDown}>
+    return <VBox className={'list-view items-view'} tabIndex={0} onKeyDown={handlers.onKeyDown}>
         {items.map(item => <TodoItemView key={item.id} isSelected={item===sel} item={item} setSelected={setSel}/>)}
         <HBox>
             <button

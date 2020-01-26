@@ -82,7 +82,11 @@ class ActionManager {
         this.actionsMap = map
     }
     registerKeys(arr) {
-        this.keysList = arr
+        this.keysList = arr.map(binding => {
+            binding.key = binding.key.toLowerCase()
+            if(binding.key === 'period') binding.key = '.'
+            return binding
+        })
     }
     getShortcuts() {
         const map = {}
@@ -124,7 +128,7 @@ class ActionManager {
         // console.log("key is",event)
         if(event.key === 'Control') return
         const binding = this.keysList.find(binding=> {
-            if(binding.key === event.key) {
+            if(binding.key === event.key.toLowerCase()) {
                 if(binding.control && event.ctrlKey) return true
                 if(!binding.control && !event.ctrlKey) return true
                 return false
@@ -141,9 +145,6 @@ class ActionManager {
 
 const am = new ActionManager()
 am.registerActions({
-    'edit-item': (scope)=>{
-        console.log("starting to edit",scope.item)
-    },
     'list-nav-prev': (items,selected,onSelect) => {
         const index = items.indexOf(selected)
         if(index > 0) onSelect(items[index-1])
@@ -152,7 +153,6 @@ am.registerActions({
         const index = items.indexOf(selected)
         if(index < items.length -1) onSelect(items[index+1])
     },
-    'list-nav-edit-item': (sel) => sel.startEditing(),
     'add-item-to-target-list': (storage,project) => {
         console.log("inserting into the project",project)
         storage.insert('items', {
@@ -206,13 +206,19 @@ am.registerKeys([
         key: 'N',
         control:true,
         shift:true,
-        action: 'create-item-selected-project',
+        action: 'add-item-to-target-list',
     },
     {
         key: 'Enter',
         scope:'item',
         action: 'edit-item',
     },
+    {
+        key:'Escape',
+        scope:'edit-item',
+        action:'exit-edit-item',
+    },
+
     {
         key: 'period',
         control:true,
@@ -255,11 +261,13 @@ export const useActionScope = (scope,actions)=>{
             console.log("key was pressed")
         },
         onKeyDown: (e) => {
-            console.log("keydown",e.key)
+            // console.log("keydown",e.key)
             const binding = am.matchBinding(e)
-            console.log("matched the binding",binding)
-            console.log('actions',actions)
-            if(binding && actions[binding.action]) actions[binding.action]()
+            // console.log("matched the binding",binding,'actions',actions)
+            if(binding && actions[binding.action]) {
+                e.preventDefault()
+                actions[binding.action](am)
+            }
         }
     }
 }
