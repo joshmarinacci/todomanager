@@ -120,3 +120,31 @@ ul > li > ul > li {
 .hbox > .grow {
   flex: 1.0;
 }
+
+
+.popup-button-wrapper {
+  border: 1px solid red;
+  position: relative;
+}
+.popup-button-wrapper button {
+  border: 1px solid black;
+  box-sizing: border-box;
+  height: 2rem;
+}
+.popup-wrapper {
+  position: absolute;
+  background: white;
+  border: 1px solid black;
+  list-style: none;
+  padding: 0.5em 0;
+  min-width: 5em;
+  margin:0;
+  top:2rem;
+  left:0;
+}
+.popup-wrapper li {
+  padding: 0.25em 0.5em;
+}
+.popup-wrapper li:hover {
+  background: aqua;
+}

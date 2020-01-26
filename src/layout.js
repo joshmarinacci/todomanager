@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 export const FillBox = ({children, className="", ...rest}) => {
     return <div className={"fillbox " + className} {...rest}>{children}</div>
@@ -20,3 +20,21 @@ export function makeClassNames(map) {
     return classNames
 }
 
+export const PopupButton = ({children, getItems, itemSelected})=>{
+    const [open,setOpen] = useState(false)
+    const toggleOpen = () => setOpen(!open)
+    const button = <button onClick={toggleOpen}>{children} <b>\/</b></button>
+    const clickItem = (item) => {
+        toggleOpen()
+        itemSelected(item)
+    }
+    let popup = ""
+    if(open) {
+        const items = getItems()
+        popup = <ul className={"popup-wrapper"}>
+            {items.map((item, i) => <li key={i} onClick={() => clickItem(item)}>{item}</li>)}
+        </ul>
+    }
+
+    return <div className={"popup-button-wrapper"}>{button}{popup}</div>
+}
