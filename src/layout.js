@@ -9,4 +9,5 @@ export const HBox = ({children, className = "", ...rest}) => {
 export const VBox = ({children, className = "", ...rest}) => {
     return <div className={"vbox " + className} {...rest}>{children}</div>
 }
+export const Spacer = () => <span className="grow"/>
 

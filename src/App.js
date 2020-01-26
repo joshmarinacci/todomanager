@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import './App.css'
-import {FillBox, HBox, VBox} from './layout.js'
+import {FillBox, HBox, Spacer, VBox} from './layout.js'
 import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
 import {QueryStorage, useQuery} from './storage.js'
 
@@ -82,24 +82,17 @@ const TodoItemView = ({setSelected, isSelected, item})=>{
     })
     const toggleItem = () => storage.update('items',item,'completed',!item.completed)
     const [editing, setEditing] = useState(false)
-    const edit = () => {
-        console.log("editing the item")
-        setEditing(true)
-    }
+    const startEditing = () => setEditing(true)
+    const endEditing = () => setEditing(false)
+
     const handlers = useActionScope('item',{
         'toggle-completed': toggleItem,
-        'edit-item': edit,
-        'exit-edit-item': () => {
-            setEditing(false)
-        }
+        'edit-item': startEditing,
+        'exit-edit-item': endEditing,
     })
-    const editTitle = (e) => {
-        storage.update('items',item,'title',e.target.value)
-    }
-    const editNotes = (e) => {
-        console.log("setting notes to",e.target.value)
-        storage.update('items',item,'notes',e.target.value)
-    }
+    const editTitle = (e) => storage.update('items',item,'title',e.target.value)
+    const editNotes = (e) => storage.update('items',item,'notes',e.target.value)
+
     if(editing) {
         return <div ref={hbox}
                  className={"edit-panel"}
@@ -116,9 +109,8 @@ const TodoItemView = ({setSelected, isSelected, item})=>{
             </HBox>
             <HBox>
                 <button>{item.project}</button>
-                <span className={"grow"}/>
-                <button onClick={()=>setEditing(false)}>done</button>
-
+                <Spacer/>
+                <button onClick={endEditing}>done</button>
             </HBox>
         </div>
     } else {
@@ -127,7 +119,7 @@ const TodoItemView = ({setSelected, isSelected, item})=>{
                     tabIndex={0}
                     className={(isSelected ? "selected" : "") + " hbox todo-item"}
                     onKeyDown={handlers.onKeyDown}
-                    onDoubleClick={edit}
+                    onDoubleClick={startEditing}
         >
             <input type="checkbox" checked={item.completed} onChange={toggleItem}/>
             <b>{item.title}</b>
