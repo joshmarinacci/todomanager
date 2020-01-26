@@ -236,10 +236,9 @@ am.registerKeys([
         action: 'toggle-completed',
     },
     {
-        key:'delete',
-        control:true,
+        key:'backspace',
         scope:'items',
-        action:'delete-selected-items',
+        action:'delete-item',
     },
 
     {

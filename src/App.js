@@ -9,7 +9,7 @@ const storage = new QueryStorage()
 const today = storage.insert('projects',{title:'today',special:true})
 const good = storage.insert('projects', {title: 'good'})
 const forget = storage.insert('projects', {title: 'forget'})
-const trash = storage.insert('projects', {title: 'trash'})
+const trash = storage.insert('projects', {title: 'trash', special:true})
 
 storage.insert("items", {
     id: 1,
@@ -18,6 +18,7 @@ storage.insert("items", {
     notes: 'this is some notes: https://www.mozilla.com/',
     tags: ['foo'],
     completed:false,
+    deleted:false,
     project: forget.id
 })
 storage.insert("items", {
@@ -26,6 +27,7 @@ storage.insert("items", {
     title: 'second is good',
     tags: ['foo', 'bar'],
     project: good.id,
+    deleted:false,
     completed:true,
 })
 storage.insert("items", {
@@ -34,6 +36,7 @@ storage.insert("items", {
     title: 'third is good',
     tags: ['bar'],
     project: good.id,
+    deleted:false,
     completed:false,
 })
 
@@ -147,6 +150,7 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
         'toggle-completed': toggleCompleted,
         'edit-item': ()=>  setEditing(true),
         'exit-edit-item': ()=>setEditing(false),
+        'delete-item':()=> setProp('deleted',!item.deleted),
     })
 
     useEffect(()=>{
@@ -158,6 +162,7 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
         'selected':isSelected,
         'hbox':true,
         'todo-item':true,
+        'deleted':item.deleted,
     })
     return <div ref={hbox}
                 tabIndex={0}
@@ -251,8 +256,9 @@ function App() {
     })
     const changeSelectedProject = (project) => {
         setSelectedProject(project)
-        if(project.special && project.title === 'today') {
-            setQuery(storage.createQuery('items',it=>it.today===true))
+        if(project.special) {
+            if(project.title === 'today') return setQuery(storage.createQuery('items', it => it.today === true))
+            if(project.title === 'trash') return setQuery(storage.createQuery('items',it => it.deleted === true))
         } else {
             setQuery(storage.createQuery('items',it=>it.project===project.id))
         }

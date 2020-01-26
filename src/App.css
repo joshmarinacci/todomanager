@@ -85,6 +85,10 @@ ul > li > ul > li {
 }
 .todo-item:focus {
 }
+.todo-item.deleted {
+  color:#888;
+  text-decoration: line-through;
+}
 
 .project-item:focus {
   border: 0px solid red;
