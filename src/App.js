@@ -25,12 +25,14 @@ import {QueryStorage, useQuery} from './storage.js'
 // }
 
 const storage = new QueryStorage()
+const today = storage.insert('projects',{title:'today',special:true})
 const good = storage.insert('projects', {title: 'good'})
 const forget = storage.insert('projects', {title: 'forget'})
 const trash = storage.insert('projects', {title: 'trash'})
 
 storage.insert("items", {
     id: 1,
+    today:true,
     title: 'first, that I can forget',
     notes: 'this is some notes: https://www.mozilla.com/',
     tags: ['foo'],
@@ -38,13 +40,20 @@ storage.insert("items", {
     project: forget.id
 })
 storage.insert("items", {
-    id: 2, title: 'second is good', tags: ['foo', 'bar'], project: good.id,
+    id: 2,
+    today:false,
+    title: 'second is good',
+    tags: ['foo', 'bar'],
+    project: good.id,
     completed:true,
 })
-storage.insert("items", {id: 3, title: 'third is good', tags: ['bar'],
+storage.insert("items", {
+    id: 3,
+    today:true,
+    title: 'third is good',
+    tags: ['bar'],
     project: good.id,
     completed:false,
-
 })
 
 const ALLPROJECTS = storage.createQuery('projects',()=>true)
@@ -83,6 +92,7 @@ const ItemEditPanel = ({item, setEditing}) => {
     const title = useRef()
     const [setProp] = useObjectUpdate(storage,'items',item)
     const toggleCompleted = () => setProp('completed',!item.completed)
+    const toggleToday = () => setProp('today',!item.today)
     const editTitle = (e) => setProp('title',e.target.value)
     const editNotes = (e) => setProp('notes',e.target.value)
     const endEditing = () => setEditing(false)
@@ -106,6 +116,8 @@ const ItemEditPanel = ({item, setEditing}) => {
             <textarea className={"grow"} value={item.notes} onChange={editNotes}/>
         </HBox>
         <HBox>
+            <label>today</label>
+            <input type={'checkbox'} checked={item.today} onChange={toggleToday}/>
             <button>{item.project}</button>
             <Spacer/>
             <button onClick={endEditing}>done</button>
@@ -113,6 +125,13 @@ const ItemEditPanel = ({item, setEditing}) => {
     </div>
 }
 
+const TodayIndicator = ({item})=>{
+    if(item.today) {
+        return <b>[*]</b>
+    } else {
+        return <b>[ ]</b>
+    }
+}
 const TodoItemView = ({setSelected, isSelected, item})=>{
     const hbox = useRef()
     useEffect(()=>{
@@ -145,6 +164,7 @@ const TodoItemView = ({setSelected, isSelected, item})=>{
                     onDoubleClick={startEditing}
         >
             <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
+            <TodayIndicator item={item}/>
             <b>{item.title}</b>
             <i>{item.project}</i>
         </div>
