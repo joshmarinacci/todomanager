@@ -1,5 +1,7 @@
 import {createContext, useEffect, useState} from 'react'
 
+import * as localforage from "localforage"
+
 export class EmptyQuery {
     results() {
         return []
@@ -21,6 +23,29 @@ export class QueryStorage {
         this.tables = {}
         this._idcount = 1000
         this.queries = []
+        this.lf = localforage
+        this.empty = true
+    }
+    load() {
+        return this.lf.getItem('tables').then((tables)=>{
+            console.log("loaded old tables",tables)
+            if(tables) {
+                this.tables = tables
+                Object.keys(this.tables).forEach((table)=>this.refresh(table))
+                this.empty = false
+            }
+            return this.lf.getItem('ID_COUNTER').then(count=>{
+                console.log("loaded the count",count)
+                this._idcount = count
+            })
+        })
+    }
+    isEmpty() { return this.empty}
+
+    save() {
+        this.lf.setItem('tables',this.tables)
+            .then(()=>this.lf.setItem("ID_COUNTER",this._idcount))
+            .then(()=>console.log("done saving"))
     }
 
     insert(table, obj) {
@@ -38,6 +63,7 @@ export class QueryStorage {
                 }
             }
         })
+        this.save()
         return obj
     }
     update(table, obj, prop, value) {
@@ -47,6 +73,7 @@ export class QueryStorage {
                 query.fire()
             }
         })
+        this.save()
     }
     find(table,filter) {
         return this.tables[table].find(filter)
@@ -80,6 +107,7 @@ export class Query {
     }
 
     results() {
+        if(!this.storage.tables[this.table]) return []
         return this.storage.tables[this.table].filter(this.filter)
     }
 

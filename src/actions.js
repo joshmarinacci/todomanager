@@ -126,16 +126,15 @@ class ActionManager {
         }
     }
     matchBinding(event, scope) {
-        // console.log("key is",event.key,'scope is',scope)
+        console.log(`scope ${scope} key ${event.key} alt=${event.altKey} shift=${event.shiftKey} ctrl=${event.ctrlKey}`)
         if(event.key === 'Control') return
         const binding = this.keysList.find(binding=> {
             if(binding.scope !== scope) return false
-            if(binding.key === event.key.toLowerCase()) {
-                if(binding.control && event.ctrlKey && binding.shift && event.shiftKey) return true
-                if(binding.control && event.ctrlKey) return true
-                if(!binding.control && !event.ctrlKey) return true
-                return false
-            }
+            if(binding.shift && !event.shiftKey) return false
+            if(binding.alt && !event.altKey) return false
+            if(binding.control && !event.ctrlKey) return false
+            if(event.ctrlKey && !binding.control) return false
+            if(binding.key === event.key.toLowerCase()) return true
             return false
         })
         return binding
@@ -178,6 +177,7 @@ am.registerKeys([
     {   action:'nav-items',  scope:'list',  key:'ArrowRight', },
     {   action:'find-item',  scope:'list',  key:'F',  control:true,  },
     {   action: 'add-item-to-target-list',  scope:'list',  key: 'N',  control:true,  shift:true,  },
+    {   action: 'add-item-to-target-list',  scope:'list',  key: 'N',  alt:true, },
 
     {
         key: 'ArrowDown',
@@ -194,12 +194,11 @@ am.registerKeys([
 
 
     // item scope
-    {   action: 'edit-item',  key: 'Enter',   scope:'item',  },
+    {   action: 'edit-item',        key: 'Enter',   scope:'item',  },
     {   action: 'toggle-completed', key: 'period',  control:true,   scope: 'item' },
     {   action: 'toggle-today',     key:'t',  control:true,  shift:true,  scope:'item',  },
-
-    // items scope
-    {   action:'delete-item',   key:'backspace',   scope:'items',  },
+    {   action: 'toggle-today',     scope:'item', key:'t',  alt:true },
+    {   action: 'delete-item',      scope:'item',  key:'backspace' },
 
     // search scope
     {  action:'exit-search',  scope:'search',  key:'Escape',  },

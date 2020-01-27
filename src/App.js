@@ -8,39 +8,45 @@ import {ItemsListView} from './items.js'
 
 
 const storage = new QueryStorage()
-storage.insert('projects',{title:'today',special:true})
-const good = storage.insert('projects', {title: 'good'})
-const forget = storage.insert('projects', {title: 'forget'})
-storage.insert('projects', {title: 'trash', special:true})
+storage.load().then(()=>{
+    if(storage.isEmpty()) makeInitialData()
+})
 
-storage.insert("items", {
-    id: 1,
-    today:true,
-    title: 'first, that I can forget',
-    notes: 'this is some notes: https://www.mozilla.com/',
-    tags: ['foo'],
-    completed:false,
-    deleted:false,
-    project: forget.id
-})
-storage.insert("items", {
-    id: 2,
-    today:false,
-    title: 'second is good',
-    tags: ['foo', 'bar'],
-    project: good.id,
-    deleted:false,
-    completed:true,
-})
-storage.insert("items", {
-    id: 3,
-    today:true,
-    title: 'third is good',
-    tags: ['bar'],
-    project: good.id,
-    deleted:false,
-    completed:false,
-})
+function makeInitialData() {
+    storage.insert('projects', {title: 'today', special: true})
+    const good = storage.insert('projects', {title: 'good'})
+    const forget = storage.insert('projects', {title: 'forget'})
+    storage.insert('projects', {title: 'trash', special: true})
+
+    storage.insert("items", {
+        id: 1,
+        today: true,
+        title: 'first, that I can forget',
+        notes: 'this is some notes: https://www.mozilla.com/',
+        tags: ['foo'],
+        completed: false,
+        deleted: false,
+        project: forget.id
+    })
+    storage.insert("items", {
+        id: 2,
+        today: false,
+        title: 'second is good',
+        tags: ['foo', 'bar'],
+        project: good.id,
+        deleted: false,
+        completed: true,
+    })
+    storage.insert("items", {
+        id: 3,
+        today: true,
+        title: 'third is good',
+        tags: ['bar'],
+        project: good.id,
+        deleted: false,
+        completed: false,
+    })
+}
 
 const SearchBox = ({searching, setSearching, setQuery}) => {
     const [searchText, setSearchText] = useState("")
@@ -74,10 +80,10 @@ const SearchBox = ({searching, setSearching, setQuery}) => {
 }
 
 function App() {
-    const [selectedProject,setSelectedProject] = useState(good)
+    const [selectedProject,setSelectedProject] = useState(null)
     const [focusedList, setFocusedList] = useState("lists")
     const [query,setQuery] = useState(()=>{
-        return storage.createQuery('items',(it)=>it.project === selectedProject.id)
+        return storage.createQuery('items',(it)=>(selectedProject && it.project === selectedProject.id))
     })
     const changeSelectedProject = (project) => {
         setSelectedProject(project)
