@@ -73,7 +73,7 @@ export const TodoApp = () => {
             completed: false,
         })
     }
-    const storage = new QueryStorage()
+    const storage = new QueryStorage("todo")
     storage.load().then(()=>{
         if(storage.isEmpty()) makeInitialData()
     })

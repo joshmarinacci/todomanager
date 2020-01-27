@@ -19,7 +19,8 @@ export class EmptyQuery {
 }
 
 export class QueryStorage {
-    constructor() {
+    constructor(prefix) {
+        this.prefix = prefix
         this.tables = {}
         this._idcount = 1000
         this.queries = []
@@ -27,8 +28,8 @@ export class QueryStorage {
         this.empty = true
     }
     load() {
-        return this.lf.getItem('tables').then((tables)=>{
-            console.log("loaded old tables",tables)
+        return this.lf.getItem(this.prefix+'tables').then((tables)=>{
+            console.log(this.prefix + ": loaded old tables",tables)
             if(tables) {
                 this.tables = tables
                 Object.keys(this.tables).forEach((table)=>this.refresh(table))
@@ -48,9 +49,9 @@ export class QueryStorage {
     isEmpty() { return this.empty}
 
     save() {
-        this.lf.setItem('tables',this.tables)
+        this.lf.setItem(this.prefix+'tables',this.tables)
             .then(()=>this.lf.setItem("ID_COUNTER",this._idcount))
-            .then(()=>console.log("done saving"))
+            .then(()=>console.log(`done saving ${this.prefix}`))
     }
 
     insert(table, obj) {

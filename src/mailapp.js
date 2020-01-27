@@ -112,7 +112,7 @@ export const MailApp = ({})=> {
             `Here's whats's happening on LEGO ideas `)
         console.log(storage)
     }
-    const storage = new QueryStorage()
+    const storage = new QueryStorage("mail")
     storage.clear().then(()=>{
         storage.load().then(()=>{
             if(storage.isEmpty()) makeInitialData()
