@@ -3,6 +3,7 @@
     border-right: 1px solid black;
     border-top: 1px solid black;
     border-bottom: 1px solid black;
+    background-color: #dddddd;
 }
 
 .mails-list-view {
@@ -11,12 +12,37 @@
     border-right: 1px solid black;
     border-top: 1px solid black;
     border-bottom: 1px solid black;
+    background-color: #dddddd;
 }
+.mails-list-view .mail {
+    padding: 1rem;
+}
+
+
+
+
+.mail .subject {
+    font-size: 90%;
+}
+
 
 .reading-mail-view {
     border-right: 1px solid black;
     border-top: 1px solid black;
     border-bottom: 1px solid black;
     min-width: 40rem;
+    max-width: 40rem;
+    padding: 1rem;
+    background-color: #dddddd;
 }
 
+.reading-mail-view .subject-line {
+    font-weight: bold;
+    font-size: 120%;
+    margin-bottom: 1rem;
+}
+
+.reading-mail-view .body-line {
+    background-color: white;
+    padding: 1rem;
+}

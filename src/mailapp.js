@@ -59,32 +59,44 @@ function MailsListView({setMail,selectedMail}) {
         {mails.map(mail => {
             let selected = (mail===selectedMail)
             return <HBox key={mail.id}
-                         className={selected?"selected":""}
+                         className={(selected?"selected":"")+" mail"}
                          onClick={()=>selectMail(mail)}>
-                <b>{mail.sender}</b>
-                <b>{mail.subject}</b>
+                <VBox className={'grow'}>
+                    <b className={'sender'}>{mail.sender}</b>
+                    <b className={'subject'}>{mail.subject}</b>
+                </VBox>
+                <b className={'timestamp'}>{new Date(mail.timestamp).toLocaleTimeString()}</b>
             </HBox>
         })}
     </VBox>
 }
 
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp)
+    return date.toTimeString()
+}
+
 function ReadingMailView({mail}) {
     if(!mail) return <VBox className={'reading-mail-view'}>no message selected</VBox>
     return <VBox className={'reading-mail-view'}>
-        <HBox>
-            <label>From</label>
-            <b>{mail.sender}</b>
-        </HBox>
-        <HBox>
-            <label>Subject</label>
+        <HBox className={'subject-line'}>
             <b>{mail.subject}</b>
         </HBox>
+        <HBox className={'from-line'}>
+            <b>from {mail.sender}</b>
+        </HBox>
+        <HBox className={'receiver-line'}>
+            <b>to {mail.receiver}</b>
+        </HBox>
+        <HBox className={'timestamp-line'}>
+            <b>{formatTimestamp(mail.timestamp)}</b>
+        </HBox>
+        <HBox className={'body-line'}>{mail.body}</HBox>
     </VBox>
 
 }
 export const MailApp = ({})=> {
     function makeInitialData() {
-        console.log("making")
         function makeFolder(title) {
             storage.insert('folders',{title:title,special:false})
         }
@@ -98,10 +110,12 @@ export const MailApp = ({})=> {
         function makeMail(sender, subject, body) {
             storage.insert("mails", {
                 sender: sender,
+                receiver:'Josh Marinacci',
                 subject: subject,
                 body: body,
                 deleted: false,
-                folder: 'inbox'
+                folder: 'inbox',
+                timestamp: Date.now(),
             })
         }
         makeMail('github',

@@ -3,6 +3,7 @@ import './App.css'
 import {FillBox, Toolbar} from './layout.js'
 import {TodoApp} from './todoapp.js'
 import {MailApp} from './mailapp.js'
+import {List, Mail} from "react-feather"
 
 function App() {
     const [app, setApp] = useState('mail')
@@ -14,8 +15,8 @@ function App() {
 
     return <FillBox>
         <Toolbar>
-            <button onClick={switchTodo}>todo</button>
-            <button onClick={switchMail}>mail</button>
+            <button onClick={switchTodo}><List/> todo</button>
+            <button onClick={switchMail}><Mail/> mail</button>
         </Toolbar>
         {appcontent}
     </FillBox>
