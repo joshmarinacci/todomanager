@@ -166,29 +166,16 @@ am.registerActions({
 })
 
 am.registerKeys([
-    {
-        key: 'ArrowUp',
-        scope:'list',
-        action: 'move-selection-prev',
-    },
-    {
-        key:'ArrowUp',
-        shift:true,
-        scope: 'list',
-        action: 'extend-selection-prev',
-    },
-    {
-        key:'ArrowUp',
-        alt:true,
-        scope: 'items',
-        action: 'shift-selection-prev',
-    },
+    // list scope
+    {   action: 'move-selection-prev', key: 'ArrowUp',   scope:'list'  },
+    {   action: 'move-selection-next', key: 'ArrowDown', scope:'list'  },
+    {   key:'ArrowUp',   shift:true,   scope: 'list',  action: 'extend-selection-prev',  },
+    {   key:'ArrowUp',   alt:true,     scope: 'items',  action: 'shift-selection-prev',  },
+    {   action:'nav-lists',  key:'ArrowLeft',  scope:'list',  },
+    {   action:'nav-items',  scope:'list',  key:'ArrowRight', },
+    {   action:'find-item',  scope:'list',  key:'F',  control:true,  },
+    {   action: 'add-item-to-target-list',  scope:'list',  key: 'N',  control:true,  shift:true,  },
 
-    {
-        key: 'ArrowDown',
-        scope:'list',
-        action: 'move-selection-next',
-    },
     {
         key: 'ArrowDown',
         shift:true,
@@ -202,56 +189,19 @@ am.registerKeys([
         action: 'shift-selection-next',
     },
 
-    {
-        key:'ArrowLeft',
-        scope:'list',
-        action:'nav-lists'
-    },
 
-    {
-        key:'ArrowRight',
-        scope:'list',
-        action:'nav-items'
-    },
+    // item scope
+    {   action: 'edit-item',  key: 'Enter',   scope:'item',  },
+    // items scope
+    {   action:'delete-item',   key:'backspace',   scope:'items',  },
 
-
-    {
-        key: 'N',
-        control:true,
-        shift:true,
-        action: 'add-item-to-target-list',
-    },
-    {
-        key: 'Enter',
-        scope:'item',
-        action: 'edit-item',
-    },
-
-    {
-        key:'Escape',
-        scope:'search',
-        action:'exit-search',
-    },
-
-
+    // search scope
+    {  action:'exit-search',  scope:'search',  key:'Escape',  },
 
     //edit-item scope
     { action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
     { action: 'toggle-completed', key: 'period',  control:true,   scope: 'edit-item' },
     { action: 'toggle-today',     key:'t',  control:true,  shift:true,  scope:'edit-item',  },
-
-    {
-        key:'backspace',
-        scope:'items',
-        action:'delete-item',
-    },
-
-    {
-        key:'f',
-        scope:'list',
-        control:true,
-        action:'find-item'
-    }
 ])
 
 export const ActionContext = createContext(am)
