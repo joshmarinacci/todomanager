@@ -20,7 +20,7 @@ const ItemEditPanel = ({item, setEditing}) => {
     const editNotes = (e) => setProp('notes',e.target.value)
     const endEditing = () => setEditing(false)
 
-    const handlers = useActionScope('item',{
+    const handlers = useActionScope('edit-item',{
         'toggle-completed': toggleCompleted,
         'toggle-today': toggleToday,
         'exit-edit-item': endEditing,

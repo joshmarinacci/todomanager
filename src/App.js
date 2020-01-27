@@ -1,6 +1,6 @@
-import React, {useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import './App.css'
-import {FillBox, HBox, VBox} from './layout.js'
+import {FillBox, HBox, Toolbar, VBox} from './layout.js'
 import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
 import {QueryStorage, StorageContext} from './storage.js'
 import {ProjectsListView} from './projects.js'
@@ -42,6 +42,37 @@ storage.insert("items", {
     completed:false,
 })
 
+const SearchBox = ({searching, setSearching, setQuery}) => {
+    const [searchText, setSearchText] = useState("")
+    const searchBox = useRef()
+    const handlers = useActionScope('search',{
+        'exit-search': () => {
+            setSearchText("")
+            setSearching(false)
+        }
+    })
+    useEffect(()=>{
+        if(searching && searchBox.current) {
+            searchBox.current.focus()
+        }
+    },[searching])
+    const updateSearchText = (e) => {
+        const txt = e.target.value
+        setSearchText(txt)
+        if(txt.length > 0) {
+            setQuery(storage.createQuery('items',(it)=>it.title.includes(txt)))
+        } else {
+            setQuery(storage.createEmptyQuery())
+        }
+    }
+
+    return <>
+    <input type="search" ref={searchBox} placeholder={'search here'} value={searchText} onChange={updateSearchText}
+           onKeyDown={handlers.onKeyDown}
+    />
+        </>
+}
+
 function App() {
     const [selectedProject,setSelectedProject] = useState(good)
     const [focusedList, setFocusedList] = useState("lists")
@@ -57,21 +88,33 @@ function App() {
             setQuery(storage.createQuery('items',it=>it.project===project.id))
         }
     }
+    const [searching, setSearching] = useState(false)
+    const endSearching = () => {
+        changeSelectedProject(selectedProject)
+        setSearching(false)
+        setFocusedList("items")
+    }
     const handlers = useActionScope('list',{
         'nav-items': () => setFocusedList("items"),
         'nav-lists': () => setFocusedList("lists"),
+        'find-item': () => setSearching(true)
     })
     return <FillBox>
         <ActionContext.Provider value={AM}>
             <StorageContext.Provider value={storage}>
-                <HBox className={'grow stretch'} onKeyDown={handlers.onKeyDown}>
-                    <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject} focusedList={focusedList}/>
-                    <ItemsListView query={query} project={selectedProject} focused={focusedList}/>
-                    <VBox>
-                        <h3>Shortcuts</h3>
-                        <ShortcutsPanel/>
-                    </VBox>
-                </HBox>
+                <VBox>
+                    <Toolbar>
+                        <SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>
+                    </Toolbar>
+                    <HBox className={'grow stretch'} onKeyDown={handlers.onKeyDown}>
+                        <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject} focusedList={focusedList}/>
+                        <ItemsListView query={query} project={selectedProject} focused={focusedList}/>
+                        <VBox>
+                            <h3>Shortcuts</h3>
+                            <ShortcutsPanel/>
+                        </VBox>
+                    </HBox>
+                </VBox>
             </StorageContext.Provider>
         </ActionContext.Provider>
     </FillBox>

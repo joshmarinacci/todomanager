@@ -125,10 +125,11 @@ class ActionManager {
             return action
         }
     }
-    matchBinding(event) {
-        // console.log("key is",event)
+    matchBinding(event, scope) {
+        // console.log("key is",event.key,'scope is',scope)
         if(event.key === 'Control') return
         const binding = this.keysList.find(binding=> {
+            if(binding.scope !== scope) return false
             if(binding.key === event.key.toLowerCase()) {
                 if(binding.control && event.ctrlKey && binding.shift && event.shiftKey) return true
                 if(binding.control && event.ctrlKey) return true
@@ -225,31 +226,29 @@ am.registerKeys([
         scope:'item',
         action: 'edit-item',
     },
-    {
-        key:'Escape',
-        scope:'edit-item',
-        action:'exit-edit-item',
-    },
 
     {
-        key: 'period',
-        control:true,
-        action: 'toggle-completed',
+        key:'Escape',
+        scope:'search',
+        action:'exit-search',
     },
+
+
+
+    //edit-item scope
+    { action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
+    { action: 'toggle-completed', key: 'period',  control:true,   scope: 'edit-item' },
+    { action: 'toggle-today',     key:'t',  control:true,  shift:true,  scope:'edit-item',  },
+
     {
         key:'backspace',
         scope:'items',
         action:'delete-item',
     },
-    {
-        key:'t',
-        control:true,
-        shift:true,
-        action: 'toggle-today'
-    },
 
     {
         key:'f',
+        scope:'list',
         control:true,
         action:'find-item'
     }
@@ -274,12 +273,8 @@ export const AM = am
 export const useActionScope = (scope,actions)=>{
     const am = useContext(ActionContext)
     return {
-        onKeyPress:(e) => {
-            console.log("key was pressed")
-        },
         onKeyDown: (e) => {
-            // console.log("keydown",e.key)
-            const binding = am.matchBinding(e)
+            const binding = am.matchBinding(e,scope)
             // console.log("matched the binding",binding,'actions',actions)
             if(binding && actions[binding.action]) {
                 e.preventDefault()

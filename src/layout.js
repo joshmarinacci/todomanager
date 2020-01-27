@@ -10,6 +10,9 @@ export const VBox = ({children, className = "", ...rest}) => {
     return <div className={"vbox " + className} {...rest}>{children}</div>
 }
 export const Spacer = () => <span className="grow"/>
+export const Toolbar = ({children, className = "", ...rest}) => {
+    return <div className={"toolbar " + className} {...rest}>{children}</div>
+}
 
 
 export function makeClassNames(map) {
