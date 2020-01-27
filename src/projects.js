@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useRef, useState} from 'react'
 import {StorageContext, useQuery} from './storage.js'
 import {useActionScope} from './actions.js'
 import {makeClassNames} from './layout.js'
+import {Star, Trash, Trash2, CheckSquare} from "react-feather"
 
 const ProjectItemView = ({selectedProject, setSelectedProject, project, listFocused})=> {
     const hbox = useRef()
@@ -13,12 +14,15 @@ const ProjectItemView = ({selectedProject, setSelectedProject, project, listFocu
         hbox:true,
         'project-item':true,
     })
+    let icon = <CheckSquare/>
+    if(project.special && project.title === 'today')  icon = <Star/>
+    if(project.special && project.title === 'trash')  icon = <Trash2/>
     return <div ref={hbox} tabIndex={0} className={cls} key={project.id}
                 onClick={()=>{
                     setSelectedProject(project)
                     hbox.current.focus()
                 }}
-    >{project.title}</div>
+    > {icon} <b className={"title"}>{project.title}</b></div>
 }
 
 export const ProjectsListView = ({selectedProject, setSelectedProject, focusedList})=> {

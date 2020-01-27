@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useRef, useState} from 'react'
 import {ActionContext, useActionScope} from './actions.js'
 import {HBox, makeClassNames, PopupButton, Spacer, VBox} from './layout.js'
 import {StorageContext, useObjectUpdate, useQuery} from './storage.js'
+import {Star} from 'react-feather'
 
 const getProjectTitle = (storage,item) => {
     const proj = storage.find('projects',(proj)=>proj.id===item.project)
@@ -96,9 +97,9 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
 }
 const TodayIndicator = ({item})=>{
     if(item.today) {
-        return <b>[*]</b>
+        return <Star size={16}/>
     } else {
-        return <b>[ ]</b>
+        return <b className={'empty-icon'}></b>
     }
 }
 const TodoItemView = ({setSelected, isSelected, item, listFocused})=>{
