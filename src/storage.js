@@ -40,6 +40,11 @@ export class QueryStorage {
             })
         })
     }
+    clear() {
+        return this.lf.clear().then(()=>{
+            this.empty = true
+        })
+    }
     isEmpty() { return this.empty}
 
     save() {

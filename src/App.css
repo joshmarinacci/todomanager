@@ -1,6 +1,7 @@
 .fillbox {
   display: flex;
   border:0px solid red;
+  flex-direction: column;
   position:fixed;
   top:0;
   left:0;
@@ -175,6 +176,7 @@ ul > li > ul > li {
   height: 2rem;
   align-items: center;
 }
+
 .toolbar input[type='search'] {
   border: 1px solid #444;
   border-radius: 0.25rem;

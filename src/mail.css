@@ -1,0 +1,22 @@
+.folders-list-view {
+    min-width: 10rem;
+    border-right: 1px solid black;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+.mails-list-view {
+    min-width: 25rem;
+    max-width: 25rem;
+    border-right: 1px solid black;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+.reading-mail-view {
+    border-right: 1px solid black;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    min-width: 40rem;
+}
+
