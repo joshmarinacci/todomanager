@@ -57,6 +57,7 @@ const ItemEditPanel = ({item, setEditing}) => {
         </HBox>
     </div>
 }
+
 const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=>{
     const hbox = useRef()
     const storage = useContext(StorageContext)
@@ -73,6 +74,7 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
 
     useEffect(()=>{
         if(listFocused && isSelected && hbox.current) {
+            console.log("changing the focus")
             hbox.current.focus()
         }
     },[listFocused, isSelected])
@@ -116,12 +118,17 @@ export const ItemsListView = ({query, project, focused}) => {
     const [items] = useQuery(query)
     const [sel, setSel] = useState(items[0])
     useEffect(()=>{
+        console.log("changing the local selection",items,query)
         if(items.length > 0) {
             setSel(items[0])
         } else {
             setSel(null)
         }
-    },[items,project,query,focused])
+    },[project,query,focused])
+    const addItem = () => {
+        const item = am.getAction("add-item-to-target-list")(storage,project)
+        setSel(item)
+    }
     const handlers = useActionScope('list',{
         'move-selection-prev':()=>{
             const index = items.indexOf(sel)
@@ -131,9 +138,7 @@ export const ItemsListView = ({query, project, focused}) => {
             const index = items.indexOf(sel)
             if(index < items.length-1) setSel(items[index+1])
         },
-        'add-item-to-target-list':(am)=>{
-            am.getAction('add-item-to-target-list')(storage,project)
-        },
+        'add-item-to-target-list':addItem,
     })
     const am = useContext(ActionContext)
     const isFocused = (focused==='items')
@@ -152,9 +157,7 @@ export const ItemsListView = ({query, project, focused}) => {
             listFocused={isFocused}
         />)}
         <HBox>
-            <button
-                onClick={()=>am.getAction("add-item-to-target-list")(storage,project)}
-            >add</button>
+            <button onClick={addItem}>add</button>
         </HBox>
     </VBox>
 }

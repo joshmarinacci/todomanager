@@ -156,19 +156,22 @@ am.registerActions({
         if(index < items.length -1) onSelect(items[index+1])
     },
     'add-item-to-target-list': (storage,project) => {
-        console.log("inserting into the project",project)
-        storage.insert('items', {
+        return storage.insert('items', {
             title: 'empty item',
             tags: [],
-            project:project.id
+            project:project.id,
+            completed:false,
+            today:false,
+            notes:"",
+            deleted:false,
         })
     }
 })
 
 am.registerKeys([
     // list scope
-    {   action: 'move-selection-prev', key: 'ArrowUp',   scope:'list'  },
-    {   action: 'move-selection-next', key: 'ArrowDown', scope:'list'  },
+    {   action: 'move-selection-prev', key: 'ArrowUp',   scope:'list' },
+    {   action: 'move-selection-next', key: 'ArrowDown', scope:'list' },
     {   key:'ArrowUp',   shift:true,   scope: 'list',  action: 'extend-selection-prev',  },
     {   key:'ArrowUp',   alt:true,     scope: 'items',  action: 'shift-selection-prev',  },
     {   action:'nav-lists',  key:'ArrowLeft',  scope:'list',  },
@@ -192,6 +195,9 @@ am.registerKeys([
 
     // item scope
     {   action: 'edit-item',  key: 'Enter',   scope:'item',  },
+    {   action: 'toggle-completed', key: 'period',  control:true,   scope: 'item' },
+    {   action: 'toggle-today',     key:'t',  control:true,  shift:true,  scope:'item',  },
+
     // items scope
     {   action:'delete-item',   key:'backspace',   scope:'items',  },
 
