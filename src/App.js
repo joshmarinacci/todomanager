@@ -5,7 +5,6 @@ import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
 import {QueryStorage, StorageContext} from './storage.js'
 import {ProjectsListView} from './projects.js'
 import {ItemsListView} from './items.js'
-import {Save, File, Folder, Download, Upload, ZoomIn, ZoomOut, Settings, RotateCcw, RotateCw} from "react-feather"
 
 
 const storage = new QueryStorage()
