@@ -21,6 +21,7 @@ const ItemEditPanel = ({item, setEditing}) => {
 
     const handlers = useActionScope('item',{
         'toggle-completed': toggleCompleted,
+        'toggle-today': toggleToday,
         'exit-edit-item': endEditing,
     })
 
@@ -35,7 +36,9 @@ const ItemEditPanel = ({item, setEditing}) => {
     return <div className={"edit-panel"} onKeyDown={handlers.onKeyDown}>
         <HBox>
             <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
-            <input type="text" value={item.title} className="grow" onChange={editTitle} ref={title}/>
+            <input type="text" value={item.title} className="grow" onChange={editTitle} ref={title} onKeyDown={(e)=>{
+                if(e.key === 'Enter') endEditing()
+            }}/>
         </HBox>
         <HBox>
             <textarea className={"grow"} value={item.notes} onChange={editNotes}/>
@@ -58,8 +61,10 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
     const storage = useContext(StorageContext)
     const [setProp] = useObjectUpdate(storage,'items',item)
     const toggleCompleted = () => setProp('completed',!item.completed)
+    const toggleToday = () => setProp('today',!item.today)
     const handlers = useActionScope('item',{
         'toggle-completed': toggleCompleted,
+        'toggle-today': toggleToday,
         'edit-item': ()=>  setEditing(true),
         'exit-edit-item': ()=>setEditing(false),
         'delete-item':()=> setProp('deleted',!item.deleted),

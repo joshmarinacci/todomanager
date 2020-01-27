@@ -129,6 +129,7 @@ class ActionManager {
         if(event.key === 'Control') return
         const binding = this.keysList.find(binding=> {
             if(binding.key === event.key.toLowerCase()) {
+                if(binding.control && event.ctrlKey && binding.shift && event.shiftKey) return true
                 if(binding.control && event.ctrlKey) return true
                 if(!binding.control && !event.ctrlKey) return true
                 return false
@@ -239,6 +240,12 @@ am.registerKeys([
         key:'backspace',
         scope:'items',
         action:'delete-item',
+    },
+    {
+        key:'t',
+        control:true,
+        shift:true,
+        action: 'toggle-today'
     },
 
     {
