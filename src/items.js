@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {ActionContext, useActionScope} from './actions.js'
-import {HBox, makeClassNames, Spacer, VBox} from './layout.js'
+import {HBox, makeClassNames, PopupButton, Spacer, VBox} from './layout.js'
 import {StorageContext, useObjectUpdate, useQuery} from './storage.js'
 
 const getProjectTitle = (storage,item) => {
@@ -24,6 +24,9 @@ const ItemEditPanel = ({item, setEditing}) => {
         'exit-edit-item': endEditing,
     })
 
+    const [projects] = useState(()=> storage.createQuery('projects',(p)=>!p.special))
+
+
     //focus when first opening
     useEffect(()=>{
         if(title.current) title.current.focus()
@@ -40,7 +43,11 @@ const ItemEditPanel = ({item, setEditing}) => {
         <HBox>
             <label>today</label>
             <input type={'checkbox'} checked={item.today} onChange={toggleToday}/>
-            <button>{getProjectTitle(storage,item)}</button>
+            <PopupButton
+                getItems={()=> projects.results()}
+                stringify={(item)=>item.title}
+                itemSelected={(item)=> setProp('project',item.id)}
+            >{getProjectTitle(storage,item)}</PopupButton>
             <Spacer/>
             <button onClick={endEditing}>done</button>
         </HBox>

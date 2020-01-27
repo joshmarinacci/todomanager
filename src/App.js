@@ -42,12 +42,6 @@ storage.insert("items", {
     completed:false,
 })
 
-
-
-
-
-
-
 function App() {
     const [selectedProject,setSelectedProject] = useState(good)
     const [focusedList, setFocusedList] = useState("lists")
