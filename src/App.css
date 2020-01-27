@@ -61,6 +61,7 @@ button.primary {
 
 ul.shortcuts {
   list-style: none;
+  min-width: 20em;
 }
 ul > li {
   border:0px solid red;
@@ -147,4 +148,8 @@ ul > li > ul > li {
 }
 .popup-wrapper li:hover {
   background: aqua;
+}
+
+.scroll {
+  overflow: auto;
 }

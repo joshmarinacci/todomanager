@@ -94,6 +94,7 @@ class ActionManager {
             if(!map[binding.action]) map[binding.action] = []
             let str = binding.key
             if(binding.control) str = 'ctrl+'+str
+            if(binding.shift) str = 'shift+'+str
             map[binding.action].push(str)
         })
         const arr = []
@@ -139,8 +140,7 @@ class ActionManager {
         return binding
     }
     getAction(str) {
-        const action = this.actionsMap[str]
-        return action
+        return this.actionsMap[str]
     }
 }
 
@@ -259,7 +259,7 @@ export const ActionContext = createContext(am)
 
 export const ShortcutsPanel = () => {
     const am = useContext(ActionContext)
-    return <ul className={'grow shortcuts'}>{am.getShortcuts().map((sc, i) => {
+    return <ul className={'grow shortcuts scroll'}>{am.getShortcuts().map((sc, i) => {
         return <li key={i}>{sc.name}
             <ul>{sc.keys.map((key, i)=>{
                 return <li key={i}>{key.toString()}</li>
