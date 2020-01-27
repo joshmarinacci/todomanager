@@ -93,7 +93,8 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
         <TodayIndicator item={item}/>
         <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
         <VBox>
-            <b>{item.title}
+            <b>
+                <span className={'title'}>{item.title}</span>
                 <NotesIndicator item={item}/>
             </b>
             <i>{getProjectTitle(storage,item)}</i>
