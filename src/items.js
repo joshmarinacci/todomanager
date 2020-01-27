@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useRef, useState} from 'react'
 import {ActionContext, useActionScope} from './actions.js'
 import {HBox, makeClassNames, PopupButton, Spacer, VBox} from './layout.js'
 import {StorageContext, useObjectUpdate, useQuery} from './storage.js'
-import {Star} from 'react-feather'
+import {Star, File} from 'react-feather'
 
 const getProjectTitle = (storage,item) => {
     const proj = storage.find('projects',(proj)=>proj.id===item.project)
@@ -74,7 +74,6 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
 
     useEffect(()=>{
         if(listFocused && isSelected && hbox.current) {
-            console.log("changing the focus")
             hbox.current.focus()
         }
     },[listFocused, isSelected])
@@ -91,15 +90,27 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
                 onClick={() => setSelected(item)}
                 onDoubleClick={()=>setEditing(true)}
     >
-        <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
         <TodayIndicator item={item}/>
-        <b>{item.title}</b>
-        <i>{getProjectTitle(storage,item)}</i>
+        <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
+        <VBox>
+            <b>{item.title}
+                <NotesIndicator item={item}/>
+            </b>
+            <i>{getProjectTitle(storage,item)}</i>
+        </VBox>
     </div>
 }
 const TodayIndicator = ({item})=>{
     if(item.today) {
         return <Star size={16}/>
+    } else {
+        return <b className={'empty-icon'}></b>
+    }
+}
+
+const NotesIndicator = ({item})=>{
+    if(item.notes) {
+        return <span className={"notes-indicator"}><File size={12}/></span>
     } else {
         return <b className={'empty-icon'}></b>
     }
@@ -118,7 +129,6 @@ export const ItemsListView = ({query, project, focused}) => {
     const [items] = useQuery(query)
     const [sel, setSel] = useState(items[0])
     useEffect(()=>{
-        console.log("changing the local selection",items,query)
         if(items.length > 0) {
             setSel(items[0])
         } else {

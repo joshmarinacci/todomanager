@@ -126,7 +126,7 @@ class ActionManager {
         }
     }
     matchBinding(event, scope) {
-        console.log(`scope ${scope} key ${event.key} alt=${event.altKey} shift=${event.shiftKey} ctrl=${event.ctrlKey}`)
+        // console.log(`scope ${scope} key ${event.key} alt=${event.altKey} shift=${event.shiftKey} ctrl=${event.ctrlKey}`)
         if(event.key === 'Control') return
         const binding = this.keysList.find(binding=> {
             if(binding.scope !== scope) return false
@@ -195,9 +195,10 @@ am.registerKeys([
 
     // item scope
     {   action: 'edit-item',        key: 'Enter',   scope:'item',  },
-    {   action: 'toggle-completed', key: 'period',  control:true,   scope: 'item' },
-    {   action: 'toggle-today',     key:'t',  control:true,  shift:true,  scope:'item',  },
-    {   action: 'toggle-today',     scope:'item', key:'t',  alt:true },
+    {   action: 'toggle-completed', scope:'item', key: 'period',  control:true},
+    {   action: 'toggle-completed', scope: 'item', key: 'period',  alt:true },
+    {   action: 'toggle-today',     scope: 'item', key:'t',  control:true,  shift:true },
+    {   action: 'toggle-today',     scope:'item',  key:'t',  alt:true },
     {   action: 'delete-item',      scope:'item',  key:'backspace' },
 
     // search scope
