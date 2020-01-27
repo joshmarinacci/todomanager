@@ -157,6 +157,15 @@ export const ItemsListView = ({query, project, focused}) => {
         'items-view':true,
         'focused':isFocused,
     })
+    let emptyTrash = ""
+    const emptyTrashAction = () => {
+        storage.delete('items',(it)=>it.deleted)
+    }
+    let addButton = <button onClick={addItem}>add</button>
+    if(project && project.special && project.title === 'trash') {
+        emptyTrash = <button onClick={emptyTrashAction}>empty</button>
+        addButton = ""
+    }
     return <VBox className={cls}
                  onKeyDown={handlers.onKeyDown}>
         {items.map(item => <TodoItemView
@@ -167,7 +176,8 @@ export const ItemsListView = ({query, project, focused}) => {
             listFocused={isFocused}
         />)}
         <HBox>
-            <button onClick={addItem}>add</button>
+            {emptyTrash}
+            {addButton}
         </HBox>
     </VBox>
 }
