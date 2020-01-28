@@ -16,10 +16,10 @@ folder list
     nav with arrows
 mail list
     changes query based on selected folder
-    nav with arrows
-    nav with j and k
-    delete key deletes the currently selected email
-    x deletes email
+    //nav with arrows
+    //nav with j and k
+    //delete key deletes the currently selected email
+    //x deletes email
     a archives email
     enter shifts focus to the reader view so we can scroll it
 
@@ -114,7 +114,9 @@ function FoldersListView({}){
 
 function MailsListView({setMail,selectedMail}) {
     const storage = useContext(StorageContext)
-    const [q] = useState(()=>storage.createQuery('mails',()=>true))
+    const [q] = useState(()=>{
+        return storage.createQuery('mails',(m)=>!m.deleted&&!m.archived)
+    })
     const [mails] = useQuery(q)
     const selectMail = (mail) => setMail(mail)
     const handlers = useActionScope('list',{
@@ -160,7 +162,8 @@ function MailItemView({mail, selectedMail, selectMail}) {
         selectMail(mail)
     }
     const handlers = useActionScope('list',{
-        'delete-selected-emails':()=>setProp('deleted',true)
+        'delete-selected-emails':()=>setProp('deleted',true),
+        'archive-selected-emails':()=>setProp('archived',true),
     })
     const hbox = useRef()
     useEffect(()=>{
@@ -256,7 +259,7 @@ export const MailApp = ({})=> {
         },
         {
             action:'move-selection-prev',
-            key:'j',
+            key:'k',
             scope:'list',
         },
         {
@@ -266,7 +269,17 @@ export const MailApp = ({})=> {
         },
         {
             action:'move-selection-next',
-            key:'k',
+            key:'j',
+            scope:'list',
+        },
+        {
+            action:'archive-selected-emails',
+            key:'a',
+            scope:'list',
+        },
+        {
+            action:'reply',
+            key:'r',
             scope:'list',
         }
     ])
