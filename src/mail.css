@@ -27,6 +27,14 @@
     font-size: 90%;
 }
 
+.mail {
+    font-weight: bold;
+}
+.mail.read  {
+    font-weight: normal;
+}
+
+
 
 .reading-mail-view {
     border-right: 1px solid black;

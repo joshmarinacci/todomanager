@@ -3,9 +3,9 @@
 next for the mail app:
 
 data:
-    * get lib to generate fake emails. one new email every time you press a 'fake' button in the status bar
-    * archived boolean. means it doesn't show up in any folder, but it is in the archive and can be searched
-    * read boolean. if unread use a brighter color of text
+    //* get lib to generate fake emails. one new email every time you press a 'fake' button in the status bar
+    //* archived boolean. means it doesn't show up in any folder, but it is in the archive and can be searched
+    //* read boolean. if unread use a brighter color of text
 
 general
     * make Spacer work in toolbars
@@ -45,7 +45,7 @@ reader view
 import {QueryStorage, StorageContext, useQuery} from './storage.js'
 import {ActionContext, AM, ShortcutsPanel} from './actions.js'
 import React, {useContext, useState} from 'react'
-import {HBox, Spacer, Toolbar, VBox} from './layout.js'
+import {HBox, makeClassNames, Spacer, Toolbar, VBox} from './layout.js'
 import {Folder,Inbox, Trash2, CornerUpLeft, Archive, ArrowRight, FileText, Layout, AlertOctagon} from "react-feather"
 import "./mail.css"
 import * as faker from "faker"
@@ -119,9 +119,13 @@ function MailsListView({setMail,selectedMail}) {
     const selectMail = (mail) => setMail(mail)
     return <VBox className={'mails-list-view'}>
         {mails.map(mail => {
-            let selected = (mail===selectedMail)
+            let css = makeClassNames({
+                mail:true,
+                selected:mail===selectedMail,
+                read:mail.read
+            })
             return <HBox key={mail.id}
-                         className={(selected?"selected":"")+" mail"}
+                         className={css}
                          onClick={()=>selectMail(mail)}>
                 <VBox className={'grow'}>
                     <b className={'sender'}>{mail.sender}</b>
