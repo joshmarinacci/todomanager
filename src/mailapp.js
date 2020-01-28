@@ -32,9 +32,9 @@ new mail button
     //alt N makes a new email. if already composing then make a new one in a tab.
 
 reply button
-    * creates a new mail document in the drafts folder, populated w/ the email we are replying to
-    * set composing to true
-    * the rest of the compose things
+    * //creates a new mail document in the drafts folder, populated w/ the email we are replying to
+    * //set composing to true
+    * //the rest of the compose things
 
 forward dialog
     drop down of names to forward to. then send it
@@ -53,6 +53,7 @@ import * as faker from "faker"
 const MailAppContent = () => {
     const storage = useContext(StorageContext)
     const [mail,setMail] = useState(null)
+    const [folder, setFolder] = useState(null)
     const generateFakeEmail = () => {
         storage.insert('mails',{
             sender: faker.name.firstName(),
@@ -123,8 +124,8 @@ const MailAppContent = () => {
             <button onClick={generateFakeEmail}><AlertOctagon/> fake</button>
         </Toolbar>
         <HBox className={'grow stretch'}>
-            <FoldersListView/>
-            <MailsListView setMail={setMail} selectedMail={mail}/>
+            <FoldersListView selectedFolder={folder} setFolder={setFolder}/>
+            <MailsListView setMail={setMail} selectedMail={mail} selectedFolder={folder}/>
             {mainView}
             <VBox>
                 <h3>Shortcuts</h3>
@@ -142,13 +143,17 @@ function FolderIcon({folder}) {
 
     return <Folder/>
 }
-function FoldersListView({}){
+
+function FoldersListView({selectedFolder, setFolder}){
     const storage = useContext(StorageContext)
     const [afq] = useState(()=>storage.createQuery('folders',f => true))
     const [folders] = useQuery(afq)
     return <VBox className={'folders-list-view'}>
         {folders.map(folder => {
-            return <HBox key={folder.id}>
+            const css = makeClassNames({
+                selected:selectedFolder===folder,
+            })
+            return <HBox className={css} key={folder.id} onClick={()=>setFolder(folder)}>
                 <FolderIcon folder={folder}/>
                 <b>{folder.title}</b>
             </HBox>
@@ -156,11 +161,25 @@ function FoldersListView({}){
     </VBox>
 }
 
-function MailsListView({setMail,selectedMail}) {
+function MailsListView({setMail,selectedMail,selectedFolder}) {
     const storage = useContext(StorageContext)
-    const [q] = useState(()=>{
+    const [q,setQ] = useState(()=>{
         return storage.createQuery('mails',(m)=>!m.deleted&&!m.archived &&m.folder==='inbox')
     })
+    useEffect(()=>{
+        if(selectedFolder) {
+            if(selectedFolder.title === 'trash') {
+                return setQ(storage.createQuery('mails',m=>m.deleted === true))
+            }
+            if(selectedFolder.title === 'archived') {
+                return setQ(storage.createQuery('mails',m=>m.archived === true))
+            }
+            setQ(storage.createQuery('mails', m => (m.folder === selectedFolder.title
+                && !m.deleted
+                && !m.archived
+            )))
+        }
+    },[selectedFolder])
     const [mails] = useQuery(q)
     const selectMail = (mail) => setMail(mail)
     const handlers = useActionScope('list',{
@@ -208,6 +227,9 @@ function MailItemView({mail, selectedMail, selectMail}) {
     const handlers = useActionScope('list',{
         'delete-selected-emails':()=>setProp('deleted',true),
         'archive-selected-emails':()=>setProp('archived',true),
+        'reply':()=>{
+            console.log("replying to this mail")
+        }
     })
     const hbox = useRef()
     useEffect(()=>{
@@ -287,6 +309,7 @@ function ComposingMailView({mail, done}) {
         </HBox>
     </VBox>
 }
+
 export const MailApp = ({})=> {
     function makeInitialData() {
         function makeFolder(title) {
@@ -358,11 +381,7 @@ export const MailApp = ({})=> {
             key:'a',
             scope:'list',
         },
-        {
-            action:'reply',
-            key:'r',
-            scope:'list',
-        },
+        {   action:'reply', key:'r', scope:'list',  },
 
         //compose scope
         { action:'send-mail', scope:'compose', key:'d', alt:true},
