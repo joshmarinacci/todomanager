@@ -42,7 +42,7 @@ forward dialog
 reader view
     make delete, archive, and forward keys work
  */
-import {QueryStorage, StorageContext, useQuery} from './storage.js'
+import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from './storage.js'
 import {ActionContext, AM, ShortcutsPanel} from './actions.js'
 import React, {useContext, useState} from 'react'
 import {HBox, makeClassNames, Spacer, Toolbar, VBox} from './layout.js'
@@ -119,22 +119,35 @@ function MailsListView({setMail,selectedMail}) {
     const selectMail = (mail) => setMail(mail)
     return <VBox className={'mails-list-view'}>
         {mails.map(mail => {
-            let css = makeClassNames({
-                mail:true,
-                selected:mail===selectedMail,
-                read:mail.read
-            })
-            return <HBox key={mail.id}
-                         className={css}
-                         onClick={()=>selectMail(mail)}>
-                <VBox className={'grow'}>
-                    <b className={'sender'}>{mail.sender}</b>
-                    <b className={'subject'}>{mail.subject}</b>
-                </VBox>
-                <b className={'timestamp'}>{new Date(mail.timestamp).toLocaleTimeString()}</b>
-            </HBox>
+            return <MailItemView key={mail.id}
+                                 mail={mail}
+                                 selectedMail={selectedMail}
+                                 selectMail={selectMail}
+            />
         })}
     </VBox>
+}
+
+function MailItemView({mail, selectedMail, selectMail}) {
+    const storage = useContext(StorageContext)
+    const [setProp] = useObjectUpdate(storage,'mails',mail)
+    let css = makeClassNames({
+        mail:true,
+        selected:mail===selectedMail,
+        read:mail.read
+    })
+    return <HBox
+                 className={css}
+                 onClick={()=>{
+                     setProp('read',true)
+                     selectMail(mail)
+                 }}>
+        <VBox className={'grow'}>
+            <b className={'sender'}>{mail.sender}</b>
+            <b className={'subject'}>{mail.subject}</b>
+        </VBox>
+        <b className={'timestamp'}>{new Date(mail.timestamp).toLocaleTimeString()}</b>
+    </HBox>
 }
 
 function formatTimestamp(timestamp) {
