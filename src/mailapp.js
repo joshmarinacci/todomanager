@@ -231,6 +231,9 @@ function MoveMailPopup({mail}) {
         pm.hide()
     }
     return <GenericListView
+        style={{
+            minWidth:'10rem'
+        }}
         query={q}
         ItemTemplate={PopupFolderItem}
         selectedItem={selFolder}

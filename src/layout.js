@@ -79,7 +79,6 @@ export function PopupContainer(){
     const [domTarget, setDomTarget] = useState(null)
     useEffect(()=>{
         const h = (pm) => {
-            console.log("pm. should we show?",pm.visible)
             setVisible(pm.visible)
             setContent(pm.content)
             setDomTarget(pm.target)
@@ -102,7 +101,7 @@ export function PopupContainer(){
         console.log(bounds)
 
     }
-    return <div style={style} className={css}>for the popups {content} </div>
+    return <div style={style} className={css}>{content}</div>
 }
 
 function GenericListItemView({
@@ -137,6 +136,7 @@ function GenericListItemView({
 
 export function GenericListView({
                              className,
+                             style,
                              query,
                              ItemTemplate,
                              selectedItem,
@@ -164,7 +164,7 @@ export function GenericListView({
         },
         ...actionHandlers
     })
-    return <div className={'scroll-wrapper'}>
+    return <div className={'scroll-wrapper'} style={style}>
         <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
             {data.map((item, i) => {
                 return <GenericListItemView
