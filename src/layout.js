@@ -110,7 +110,8 @@ function GenericListItemView({
                                  selectedItem,
                                  setSelectedItem,
                                  ItemTemplate,
-                                 ItemClassName
+                                 ItemClassName,
+                                 ItemProps,
                              }) {
 
     const isSelected = item === selectedItem
@@ -130,7 +131,7 @@ function GenericListItemView({
         onClick={() => setSelectedItem(item)}
         tabIndex={0}
     >
-        <ItemTemplate item={item}/>
+        <ItemTemplate item={item} {...ItemProps}/>
     </div>
 }
 
@@ -140,7 +141,9 @@ export function GenericListView({
                              ItemTemplate,
                              selectedItem,
                              setSelectedItem,
-                             ItemClassName
+                             ItemClassName,
+    ItemProps,
+    actionHandlers,
                          }) {
     const [data] = useQuery(query)
     const css = makeClassNames({
@@ -158,7 +161,8 @@ export function GenericListView({
             if (index < data.length - 1) {
                 setSelectedItem(data[index + 1])
             }
-        }
+        },
+        ...actionHandlers
     })
     return <div className={'scroll-wrapper'}>
         <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
@@ -169,6 +173,7 @@ export function GenericListView({
                     setSelectedItem={setSelectedItem}
                     ItemTemplate={ItemTemplate}
                     ItemClassName={ItemClassName}
+                    ItemProps={ItemProps}
                     selectedItem={selectedItem}
                 />
             })}

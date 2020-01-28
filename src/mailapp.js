@@ -2,53 +2,38 @@
 
 next for the mail app:
 
-data:
-    // get lib to generate fake emails. one new email every time you press a 'fake' button in the status bar
-    // archived boolean. means it doesn't show up in any folder, but it is in the archive and can be searched
-    // read boolean. if unread use a brighter color of text
+focus manager
+    only let one stack have focus at a time
+    enter on mail item shifts focus to the reader view so we can scroll it
+    composing an email shifts focus to the composer view
+    track the previous focus so we can return to it
 
-general
-    // make Spacer work in toolbars
-    // vertically center icons and text in toolbars
+fm.requestFocus(ref)
+    //warns if no tab index?
+    //makes ref have the focus. puts onto focus stack
+fm.releaseFocus(ref)
+    //returns focus to the previous owner
+    //pops off the focus stack
+fm.replaceFocus(ref)
+    //gets focus
+    //replaces current item in the focus stack
 
-folder list
-    // select folder by clicking
-    --nav with arrows
-mail list
-    //changes query based on selected folder
-    //nav with arrows
-    //nav with j and k
-    //delete key deletes the currently selected email
-    //x deletes email
-    //a archives email
-    enter shifts focus to the reader view so we can scroll it
+need a sense of the master focus, which is a parent component
+don't steal focus if you aren't the master focus
 
-new mail button
-    //create new mail document in the drafts folder
-    //set composing to true
-    //change read view to compose view, show the draft message
-    //compose view has a 'save for later' and 'send now' button at the bottom
-    // command D sends it
-    //alt N makes a new email. if already composing then make a new one in a tab.
-
-reply button
-    * //creates a new mail document in the drafts folder, populated w/ the email we are replying to
-    * //set composing to true
-    * //the rest of the compose things
+use a FocusContext
+request if your FC has the current focus
+if not, then don't request the focus
 
 forward dialog
-    drop down of names to forward to. then send it
-
-reader view
-    make delete, archive, and forward keys work
-
+    drop down of names to forward to. then send it. email is in
+    separate pane so you can add notes above it
+    disappears then releases focus
 
 move popup
-    make popup folder list keyboard nav work. reuse some bindings?
+    use generic list view
     press enter to choose the folder, dismiss, then move
-    press escape to escape
-
-
+    press escape to escape and return focus to previous
 
  */
 import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from './storage.js'
@@ -229,39 +214,35 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
     </div>
 }
 
+function PopupFolderItem({item, moveMail}) {
+    return <span onClick={moveMail}>{item.title}</span>
+}
 function MoveMailPopup({mail}) {
     const storage = useContext(StorageContext)
     const [q] = useState(() => storage.createQuery('folders', f => !f.special))
     const [folders] = useQuery(q)
     const [selFolder, setSelFolder] = useState(folders[0])
     const pm = useContext(PopupContext)
-    console.log("folders are", folders)
-    const handlers = useActionScope('popup-list', {
-        'move-selection-prev': () => {
-            const index = folders.indexOf(selFolder)
-            if (index > 0) {
-                setSelFolder(folders[index - 1])
-            }
-        },
-        'move-selection-next': () => {
-            const index = folders.indexOf(selFolder)
-            if (index < folders.length - 1) {
-                setSelFolder(folders[index + 1])
-            }
-        },
-        'exit': () => pm.hide()
-    })
-    const popup = useRef()
-    useEffect(() => {
-        console.log("current is", popup.current)
-        if (popup.current) popup.current.focus()
-    }, [popup.current])
-    return <ul ref={popup} className={"popup-list"} onKeyDown={handlers.onKeyDown} tabIndex={0}>
-        {folders.map(f => {
-            const css = makeClassNames({selected: selFolder === f})
-            return <li className={css} key={f.id}>{f.title}</li>
-        })}
-    </ul>
+    const moveMail = () => {
+        console.log('moving',mail,'to',selFolder)
+        pm.hide()
+    }
+    const exit = () => {
+        pm.hide()
+    }
+    return <GenericListView
+        query={q}
+        ItemTemplate={PopupFolderItem}
+        selectedItem={selFolder}
+        setSelectedItem={setSelFolder}
+        actionHandlers={{
+            'move-mail':moveMail,
+            'exit':exit,
+        }}
+        ItemProps={{
+            moveMail:moveMail
+        }}
+        />
 }
 
 function MailItemView({item}) {
@@ -409,7 +390,8 @@ export const MailApp = ({}) => {
         {action: 'reply', scope: 'global', key: 'r', alt: true},
 
         // popup-list scope
-        {action: 'exit', scope: 'popup-list', key: 'escape'}
+        {action: 'exit', scope: 'list', key: 'escape'},
+        {action: 'move-mail', scope:'list', key:'enter'},
     ])
     const PM = new PopupManager()
     return <ActionContext.Provider value={AM}>
