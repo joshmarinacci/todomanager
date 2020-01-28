@@ -33,6 +33,9 @@
 .mail.read  {
     font-weight: normal;
 }
+.mail.deleted {
+    text-decoration: line-through;
+}
 
 
 

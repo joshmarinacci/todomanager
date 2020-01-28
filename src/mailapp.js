@@ -43,8 +43,8 @@ reader view
     make delete, archive, and forward keys work
  */
 import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from './storage.js'
-import {ActionContext, AM, ShortcutsPanel} from './actions.js'
-import React, {useContext, useState} from 'react'
+import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import {HBox, makeClassNames, Spacer, Toolbar, VBox} from './layout.js'
 import {Folder,Inbox, Trash2, CornerUpLeft, Archive, ArrowRight, FileText, Layout, AlertOctagon} from "react-feather"
 import "./mail.css"
@@ -117,7 +117,23 @@ function MailsListView({setMail,selectedMail}) {
     const [q] = useState(()=>storage.createQuery('mails',()=>true))
     const [mails] = useQuery(q)
     const selectMail = (mail) => setMail(mail)
-    return <VBox className={'mails-list-view'}>
+    const handlers = useActionScope('list',{
+        'move-selection-prev':()=>{
+            const index = mails.indexOf(selectedMail)
+            if(index > 0) {
+                selectMail(mails[index-1])
+            }
+        },
+        'move-selection-next':()=>{
+            const index = mails.indexOf(selectedMail)
+            if(index < mails.length-1) {
+                selectMail(mails[index+1])
+            }
+        }
+    })
+    return <VBox className={'mails-list-view'}
+                 onKeyDown={handlers.onKeyDown}>
+        <div className={'scroll'}>
         {mails.map(mail => {
             return <MailItemView key={mail.id}
                                  mail={mail}
@@ -125,6 +141,7 @@ function MailsListView({setMail,selectedMail}) {
                                  selectMail={selectMail}
             />
         })}
+        </div>
     </VBox>
 }
 
@@ -133,21 +150,33 @@ function MailItemView({mail, selectedMail, selectMail}) {
     const [setProp] = useObjectUpdate(storage,'mails',mail)
     let css = makeClassNames({
         mail:true,
+        hbox:true,
         selected:mail===selectedMail,
+        deleted:mail.deleted,
         read:mail.read
     })
-    return <HBox
-                 className={css}
-                 onClick={()=>{
-                     setProp('read',true)
-                     selectMail(mail)
-                 }}>
+    const clickedMail = () => {
+        setProp('read',true)
+        selectMail(mail)
+    }
+    const handlers = useActionScope('list',{
+        'delete-selected-emails':()=>setProp('deleted',true)
+    })
+    const hbox = useRef()
+    useEffect(()=>{
+        if(hbox.current && mail===selectedMail) hbox.current.focus()
+    })
+    return <div ref={hbox} className={css}
+                tabIndex={0}
+                 onClick={clickedMail}
+                 onKeyDown={handlers.onKeyDown}
+    >
         <VBox className={'grow'}>
             <b className={'sender'}>{mail.sender}</b>
             <b className={'subject'}>{mail.subject}</b>
         </VBox>
         <b className={'timestamp'}>{new Date(mail.timestamp).toLocaleTimeString()}</b>
-    </HBox>
+    </div>
 }
 
 function formatTimestamp(timestamp) {
@@ -214,7 +243,33 @@ export const MailApp = ({})=> {
         })
     // })
 
-
+    AM.registerKeys([
+        {
+            action:'delete-selected-emails',
+            key:'backspace',
+            scope:'list',
+        },
+        {
+            action:'move-selection-prev',
+            key:'ArrowUp',
+            scope:'list',
+        },
+        {
+            action:'move-selection-prev',
+            key:'j',
+            scope:'list',
+        },
+        {
+            action:'move-selection-next',
+            key:'ArrowDown',
+            scope:'list',
+        },
+        {
+            action:'move-selection-next',
+            key:'k',
+            scope:'list',
+        }
+    ])
     return <ActionContext.Provider value={AM}>
         <StorageContext.Provider value={storage}>
             <MailAppContent/>

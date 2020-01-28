@@ -85,7 +85,7 @@ ul > li > ul > li {
   padding: 0.5rem;
 }
 *:focus {
-  /*border: 3px solid red !important;*/
+  border: 3px solid red !important;
 }
 .todo-item.deleted {
   color:#888;
