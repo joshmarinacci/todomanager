@@ -239,7 +239,10 @@ function MoveMailPopup({mail}) {
             'exit':()=>pm.hide(),
         }}
         ItemProps={{
-            moveMail:moveMail
+            moveMail:()=>{
+                console.log('moving',mail,'to',selFolder)
+                pm.hide()
+            }
         }}
         />
 }
