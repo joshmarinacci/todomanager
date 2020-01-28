@@ -55,27 +55,27 @@ import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from './storage
 import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {HBox, makeClassNames, PopupContainer, PopupContext, PopupManager, Spacer, Toolbar, VBox} from './layout.js'
-import {Folder, Inbox, Trash2, CornerUpLeft, Archive, ArrowRight, FileText, Layout, AlertOctagon} from "react-feather"
+import {AlertOctagon, Archive, ArrowRight, CornerUpLeft, FileText, Folder, Inbox, Layout, Trash2} from "react-feather"
 import "./mail.css"
 import * as faker from "faker"
 
-function GenericListItemView ({
-    item,
-    selectedItem,
-    setSelectedItem,
-    ItemTemplate,
-                              }) {
+function GenericListItemView({
+                                 item,
+                                 selectedItem,
+                                 setSelectedItem,
+                                 ItemTemplate
+                             }) {
 
-    const isSelected = item===selectedItem
+    const isSelected = item === selectedItem
     const cname = makeClassNames({
         selected: isSelected,
         'generic-list-item': true,
-        hbox:true,
+        hbox: true
     })
     const hbox = useRef()
-    useEffect(()=>{
-        if(hbox.current && item===selectedItem) hbox.current.focus()
-    },)
+    useEffect(() => {
+        if (hbox.current && item === selectedItem) hbox.current.focus()
+    })
 
     return <div
         ref={hbox}
