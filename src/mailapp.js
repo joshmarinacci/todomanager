@@ -3,16 +3,16 @@
 next for the mail app:
 
 data:
-    //* get lib to generate fake emails. one new email every time you press a 'fake' button in the status bar
-    //* archived boolean. means it doesn't show up in any folder, but it is in the archive and can be searched
-    //* read boolean. if unread use a brighter color of text
+    // get lib to generate fake emails. one new email every time you press a 'fake' button in the status bar
+    // archived boolean. means it doesn't show up in any folder, but it is in the archive and can be searched
+    // read boolean. if unread use a brighter color of text
 
 general
-    * make Spacer work in toolbars
-    * vertically center icons and text in toolbars
+    // make Spacer work in toolbars
+    // vertically center icons and text in toolbars
 
 folder list
-    //select folder by clicking
+    // select folder by clicking
     --nav with arrows
 mail list
     //changes query based on selected folder
@@ -41,6 +41,15 @@ forward dialog
 
 reader view
     make delete, archive, and forward keys work
+
+
+move popup
+    make popup folder list keyboard nav work. reuse some bindings?
+    press enter to choose the folder, dismiss, then move
+    press escape to escape
+
+
+
  */
 import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from './storage.js'
 import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
@@ -49,6 +58,74 @@ import {HBox, makeClassNames, PopupContainer, PopupContext, PopupManager, Spacer
 import {Folder, Inbox, Trash2, CornerUpLeft, Archive, ArrowRight, FileText, Layout, AlertOctagon} from "react-feather"
 import "./mail.css"
 import * as faker from "faker"
+
+function GenericListItemView ({
+    item,
+    selectedItem,
+    setSelectedItem,
+    ItemTemplate,
+                              }) {
+
+    const isSelected = item===selectedItem
+    const cname = makeClassNames({
+        selected: isSelected,
+        'generic-list-item': true,
+        hbox:true,
+    })
+    const hbox = useRef()
+    useEffect(()=>{
+        if(hbox.current && item===selectedItem) hbox.current.focus()
+    },)
+
+    return <div
+        ref={hbox}
+        className={cname}
+        onClick={() => setSelectedItem(item)}
+        tabIndex={0}
+    >
+        <ItemTemplate item={item}/>
+    </div>
+}
+
+function GenericListView({
+                             className,
+                             query,
+                             ItemTemplate,
+                             selectedItem,
+                             setSelectedItem
+                         }) {
+    const [data] = useQuery(query)
+    const css = makeClassNames({
+        'generic-list-view': true
+    })
+    const handlers = useActionScope('list', {
+        'move-selection-prev': () => {
+            const index = data.indexOf(selectedItem)
+            if (index > 0) {
+                setSelectedItem(data[index - 1])
+            }
+        },
+        'move-selection-next': () => {
+            const index = data.indexOf(selectedItem)
+            if (index < data.length - 1) {
+                setSelectedItem(data[index + 1])
+            }
+        }
+    })
+    return <div className={'scroll-wrapper'}>
+        <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
+            {data.map((item, i) => {
+                return <GenericListItemView
+                    key={i}
+                    item={item}
+                    setSelectedItem={setSelectedItem}
+                    ItemTemplate={ItemTemplate}
+                    selectedItem={selectedItem}
+                />
+            })}
+        </div>
+    </div>
+}
 
 const MailAppContent = () => {
     const storage = useContext(StorageContext)
@@ -145,21 +222,23 @@ function FolderIcon({folder}) {
     return <Folder/>
 }
 
+function FolderItemView({item}) {
+    return <>
+        <FolderIcon folder={item}/>
+        <b>{item.title}</b>
+    </>
+}
+
 function FoldersListView({selectedFolder, setFolder}) {
     const storage = useContext(StorageContext)
     const [afq] = useState(() => storage.createQuery('folders', f => true))
-    const [folders] = useQuery(afq)
-    return <VBox className={'folders-list-view'}>
-        {folders.map(folder => {
-            const css = makeClassNames({
-                selected: selectedFolder === folder
-            })
-            return <HBox className={css} key={folder.id} onClick={() => setFolder(folder)}>
-                <FolderIcon folder={folder}/>
-                <b>{folder.title}</b>
-            </HBox>
-        })}
-    </VBox>
+    return <GenericListView
+        className={'folders-list-view'}
+        ItemTemplate={FolderItemView}
+        selectedItem={selectedFolder}
+        setSelectedItem={setFolder}
+        query={afq}
+    />
 }
 
 function MailsListView({setMail, selectedMail, selectedFolder}) {
@@ -213,12 +292,12 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
 
 function MoveMailPopup({mail}) {
     const storage = useContext(StorageContext)
-    const [q] = useState(()=>storage.createQuery('folders',f => !f.special))
+    const [q] = useState(() => storage.createQuery('folders', f => !f.special))
     const [folders] = useQuery(q)
     const [selFolder, setSelFolder] = useState(folders[0])
     const pm = useContext(PopupContext)
-    console.log("folders are",folders)
-    const handlers = useActionScope('popup-list',{
+    console.log("folders are", folders)
+    const handlers = useActionScope('popup-list', {
         'move-selection-prev': () => {
             const index = folders.indexOf(selFolder)
             if (index > 0) {
@@ -231,20 +310,21 @@ function MoveMailPopup({mail}) {
                 setSelFolder(folders[index + 1])
             }
         },
-        'exit':()=>pm.hide()
+        'exit': () => pm.hide()
     })
     const popup = useRef()
-    useEffect(()=>{
-        console.log("current is",popup.current)
-        if(popup.current) popup.current.focus()
-    },[popup.current])
+    useEffect(() => {
+        console.log("current is", popup.current)
+        if (popup.current) popup.current.focus()
+    }, [popup.current])
     return <ul ref={popup} className={"popup-list"} onKeyDown={handlers.onKeyDown} tabIndex={0}>
         {folders.map(f => {
-            const css = makeClassNames({ selected:selFolder===f})
+            const css = makeClassNames({selected: selFolder === f})
             return <li className={css} key={f.id}>{f.title}</li>
         })}
     </ul>
 }
+
 function MailItemView({mail, selectedMail, selectMail}) {
     const storage = useContext(StorageContext)
     const [setProp] = useObjectUpdate(storage, 'mails', mail)
@@ -267,7 +347,7 @@ function MailItemView({mail, selectedMail, selectMail}) {
             console.log("replying to this mail")
         },
         'move-selected-emails': () => {
-            pm.show(hbox.current,<MoveMailPopup mail={mail}/>)
+            pm.show(hbox.current, <MoveMailPopup mail={mail}/>)
         }
     })
     const hbox = useRef()
@@ -401,7 +481,7 @@ export const MailApp = ({}) => {
         {action: 'move-selection-next', key: 'j', scope: 'list'},
         {action: 'archive-selected-emails', key: 'a', scope: 'list'},
         {action: 'reply', key: 'r', scope: 'list'},
-        {action: 'move-selected-emails', key:'m', scope:'list'},
+        {action: 'move-selected-emails', key: 'm', scope: 'list'},
 
         //compose scope
         {action: 'send-mail', scope: 'compose', key: 'd', alt: true},
@@ -410,7 +490,7 @@ export const MailApp = ({}) => {
         {action: 'reply', scope: 'global', key: 'r', alt: true},
 
         // popup-list scope
-        { action:'exit', scope:'popup-list', key:'escape'},
+        {action: 'exit', scope: 'popup-list', key: 'escape'}
     ])
     const PM = new PopupManager()
     return <ActionContext.Provider value={AM}>

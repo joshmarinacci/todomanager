@@ -183,3 +183,19 @@ ul > li > ul > li {
   margin: 0.25rem;
   padding: 0.25rem;
 }
+
+
+
+
+.scroll-wrapper {
+  border:5px solid purple;
+}
+.generic-list-view {
+  background-color: #dddddd;
+}
+.generic-list-view .generic-list-item {
+  background-color: #dddddd;
+}
+.generic-list-view .generic-list-item.selected {
+  background-color: aqua;
+}
