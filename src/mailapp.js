@@ -27,9 +27,9 @@ new mail button
     //create new mail document in the drafts folder
     //set composing to true
     //change read view to compose view, show the draft message
-    compose view has a 'save for later' and 'send now' button at the bottom
-    command D sends it
-    alt N makes a new email. if already composing then make a new one in a tab.
+    //compose view has a 'save for later' and 'send now' button at the bottom
+    // command D sends it
+    //alt N makes a new email. if already composing then make a new one in a tab.
 
 reply button
     * creates a new mail document in the drafts folder, populated w/ the email we are replying to
@@ -82,6 +82,26 @@ const MailAppContent = () => {
         setComposing(true)
         setMail(newMail)
     }
+    const reply = () => {
+        console.log("replying")
+        const newMail = storage.insert('mails',{
+            sender: 'Josh Marinacci',
+            receiver: mail.sender,
+            subject: `Re: ${mail.subject}`,
+            body: mail.body,
+            deleted:false,
+            archived:false,
+            read:false,
+            folder:'drafts',
+            timestamp: Date.now(),
+        })
+        setComposing(true)
+        setMail(newMail)
+    }
+    const handlers = useActionScope('global',{
+        'compose-new-mail':composeNewEmail,
+        'reply':reply,
+    })
     let mainView = ""
     if(composing) {
         mainView = <ComposingMailView mail={mail} done={()=>{
@@ -90,7 +110,7 @@ const MailAppContent = () => {
     } else {
         mainView = <ReadingMailView mail={mail}/>
     }
-    return <VBox>
+    return <VBox onKeyDown={handlers.onKeyDown}>
         <Toolbar>
             {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
             <button><CornerUpLeft/>Reply</button>
@@ -241,10 +261,12 @@ function ComposingMailView({mail, done}) {
     const editedTo = (e) => setProp('receiver',e.target.value)
     const editedSubject = (e) => setProp('subject',e.target.value)
     const editedBody = (e) => setProp('body',e.target.value)
-    const dismiss = (e) => {
-        done()
-    }
-    return <VBox className={'composing-mail-view'}>
+
+    const handlers = useActionScope('compose',{
+        'send-mail':done
+    })
+
+    return <VBox className={'composing-mail-view'} onKeyDown={handlers.onKeyDown}>
         <HBox>
             <label>to</label>
             <input type="text" value={mail.receiver} className={'grow'}
@@ -256,12 +278,12 @@ function ComposingMailView({mail, done}) {
                    onChange={editedSubject}
             />
         </HBox>
-        <textarea className={'grow stretch'}
+        <textarea className={'grow stretch'} value={mail.body}
                   onChange={editedBody}
         />
         <HBox>
-            <button onClick={dismiss}>save for later</button>
-            <button onClick={dismiss}>send now</button>
+            <button onClick={done}>save for later</button>
+            <button onClick={done}>send now</button>
         </HBox>
     </VBox>
 }
@@ -340,7 +362,13 @@ export const MailApp = ({})=> {
             action:'reply',
             key:'r',
             scope:'list',
-        }
+        },
+
+        //compose scope
+        { action:'send-mail', scope:'compose', key:'d', alt:true},
+        //global scope
+        { action:'compose-new-mail', scope:'global', key:'n', alt:true},
+        { action:'reply', scope:'global', key:'r', alt:true}
     ])
     return <ActionContext.Provider value={AM}>
         <StorageContext.Provider value={storage}>

@@ -231,7 +231,7 @@ export const useActionScope = (scope,actions)=>{
     return {
         onKeyDown: (e) => {
             const binding = am.matchBinding(e,scope)
-            console.log("matched the binding",binding,'actions',actions)
+            // console.log("matched the binding",binding,'actions',actions)
             if(binding && actions[binding.action]) {
                 e.preventDefault()
                 actions[binding.action](am)
