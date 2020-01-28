@@ -12,10 +12,10 @@ general
     * vertically center icons and text in toolbars
 
 folder list
-    select folder by clicking
-    nav with arrows
+    //select folder by clicking
+    --nav with arrows
 mail list
-    changes query based on selected folder
+    //changes query based on selected folder
     //nav with arrows
     //nav with j and k
     //delete key deletes the currently selected email
@@ -45,17 +45,17 @@ reader view
 import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from './storage.js'
 import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {HBox, makeClassNames, Spacer, Toolbar, VBox} from './layout.js'
-import {Folder,Inbox, Trash2, CornerUpLeft, Archive, ArrowRight, FileText, Layout, AlertOctagon} from "react-feather"
+import {HBox, makeClassNames, PopupContainer, PopupContext, PopupManager, Spacer, Toolbar, VBox} from './layout.js'
+import {Folder, Inbox, Trash2, CornerUpLeft, Archive, ArrowRight, FileText, Layout, AlertOctagon} from "react-feather"
 import "./mail.css"
 import * as faker from "faker"
 
 const MailAppContent = () => {
     const storage = useContext(StorageContext)
-    const [mail,setMail] = useState(null)
+    const [mail, setMail] = useState(null)
     const [folder, setFolder] = useState(null)
     const generateFakeEmail = () => {
-        storage.insert('mails',{
+        storage.insert('mails', {
             sender: faker.name.firstName(),
             receiver: 'Josh Marinacci',
             subject: faker.random.word(),
@@ -64,48 +64,48 @@ const MailAppContent = () => {
             folder: 'inbox',
             timestamp: faker.date.recent().getTime(),
             read: false,
-            archived: false,
+            archived: false
         })
     }
     const [composing, setComposing] = useState(false)
     const composeNewEmail = () => {
-        const newMail = storage.insert('mails',{
+        const newMail = storage.insert('mails', {
             sender: 'Josh Marinacci',
             receiver: 'no one',
             subject: '',
             body: '',
-            deleted:false,
-            archived:false,
-            read:false,
-            folder:'drafts',
-            timestamp: Date.now(),
+            deleted: false,
+            archived: false,
+            read: false,
+            folder: 'drafts',
+            timestamp: Date.now()
         })
         setComposing(true)
         setMail(newMail)
     }
     const reply = () => {
         console.log("replying")
-        const newMail = storage.insert('mails',{
+        const newMail = storage.insert('mails', {
             sender: 'Josh Marinacci',
             receiver: mail.sender,
             subject: `Re: ${mail.subject}`,
             body: mail.body,
-            deleted:false,
-            archived:false,
-            read:false,
-            folder:'drafts',
-            timestamp: Date.now(),
+            deleted: false,
+            archived: false,
+            read: false,
+            folder: 'drafts',
+            timestamp: Date.now()
         })
         setComposing(true)
         setMail(newMail)
     }
-    const handlers = useActionScope('global',{
-        'compose-new-mail':composeNewEmail,
-        'reply':reply,
+    const handlers = useActionScope('global', {
+        'compose-new-mail': composeNewEmail,
+        'reply': reply
     })
     let mainView = ""
-    if(composing) {
-        mainView = <ComposingMailView mail={mail} done={()=>{
+    if (composing) {
+        mainView = <ComposingMailView mail={mail} done={() => {
             setComposing(false)
         }}/>
     } else {
@@ -132,28 +132,29 @@ const MailAppContent = () => {
                 <ShortcutsPanel/>
             </VBox>
         </HBox>
+        <PopupContainer/>
     </VBox>
 }
 
 function FolderIcon({folder}) {
-    if(folder.title === 'inbox') return <Inbox/>
-    if(folder.title === 'trash') return <Trash2/>
-    if(folder.title === 'drafts') return <FileText/>
-    if(folder.title === 'all') return <Archive/>
+    if (folder.title === 'inbox') return <Inbox/>
+    if (folder.title === 'trash') return <Trash2/>
+    if (folder.title === 'drafts') return <FileText/>
+    if (folder.title === 'all') return <Archive/>
 
     return <Folder/>
 }
 
-function FoldersListView({selectedFolder, setFolder}){
+function FoldersListView({selectedFolder, setFolder}) {
     const storage = useContext(StorageContext)
-    const [afq] = useState(()=>storage.createQuery('folders',f => true))
+    const [afq] = useState(() => storage.createQuery('folders', f => true))
     const [folders] = useQuery(afq)
     return <VBox className={'folders-list-view'}>
         {folders.map(folder => {
             const css = makeClassNames({
-                selected:selectedFolder===folder,
+                selected: selectedFolder === folder
             })
-            return <HBox className={css} key={folder.id} onClick={()=>setFolder(folder)}>
+            return <HBox className={css} key={folder.id} onClick={() => setFolder(folder)}>
                 <FolderIcon folder={folder}/>
                 <b>{folder.title}</b>
             </HBox>
@@ -161,84 +162,122 @@ function FoldersListView({selectedFolder, setFolder}){
     </VBox>
 }
 
-function MailsListView({setMail,selectedMail,selectedFolder}) {
+function MailsListView({setMail, selectedMail, selectedFolder}) {
     const storage = useContext(StorageContext)
-    const [q,setQ] = useState(()=>{
-        return storage.createQuery('mails',(m)=>!m.deleted&&!m.archived &&m.folder==='inbox')
+    const [q, setQ] = useState(() => {
+        return storage.createQuery('mails', (m) => !m.deleted && !m.archived && m.folder === 'inbox')
     })
-    useEffect(()=>{
-        if(selectedFolder) {
-            if(selectedFolder.title === 'trash') {
-                return setQ(storage.createQuery('mails',m=>m.deleted === true))
+    useEffect(() => {
+        if (selectedFolder) {
+            if (selectedFolder.title === 'trash') {
+                return setQ(storage.createQuery('mails', m => m.deleted === true))
             }
-            if(selectedFolder.title === 'archived') {
-                return setQ(storage.createQuery('mails',m=>m.archived === true))
+            if (selectedFolder.title === 'archived') {
+                return setQ(storage.createQuery('mails', m => m.archived === true))
             }
             setQ(storage.createQuery('mails', m => (m.folder === selectedFolder.title
                 && !m.deleted
                 && !m.archived
             )))
         }
-    },[selectedFolder])
+    }, [selectedFolder])
     const [mails] = useQuery(q)
     const selectMail = (mail) => setMail(mail)
-    const handlers = useActionScope('list',{
-        'move-selection-prev':()=>{
+    const handlers = useActionScope('list', {
+        'move-selection-prev': () => {
             const index = mails.indexOf(selectedMail)
-            if(index > 0) {
-                selectMail(mails[index-1])
+            if (index > 0) {
+                selectMail(mails[index - 1])
             }
         },
-        'move-selection-next':()=>{
+        'move-selection-next': () => {
             const index = mails.indexOf(selectedMail)
-            if(index < mails.length-1) {
-                selectMail(mails[index+1])
+            if (index < mails.length - 1) {
+                selectMail(mails[index + 1])
             }
         }
     })
     return <VBox className={'mails-list-view'}
                  onKeyDown={handlers.onKeyDown}>
         <div className={'scroll'}>
-        {mails.map(mail => {
-            return <MailItemView key={mail.id}
-                                 mail={mail}
-                                 selectedMail={selectedMail}
-                                 selectMail={selectMail}
-            />
-        })}
+            {mails.map(mail => {
+                return <MailItemView key={mail.id}
+                                     mail={mail}
+                                     selectedMail={selectedMail}
+                                     selectMail={selectMail}
+                />
+            })}
         </div>
     </VBox>
 }
 
+function MoveMailPopup({mail}) {
+    const storage = useContext(StorageContext)
+    const [q] = useState(()=>storage.createQuery('folders',f => !f.special))
+    const [folders] = useQuery(q)
+    const [selFolder, setSelFolder] = useState(folders[0])
+    const pm = useContext(PopupContext)
+    console.log("folders are",folders)
+    const handlers = useActionScope('popup-list',{
+        'move-selection-prev': () => {
+            const index = folders.indexOf(selFolder)
+            if (index > 0) {
+                setSelFolder(folders[index - 1])
+            }
+        },
+        'move-selection-next': () => {
+            const index = folders.indexOf(selFolder)
+            if (index < folders.length - 1) {
+                setSelFolder(folders[index + 1])
+            }
+        },
+        'exit':()=>pm.hide()
+    })
+    const popup = useRef()
+    useEffect(()=>{
+        console.log("current is",popup.current)
+        if(popup.current) popup.current.focus()
+    },[popup.current])
+    return <ul ref={popup} className={"popup-list"} onKeyDown={handlers.onKeyDown} tabIndex={0}>
+        {folders.map(f => {
+            const css = makeClassNames({ selected:selFolder===f})
+            return <li className={css} key={f.id}>{f.title}</li>
+        })}
+    </ul>
+}
 function MailItemView({mail, selectedMail, selectMail}) {
     const storage = useContext(StorageContext)
-    const [setProp] = useObjectUpdate(storage,'mails',mail)
+    const [setProp] = useObjectUpdate(storage, 'mails', mail)
     let css = makeClassNames({
-        mail:true,
-        hbox:true,
-        selected:mail===selectedMail,
-        deleted:mail.deleted,
-        read:mail.read
+        mail: true,
+        hbox: true,
+        selected: mail === selectedMail,
+        deleted: mail.deleted,
+        read: mail.read
     })
     const clickedMail = () => {
-        setProp('read',true)
+        setProp('read', true)
         selectMail(mail)
     }
-    const handlers = useActionScope('list',{
-        'delete-selected-emails':()=>setProp('deleted',true),
-        'archive-selected-emails':()=>setProp('archived',true),
-        'reply':()=>{
+    const pm = useContext(PopupContext)
+    const handlers = useActionScope('list', {
+        'delete-selected-emails': () => setProp('deleted', true),
+        'archive-selected-emails': () => setProp('archived', true),
+        'reply': () => {
             console.log("replying to this mail")
+        },
+        'move-selected-emails': () => {
+            pm.show(hbox.current,<MoveMailPopup mail={mail}/>)
         }
     })
     const hbox = useRef()
-    useEffect(()=>{
-        if(hbox.current && mail===selectedMail) hbox.current.focus()
+    useEffect(() => {
+        if (hbox.current && mail === selectedMail) hbox.current.focus()
     })
     return <div ref={hbox} className={css}
                 tabIndex={0}
-                 onClick={clickedMail}
-                 onKeyDown={handlers.onKeyDown}
+                onClick={clickedMail}
+                onKeyDown={handlers.onKeyDown}
     >
         <VBox className={'grow'}>
             <b className={'sender'}>{mail.sender}</b>
@@ -254,7 +293,7 @@ function formatTimestamp(timestamp) {
 }
 
 function ReadingMailView({mail}) {
-    if(!mail) return <VBox className={'reading-mail-view'}>no message selected</VBox>
+    if (!mail) return <VBox className={'reading-mail-view'}>no message selected</VBox>
     return <VBox className={'reading-mail-view'}>
         <HBox className={'subject-line'}>
             <b>{mail.subject}</b>
@@ -274,25 +313,25 @@ function ReadingMailView({mail}) {
 
 function ComposingMailView({mail, done}) {
     const storage = useContext(StorageContext)
-    const [q] = useState(()=>{
-        return storage.createQuery('mails',(m)=>m===mail)
+    const [q] = useState(() => {
+        return storage.createQuery('mails', (m) => m === mail)
     })
     const [realmailarray] = useQuery(q)
 
-    const [setProp] = useObjectUpdate(storage,'mails',mail)
-    const editedTo = (e) => setProp('receiver',e.target.value)
-    const editedSubject = (e) => setProp('subject',e.target.value)
-    const editedBody = (e) => setProp('body',e.target.value)
+    const [setProp] = useObjectUpdate(storage, 'mails', mail)
+    const editedTo = (e) => setProp('receiver', e.target.value)
+    const editedSubject = (e) => setProp('subject', e.target.value)
+    const editedBody = (e) => setProp('body', e.target.value)
 
-    const handlers = useActionScope('compose',{
-        'send-mail':done
+    const handlers = useActionScope('compose', {
+        'send-mail': done
     })
 
     return <VBox className={'composing-mail-view'} onKeyDown={handlers.onKeyDown}>
         <HBox>
             <label>to</label>
             <input type="text" value={mail.receiver} className={'grow'}
-            onChange={editedTo}/>
+                   onChange={editedTo}/>
         </HBox>
         <HBox>
             <label>Subject</label>
@@ -310,31 +349,33 @@ function ComposingMailView({mail, done}) {
     </VBox>
 }
 
-export const MailApp = ({})=> {
+export const MailApp = ({}) => {
     function makeInitialData() {
         function makeFolder(title) {
-            storage.insert('folders',{title:title,special:false})
+            storage.insert('folders', {title: title, special: false})
         }
+
         storage.insert('folders', {title: 'inbox', special: true})
-        storage.insert('folders',{title:'drafts',special:true})
+        storage.insert('folders', {title: 'drafts', special: true})
         makeFolder('readme')
         makeFolder('orders')
         storage.insert('folders', {title: 'trash', special: true})
-        storage.insert('folders',{title:'all',special:true})
+        storage.insert('folders', {title: 'all', special: true})
 
         function makeMail(sender, subject, body) {
             storage.insert("mails", {
                 sender: sender,
-                receiver:'Josh Marinacci',
+                receiver: 'Josh Marinacci',
                 subject: subject,
                 body: body,
                 deleted: false,
                 folder: 'inbox',
                 timestamp: Date.now(),
-                read:false,
-                archived:false,
+                read: false,
+                archived: false
             })
         }
+
         makeMail('github',
             '[MozillaReality/FirefoxReality] Fixes #2706 Remove dialog from stack',
             `Remove dialog from stack when released`)
@@ -343,55 +384,40 @@ export const MailApp = ({})=> {
             `Here's whats's happening on LEGO ideas `)
         console.log(storage)
     }
+
     const storage = new QueryStorage("mail")
     // storage.clear().then(()=>{
-        storage.load().then(()=>{
-            if(storage.isEmpty()) makeInitialData()
-        })
+    storage.load().then(() => {
+        if (storage.isEmpty()) makeInitialData()
+    })
     // })
 
     AM.registerKeys([
-        {
-            action:'delete-selected-emails',
-            key:'backspace',
-            scope:'list',
-        },
-        {
-            action:'move-selection-prev',
-            key:'ArrowUp',
-            scope:'list',
-        },
-        {
-            action:'move-selection-prev',
-            key:'k',
-            scope:'list',
-        },
-        {
-            action:'move-selection-next',
-            key:'ArrowDown',
-            scope:'list',
-        },
-        {
-            action:'move-selection-next',
-            key:'j',
-            scope:'list',
-        },
-        {
-            action:'archive-selected-emails',
-            key:'a',
-            scope:'list',
-        },
-        {   action:'reply', key:'r', scope:'list',  },
+        //list scope
+        {action: 'delete-selected-emails', key: 'backspace', scope: 'list'},
+        {action: 'move-selection-prev', key: 'ArrowUp', scope: 'list'},
+        {action: 'move-selection-prev', key: 'k', scope: 'list'},
+        {action: 'move-selection-next', key: 'ArrowDown', scope: 'list'},
+        {action: 'move-selection-next', key: 'j', scope: 'list'},
+        {action: 'archive-selected-emails', key: 'a', scope: 'list'},
+        {action: 'reply', key: 'r', scope: 'list'},
+        {action: 'move-selected-emails', key:'m', scope:'list'},
 
         //compose scope
-        { action:'send-mail', scope:'compose', key:'d', alt:true},
+        {action: 'send-mail', scope: 'compose', key: 'd', alt: true},
         //global scope
-        { action:'compose-new-mail', scope:'global', key:'n', alt:true},
-        { action:'reply', scope:'global', key:'r', alt:true}
+        {action: 'compose-new-mail', scope: 'global', key: 'n', alt: true},
+        {action: 'reply', scope: 'global', key: 'r', alt: true},
+
+        // popup-list scope
+        { action:'exit', scope:'popup-list', key:'escape'},
     ])
+    const PM = new PopupManager()
     return <ActionContext.Provider value={AM}>
         <StorageContext.Provider value={storage}>
-            <MailAppContent/>
+            <PopupContext.Provider value={PM}>
+                <MailAppContent/>
+            </PopupContext.Provider>
         </StorageContext.Provider>
     </ActionContext.Provider>
 }

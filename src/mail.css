@@ -64,3 +64,16 @@
 .composing-mail-view {
     min-width: 40rem;
 }
+
+
+
+.popup-container {
+    position: fixed;
+    top:0;
+    display: none;
+    background-color: white;
+    border: 5px solid green;
+}
+.popup-container.visible {
+    display: block;
+}
