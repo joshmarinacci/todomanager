@@ -1,7 +1,5 @@
 /*
 
-next for the mail app:
-
 focus manager
     only let one stack have focus at a time
     enter on mail item shifts focus to the reader view so we can scroll it
@@ -19,7 +17,9 @@ fm.replaceFocus(ref)
     //replaces current item in the focus stack
 
 need a sense of the master focus, which is a parent component
-don't steal focus if you aren't the master focus
+don't steal focus if you aren't a child of master focus
+
+fm.setMasterFocus(ref)
 
 use a FocusContext
 request if your FC has the current focus
@@ -38,8 +38,9 @@ move popup
  */
 import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from './storage.js'
 import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
-import React, {useContext, useEffect, useRef, useState} from 'react'
+import React, {createContext, useContext, useEffect, useRef, useState} from 'react'
 import {
+    FocusContext, FocusManager,
     GenericListView,
     HBox,
     makeClassNames,
@@ -240,6 +241,7 @@ function MoveMailPopup({mail}) {
         }}
         ItemProps={{
             moveMail:()=>{
+                console.log("clicked")
                 console.log('moving',mail,'to',selFolder)
                 pm.hide()
             }
@@ -257,8 +259,11 @@ function MailItemView({item}) {
         deleted: mail.deleted,
         read: mail.read
     })
+    const fm = useContext(FocusContext)
     const clickedMail = () => {
+        console.log("clicked on a mail")
         setProp('read', true)
+        fm.setMasterFocus('mails')
     }
     return <div className={css} onClick={clickedMail}>
         <VBox className={'grow'}>
@@ -399,7 +404,9 @@ export const MailApp = ({}) => {
     return <ActionContext.Provider value={AM}>
         <StorageContext.Provider value={storage}>
             <PopupContext.Provider value={PM}>
-                <MailAppContent/>
+                <FocusContext.Provider value={new FocusManager()}>
+                    <MailAppContent/>
+                </FocusContext.Provider>
             </PopupContext.Provider>
         </StorageContext.Provider>
     </ActionContext.Provider>

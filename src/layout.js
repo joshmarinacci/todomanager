@@ -98,11 +98,33 @@ export function PopupContainer(){
         const bounds = domTarget.getBoundingClientRect()
         style.top = bounds.bottom
         style.left = bounds.left
-        console.log(bounds)
-
     }
     return <div style={style} className={css}>{content}</div>
 }
+
+
+export class FocusManager {
+    constructor() {
+        this.listeners = []
+    }
+    on(cb) {
+        this.listeners.push(cb)
+    }
+    off(cb) {
+        this.listeners = this.listeners.filter(c => c !== cb)
+    }
+    setMasterFocus(mf) {
+        console.log('set focus master to',mf)
+        this.mf = mf
+        this.listeners.forEach(cb=>cb())
+    }
+    getMasterFocus() {
+        return this.mf
+    }
+}
+export const FocusContext = createContext()
+
+
 
 function GenericListItemView({
                                  item,
@@ -111,6 +133,7 @@ function GenericListItemView({
                                  ItemTemplate,
                                  ItemClassName,
                                  ItemProps,
+                                 master,
                              }) {
 
     const isSelected = item === selectedItem
@@ -120,14 +143,18 @@ function GenericListItemView({
         [ItemClassName]:true,
     })
     const hbox = useRef()
+    const fm = useContext(FocusContext)
     useEffect(() => {
-        if (hbox.current && item === selectedItem) hbox.current.focus()
+        if (hbox.current && item === selectedItem && fm.getMasterFocus()===master) hbox.current.focus()
     })
 
     return <div
         ref={hbox}
         className={cname}
-        onClick={() => setSelectedItem(item)}
+        onClick={() => {
+            setSelectedItem(item)
+            fm.setMasterFocus(master)
+        }}
         tabIndex={0}
     >
         <ItemTemplate item={item} {...ItemProps}/>
@@ -164,6 +191,7 @@ export function GenericListView({
         },
         ...actionHandlers
     })
+    const [uuid] = useState(Math.random())
     return <div className={'scroll-wrapper'} style={style}>
         <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
             {data.map((item, i) => {
@@ -175,6 +203,7 @@ export function GenericListView({
                     ItemClassName={ItemClassName}
                     ItemProps={ItemProps}
                     selectedItem={selectedItem}
+                    master={uuid}
                 />
             })}
         </div>
