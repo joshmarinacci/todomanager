@@ -20,13 +20,13 @@ mail list
     //nav with j and k
     //delete key deletes the currently selected email
     //x deletes email
-    a archives email
+    //a archives email
     enter shifts focus to the reader view so we can scroll it
 
 new mail button
-    create new mail document in the drafts folder
-    set composing to true
-    change read view to compose view, show the draft message
+    //create new mail document in the drafts folder
+    //set composing to true
+    //change read view to compose view, show the draft message
     compose view has a 'save for later' and 'send now' button at the bottom
     command D sends it
     alt N makes a new email. if already composing then make a new one in a tab.
@@ -66,11 +66,35 @@ const MailAppContent = () => {
             archived: false,
         })
     }
+    const [composing, setComposing] = useState(false)
+    const composeNewEmail = () => {
+        const newMail = storage.insert('mails',{
+            sender: 'Josh Marinacci',
+            receiver: 'no one',
+            subject: '',
+            body: '',
+            deleted:false,
+            archived:false,
+            read:false,
+            folder:'drafts',
+            timestamp: Date.now(),
+        })
+        setComposing(true)
+        setMail(newMail)
+    }
+    let mainView = ""
+    if(composing) {
+        mainView = <ComposingMailView mail={mail} done={()=>{
+            setComposing(false)
+        }}/>
+    } else {
+        mainView = <ReadingMailView mail={mail}/>
+    }
     return <VBox>
         <Toolbar>
             {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
             <button><CornerUpLeft/>Reply</button>
-            <button><FileText/> New Mail</button>
+            <button onClick={composeNewEmail}><FileText/> New Mail</button>
             <button><ArrowRight/> Forward</button>
             <button><Archive/> Archive</button>
             <button><Trash2/> Delete</button>
@@ -81,7 +105,7 @@ const MailAppContent = () => {
         <HBox className={'grow stretch'}>
             <FoldersListView/>
             <MailsListView setMail={setMail} selectedMail={mail}/>
-            <ReadingMailView mail={mail}/>
+            {mainView}
             <VBox>
                 <h3>Shortcuts</h3>
                 <ShortcutsPanel/>
@@ -115,7 +139,7 @@ function FoldersListView({}){
 function MailsListView({setMail,selectedMail}) {
     const storage = useContext(StorageContext)
     const [q] = useState(()=>{
-        return storage.createQuery('mails',(m)=>!m.deleted&&!m.archived)
+        return storage.createQuery('mails',(m)=>!m.deleted&&!m.archived &&m.folder==='inbox')
     })
     const [mails] = useQuery(q)
     const selectMail = (mail) => setMail(mail)
@@ -204,7 +228,42 @@ function ReadingMailView({mail}) {
         </HBox>
         <HBox className={'body-line'}>{mail.body}</HBox>
     </VBox>
+}
 
+function ComposingMailView({mail, done}) {
+    const storage = useContext(StorageContext)
+    const [q] = useState(()=>{
+        return storage.createQuery('mails',(m)=>m===mail)
+    })
+    const [realmailarray] = useQuery(q)
+
+    const [setProp] = useObjectUpdate(storage,'mails',mail)
+    const editedTo = (e) => setProp('receiver',e.target.value)
+    const editedSubject = (e) => setProp('subject',e.target.value)
+    const editedBody = (e) => setProp('body',e.target.value)
+    const dismiss = (e) => {
+        done()
+    }
+    return <VBox className={'composing-mail-view'}>
+        <HBox>
+            <label>to</label>
+            <input type="text" value={mail.receiver} className={'grow'}
+            onChange={editedTo}/>
+        </HBox>
+        <HBox>
+            <label>Subject</label>
+            <input type="text" value={mail.subject} className='grow'
+                   onChange={editedSubject}
+            />
+        </HBox>
+        <textarea className={'grow stretch'}
+                  onChange={editedBody}
+        />
+        <HBox>
+            <button onClick={dismiss}>save for later</button>
+            <button onClick={dismiss}>send now</button>
+        </HBox>
+    </VBox>
 }
 export const MailApp = ({})=> {
     function makeInitialData() {

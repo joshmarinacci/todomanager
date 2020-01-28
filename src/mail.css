@@ -59,3 +59,8 @@
     background-color: white;
     padding: 1rem;
 }
+
+
+.composing-mail-view {
+    min-width: 40rem;
+}
