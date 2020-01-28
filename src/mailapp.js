@@ -223,13 +223,6 @@ function MoveMailPopup({mail}) {
     const [folders] = useQuery(q)
     const [selFolder, setSelFolder] = useState(folders[0])
     const pm = useContext(PopupContext)
-    const moveMail = () => {
-        console.log('moving',mail,'to',selFolder)
-        pm.hide()
-    }
-    const exit = () => {
-        pm.hide()
-    }
     return <GenericListView
         style={{
             minWidth:'10rem'
@@ -239,8 +232,11 @@ function MoveMailPopup({mail}) {
         selectedItem={selFolder}
         setSelectedItem={setSelFolder}
         actionHandlers={{
-            'move-mail':moveMail,
-            'exit':exit,
+            'move-mail':()=>{
+                console.log('moving',mail,'to',selFolder)
+                pm.hide()
+            },
+            'exit':()=>pm.hide(),
         }}
         ItemProps={{
             moveMail:moveMail
