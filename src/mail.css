@@ -23,14 +23,14 @@
 
 
 
-.mail .subject {
+.mails-list-view .subject {
     font-size: 90%;
 }
-
-.mail {
+.mails-list-view {
     font-weight: bold;
 }
-.mail.read  {
+
+.mails-list-view .mail.read  {
     font-weight: normal;
 }
 .mail.deleted {

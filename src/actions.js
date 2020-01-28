@@ -234,7 +234,7 @@ export const useActionScope = (scope,actions)=>{
             // console.log("matched the binding",binding,'actions',actions)
             if(binding && actions[binding.action]) {
                 e.preventDefault()
-                actions[binding.action](am)
+                actions[binding.action](e,am)
             }
         }
     }

@@ -54,78 +54,20 @@ move popup
 import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from './storage.js'
 import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {HBox, makeClassNames, PopupContainer, PopupContext, PopupManager, Spacer, Toolbar, VBox} from './layout.js'
+import {
+    GenericListView,
+    HBox,
+    makeClassNames,
+    PopupContainer,
+    PopupContext,
+    PopupManager,
+    Spacer,
+    Toolbar,
+    VBox
+} from './layout.js'
 import {AlertOctagon, Archive, ArrowRight, CornerUpLeft, FileText, Folder, Inbox, Layout, Trash2} from "react-feather"
 import "./mail.css"
 import * as faker from "faker"
-
-function GenericListItemView({
-                                 item,
-                                 selectedItem,
-                                 setSelectedItem,
-                                 ItemTemplate
-                             }) {
-
-    const isSelected = item === selectedItem
-    const cname = makeClassNames({
-        selected: isSelected,
-        'generic-list-item': true,
-        hbox: true
-    })
-    const hbox = useRef()
-    useEffect(() => {
-        if (hbox.current && item === selectedItem) hbox.current.focus()
-    })
-
-    return <div
-        ref={hbox}
-        className={cname}
-        onClick={() => setSelectedItem(item)}
-        tabIndex={0}
-    >
-        <ItemTemplate item={item}/>
-    </div>
-}
-
-function GenericListView({
-                             className,
-                             query,
-                             ItemTemplate,
-                             selectedItem,
-                             setSelectedItem
-                         }) {
-    const [data] = useQuery(query)
-    const css = makeClassNames({
-        'generic-list-view': true
-    })
-    const handlers = useActionScope('list', {
-        'move-selection-prev': () => {
-            const index = data.indexOf(selectedItem)
-            if (index > 0) {
-                setSelectedItem(data[index - 1])
-            }
-        },
-        'move-selection-next': () => {
-            const index = data.indexOf(selectedItem)
-            if (index < data.length - 1) {
-                setSelectedItem(data[index + 1])
-            }
-        }
-    })
-    return <div className={'scroll-wrapper'}>
-        <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
-            {data.map((item, i) => {
-                return <GenericListItemView
-                    key={i}
-                    item={item}
-                    setSelectedItem={setSelectedItem}
-                    ItemTemplate={ItemTemplate}
-                    selectedItem={selectedItem}
-                />
-            })}
-        </div>
-    </div>
-}
 
 const MailAppContent = () => {
     const storage = useContext(StorageContext)
@@ -260,34 +202,31 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
             )))
         }
     }, [selectedFolder])
-    const [mails] = useQuery(q)
-    const selectMail = (mail) => setMail(mail)
-    const handlers = useActionScope('list', {
-        'move-selection-prev': () => {
-            const index = mails.indexOf(selectedMail)
-            if (index > 0) {
-                selectMail(mails[index - 1])
-            }
+    const pm = useContext(PopupContext)
+    const handlers = useActionScope('list',{
+        'delete-selected-emails': () => {
+            storage.update('mails',selectedMail,'deleted',true)
         },
-        'move-selection-next': () => {
-            const index = mails.indexOf(selectedMail)
-            if (index < mails.length - 1) {
-                selectMail(mails[index + 1])
-            }
-        }
+        'archive-selected-emails': () => {
+            storage.update('mails',selectedMail,'archived', true)
+        },
+        'move-selected-emails': (e) => {
+            pm.show(e.target, <MoveMailPopup mail={selectedMail}/>)
+        },
+        'reply': () => {
+            console.log("replying to this mail")
+        },
     })
-    return <VBox className={'mails-list-view'}
-                 onKeyDown={handlers.onKeyDown}>
-        <div className={'scroll'}>
-            {mails.map(mail => {
-                return <MailItemView key={mail.id}
-                                     mail={mail}
-                                     selectedMail={selectedMail}
-                                     selectMail={selectMail}
-                />
-            })}
-        </div>
-    </VBox>
+    return <div onKeyDown={handlers.onKeyDown}>
+        <GenericListView
+        className={"mails-list-view"}
+        ItemTemplate={MailItemView}
+        ItemClassName={"mails-item-view"}
+        selectedItem={selectedMail}
+        setSelectedItem={setMail}
+        query={q}
+        />
+    </div>
 }
 
 function MoveMailPopup({mail}) {
@@ -325,40 +264,20 @@ function MoveMailPopup({mail}) {
     </ul>
 }
 
-function MailItemView({mail, selectedMail, selectMail}) {
+function MailItemView({item}) {
+    const mail = item
     const storage = useContext(StorageContext)
     const [setProp] = useObjectUpdate(storage, 'mails', mail)
     let css = makeClassNames({
         mail: true,
         hbox: true,
-        selected: mail === selectedMail,
         deleted: mail.deleted,
         read: mail.read
     })
     const clickedMail = () => {
         setProp('read', true)
-        selectMail(mail)
     }
-    const pm = useContext(PopupContext)
-    const handlers = useActionScope('list', {
-        'delete-selected-emails': () => setProp('deleted', true),
-        'archive-selected-emails': () => setProp('archived', true),
-        'reply': () => {
-            console.log("replying to this mail")
-        },
-        'move-selected-emails': () => {
-            pm.show(hbox.current, <MoveMailPopup mail={mail}/>)
-        }
-    })
-    const hbox = useRef()
-    useEffect(() => {
-        if (hbox.current && mail === selectedMail) hbox.current.focus()
-    })
-    return <div ref={hbox} className={css}
-                tabIndex={0}
-                onClick={clickedMail}
-                onKeyDown={handlers.onKeyDown}
-    >
+    return <div className={css} onClick={clickedMail}>
         <VBox className={'grow'}>
             <b className={'sender'}>{mail.sender}</b>
             <b className={'subject'}>{mail.subject}</b>

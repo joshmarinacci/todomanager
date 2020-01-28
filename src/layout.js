@@ -1,4 +1,6 @@
-import React, {createContext, useContext, useEffect, useState} from 'react'
+import React, {createContext, useContext, useEffect, useRef, useState} from 'react'
+import {useQuery} from './storage.js'
+import {useActionScope} from './actions.js'
 
 export const FillBox = ({children, className="", ...rest}) => {
     return <div className={"fillbox " + className} {...rest}>{children}</div>
@@ -102,3 +104,75 @@ export function PopupContainer(){
     }
     return <div style={style} className={css}>for the popups {content} </div>
 }
+
+function GenericListItemView({
+                                 item,
+                                 selectedItem,
+                                 setSelectedItem,
+                                 ItemTemplate,
+                                 ItemClassName
+                             }) {
+
+    const isSelected = item === selectedItem
+    const cname = makeClassNames({
+        selected: isSelected,
+        'generic-list-item': true,
+        [ItemClassName]:true,
+    })
+    const hbox = useRef()
+    useEffect(() => {
+        if (hbox.current && item === selectedItem) hbox.current.focus()
+    })
+
+    return <div
+        ref={hbox}
+        className={cname}
+        onClick={() => setSelectedItem(item)}
+        tabIndex={0}
+    >
+        <ItemTemplate item={item}/>
+    </div>
+}
+
+export function GenericListView({
+                             className,
+                             query,
+                             ItemTemplate,
+                             selectedItem,
+                             setSelectedItem,
+                             ItemClassName
+                         }) {
+    const [data] = useQuery(query)
+    const css = makeClassNames({
+        'generic-list-view': true
+    })
+    const handlers = useActionScope('list', {
+        'move-selection-prev': () => {
+            const index = data.indexOf(selectedItem)
+            if (index > 0) {
+                setSelectedItem(data[index - 1])
+            }
+        },
+        'move-selection-next': () => {
+            const index = data.indexOf(selectedItem)
+            if (index < data.length - 1) {
+                setSelectedItem(data[index + 1])
+            }
+        }
+    })
+    return <div className={'scroll-wrapper'}>
+        <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
+            {data.map((item, i) => {
+                return <GenericListItemView
+                    key={i}
+                    item={item}
+                    setSelectedItem={setSelectedItem}
+                    ItemTemplate={ItemTemplate}
+                    ItemClassName={ItemClassName}
+                    selectedItem={selectedItem}
+                />
+            })}
+        </div>
+    </div>
+}
+

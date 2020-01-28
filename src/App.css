@@ -188,10 +188,12 @@ ul > li > ul > li {
 
 
 .scroll-wrapper {
-  border:5px solid purple;
+  border:1px solid purple;
 }
 .generic-list-view {
   background-color: #dddddd;
+  display: flex;
+  flex-direction: column;
 }
 .generic-list-view .generic-list-item {
   background-color: #dddddd;
