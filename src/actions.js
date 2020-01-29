@@ -146,7 +146,9 @@ export const useActionScope = (scope,actions)=>{
         onKeyDown: (e) => {
             // console.log("key target is",e.target, e.target.nodeName)
             //don't filter text input keys
-            if(e.target.nodeName === 'INPUT') return
+            if(e.target.nodeName === 'INPUT'
+                || e.target.nodeName === 'TEXTAREA'
+            ) return
             const binding = am.matchBinding(e,scope)
             // console.log("matched the binding",binding,'actions',actions)
             if(binding && actions[binding.action]) {
