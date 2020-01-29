@@ -165,7 +165,7 @@ ul > li > ul > li {
 }
 
 .scroll {
-  overflow: auto;
+  overflow: scroll;
 }
 
 
@@ -188,7 +188,8 @@ ul > li > ul > li {
 
 
 .scroll-wrapper {
-  border:1px solid purple;
+  background-color: #dddddd;
+  overflow: scroll;
 }
 .generic-list-view {
   background-color: #dddddd;

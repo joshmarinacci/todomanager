@@ -152,7 +152,7 @@ function GenericListItemView({
     const cname = makeClassNames({
         selected: isSelected,
         'generic-list-item': true,
-        [ItemClassName]:true,
+        [ItemClassName]:ItemClassName?true:false,
     })
     const hbox = useRef()
     const fm = useContext(FocusContext)
@@ -223,7 +223,7 @@ export function GenericListView({
         fm.on(acquire)
         return ()=>fm.off(acquire)
     })
-    return <div className={'scroll-wrapper'} style={style}>
+    return <div className={'scroll vbox grow'} style={style}>
         <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
             {data.map((item, i) => {
                 return <GenericListItemView

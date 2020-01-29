@@ -116,7 +116,7 @@ const MailAppContent = () => {
     } else {
         mainView = <ReadingMailView mail={mail}/>
     }
-    return <VBox onKeyDown={handlers.onKeyDown}>
+    return <VBox onKeyDown={handlers.onKeyDown} className={'grow'}>
         <Toolbar>
             {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
             <button><CornerUpLeft/>Reply</button>
@@ -168,7 +168,7 @@ function FoldersListView({selectedFolder, setFolder}) {
             fm.setMasterFocus('mails')
         },
     })
-    return <div onKeyDown={handlers.onKeyDown}>
+    return <VBox onKeyDown={handlers.onKeyDown} className={'grow'}>
         <GenericListView
             className={'folders-list-view'}
             ItemTemplate={FolderItemView}
@@ -177,7 +177,7 @@ function FoldersListView({selectedFolder, setFolder}) {
             focusName={'folders'}
             query={afq}
         />
-    </div>
+    </VBox>
 }
 
 function MailsListView({setMail, selectedMail, selectedFolder}) {
@@ -222,7 +222,7 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
             fm.setMasterFocus('viewer')
         },
     })
-    return <div onKeyDown={handlers.onKeyDown}>
+    return <VBox onKeyDown={handlers.onKeyDown} className={'grow'}>
         <GenericListView
         className={"mails-list-view"}
         ItemTemplate={MailItemView}
@@ -232,7 +232,7 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
         focusName={'mails'}
         query={q}
         />
-    </div>
+    </VBox>
 }
 
 function PopupFolderItem({item, moveMail}) {
