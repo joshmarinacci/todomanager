@@ -4,12 +4,51 @@ import {useActionScope} from './actions.js'
 import {FocusContext, GenericListView, makeClassNames} from './layout.js'
 import {Star, Trash, Trash2, CheckSquare} from "react-feather"
 
-const ProjectItemView = ({item})=> {
+const ProjectItemView = ({item,selected,focusName})=> {
     const project = item
+    const [editing, setEditing] = useState(false)
     let icon = <CheckSquare/>
+    const storage = useContext(StorageContext)
+    const input = useRef()
+    const div = useRef()
+
+    const fm = useContext(FocusContext)
+    useEffect(() => {
+        const check = () => {
+            if (div.current && selected && fm.getMasterFocus() === focusName) div.current.focus()
+        }
+        check()
+        fm.on(check)
+        return ()=>fm.off(check)
+    })
+
+    useEffect(()=> {
+        if (input.current) {
+            input.current.focus()
+        }
+    })
+
     if(project.special && project.title === 'today')  icon = <Star/>
     if(project.special && project.title === 'trash')  icon = <Trash2/>
-    return <div> {icon} <b className={"title"}>{project.title}</b></div>
+    if(editing) {
+        return (<div>
+            <input ref={input} type={'text'} value={project.title} onChange={(e)=>{
+                storage.update("projects",project,'title',e.target.value)
+            }}
+                   onKeyDown={(e)=>{
+                       if(e.key === 'Enter') {
+                           fm.popMasterFocus()
+                           setEditing(false)
+                       }
+                   }}
+            />
+            </div>)
+    } else {
+        return <div ref={div} tabIndex={0} onDoubleClick={() => {
+            setEditing(true)
+            fm.pushMasterFocus('edit')
+        }}> {icon} <b className={"title"}>{project.title}</b></div>
+    }
 }
 
 export const ProjectsListView = ({selectedProject, setSelectedProject})=> {
@@ -40,6 +79,7 @@ export const ProjectsListView = ({selectedProject, setSelectedProject})=> {
             setSelectedItem={setSelectedProject}
             focusName={'projects'}
             query={apq}
+            autoFocus={false}
         />
     </div>
 }
