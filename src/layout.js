@@ -199,6 +199,18 @@ export function GenericListView({
         },
         ...actionHandlers
     })
+    const fm = useContext(FocusContext)
+    useEffect(()=>{
+        const acquire = () => {
+            //create a selected item if there isn't one
+            if(fm.getMasterFocus() === focusName) {
+                const n = data.indexOf(selectedItem)
+                if(n < 0 && data.length > 0) setSelectedItem(data[0])
+            }
+        }
+        fm.on(acquire)
+        return ()=>fm.off(acquire)
+    })
     return <div className={'scroll-wrapper'} style={style}>
         <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
             {data.map((item, i) => {
