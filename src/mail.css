@@ -1,3 +1,16 @@
+.mailapp-grid {
+    display: grid;
+    grid-template-columns: 20rem 40rem 1fr;
+    grid-template-rows: 2rem 1fr;
+    border: 1px solid red;
+    height: 100%;
+}
+
+.mailapp-grid .grid-toolbar {
+    grid-column: 1 / span 3;
+}
+
+
 .folders-list-view {
     min-width: 10rem;
     padding: 0.0rem;
@@ -8,8 +21,6 @@
 }
 
 .mails-list-view {
-    min-width: 25rem;
-    max-width: 25rem;
     border-right: 1px solid black;
     border-top: 1px solid black;
     border-bottom: 1px solid black;

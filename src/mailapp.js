@@ -116,8 +116,8 @@ const MailAppContent = () => {
     } else {
         mainView = <ReadingMailView mail={mail}/>
     }
-    return <VBox onKeyDown={handlers.onKeyDown} className={'grow'}>
-        <Toolbar>
+    return <div onKeyDown={handlers.onKeyDown} className={'mailapp-grid'}>
+        <Toolbar className={'grid-toolbar'}>
             {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
             <button><CornerUpLeft/>Reply</button>
             <button onClick={composeNewEmail}><FileText/> New Mail</button>
@@ -128,17 +128,15 @@ const MailAppContent = () => {
             <button><Layout/></button>
             <button onClick={generateFakeEmail}><AlertOctagon/> fake</button>
         </Toolbar>
-        <HBox className={'grow stretch'}>
-            <FoldersListView selectedFolder={folder} setFolder={setFolder}/>
-            <MailsListView setMail={setMail} selectedMail={mail} selectedFolder={folder}/>
-            {mainView}
-            <VBox>
-                <h3>Shortcuts</h3>
-                <ShortcutsPanel/>
-            </VBox>
-        </HBox>
+        <FoldersListView selectedFolder={folder} setFolder={setFolder}/>
+        <MailsListView setMail={setMail} selectedMail={mail} selectedFolder={folder}/>
+        {mainView}
+        {/*<VBox>*/}
+        {/*    <h3>Shortcuts</h3>*/}
+        {/*    <ShortcutsPanel/>*/}
+        {/*</VBox>*/}
         <PopupContainer/>
-    </VBox>
+    </div>
 }
 
 function FolderIcon({folder}) {
@@ -168,7 +166,13 @@ function FoldersListView({selectedFolder, setFolder}) {
             fm.setMasterFocus('mails')
         },
     })
-    return <VBox onKeyDown={handlers.onKeyDown} className={'grow'}>
+    return <div onKeyDown={handlers.onKeyDown} style={{
+        gridColumn: '1/2',
+        gridRow:'2/3',
+        display:'flex',
+        flexDirection:'column',
+        overflow:'scroll',
+    }}>
         <GenericListView
             className={'folders-list-view'}
             ItemTemplate={FolderItemView}
@@ -177,7 +181,7 @@ function FoldersListView({selectedFolder, setFolder}) {
             focusName={'folders'}
             query={afq}
         />
-    </VBox>
+    </div>
 }
 
 function MailsListView({setMail, selectedMail, selectedFolder}) {
@@ -222,7 +226,14 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
             fm.setMasterFocus('viewer')
         },
     })
-    return <VBox onKeyDown={handlers.onKeyDown} className={'grow'}>
+    return <div onKeyDown={handlers.onKeyDown} style={{
+        gridColumn:'2/3',
+        gridRow:'2/3',
+        display:'flex',
+        flexDirection:'column',
+        overflow:'scroll',
+        alignItems:'stretch',
+    }}>
         <GenericListView
         className={"mails-list-view"}
         ItemTemplate={MailItemView}
@@ -232,7 +243,7 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
         focusName={'mails'}
         query={q}
         />
-    </VBox>
+    </div>
 }
 
 function PopupFolderItem({item, moveMail}) {

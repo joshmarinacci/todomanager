@@ -187,10 +187,6 @@ ul > li > ul > li {
 
 
 
-.scroll-wrapper {
-  background-color: #dddddd;
-  overflow: scroll;
-}
 .generic-list-view {
   background-color: #dddddd;
   display: flex;

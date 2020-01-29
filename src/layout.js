@@ -223,21 +223,19 @@ export function GenericListView({
         fm.on(acquire)
         return ()=>fm.off(acquire)
     })
-    return <div className={'scroll vbox grow'} style={style}>
-        <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
-            {data.map((item, i) => {
-                return <GenericListItemView
-                    key={i}
-                    item={item}
-                    setSelectedItem={setSelectedItem}
-                    ItemTemplate={ItemTemplate}
-                    ItemClassName={ItemClassName}
-                    ItemProps={ItemProps}
-                    selectedItem={selectedItem}
-                    focusName={focusName}
-                />
-            })}
-        </div>
+    return <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
+        {data.map((item, i) => {
+            return <GenericListItemView
+                key={i}
+                item={item}
+                setSelectedItem={setSelectedItem}
+                ItemTemplate={ItemTemplate}
+                ItemClassName={ItemClassName}
+                ItemProps={ItemProps}
+                selectedItem={selectedItem}
+                focusName={focusName}
+            />
+        })}
     </div>
 }
 
