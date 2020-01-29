@@ -106,6 +106,7 @@ export function PopupContainer(){
 export class FocusManager {
     constructor() {
         this.listeners = []
+        this.focuses = []
     }
     on(cb) {
         this.listeners.push(cb)
@@ -116,10 +117,21 @@ export class FocusManager {
     setMasterFocus(mf) {
         console.log('set focus master to',mf)
         this.mf = mf
+        this.focuses[0] = this.mf
         this.listeners.forEach(cb=>cb())
     }
     getMasterFocus() {
         return this.mf
+    }
+    pushMasterFocus(mf) {
+        this.mf = mf
+        this.focuses.unshift(this.mf)
+        this.listeners.forEach(cb=>cb())
+    }
+    popMasterFocus() {
+        this.focuses.shift()
+        this.mf = this.focuses[0]
+        this.listeners.forEach(cb=>cb())
     }
 }
 export const FocusContext = createContext()

@@ -163,10 +163,8 @@ function FoldersListView({selectedFolder, setFolder}) {
     const fm = useContext(FocusContext)
     const handlers = useActionScope('list', {
         'focus-prev-master': () => {
-            console.log("going nowhere")
         },
         'focus-next-master': () => {
-            console.log("going to the list viewer")
             fm.setMasterFocus('mails')
         },
     })
@@ -211,6 +209,7 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
             storage.update('mails',selectedMail,'archived', true)
         },
         'move-selected-emails': (e) => {
+            fm.pushMasterFocus('popup')
             pm.show(e.target, <MoveMailPopup mail={selectedMail}/>)
         },
         'reply': () => {
@@ -218,10 +217,9 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
         },
         'focus-prev-master': () => {
             fm.setMasterFocus('folders')
-            console.log("going to the mail folders")
         },
         'focus-next-master': () => {
-            console.log("going to the email viewer")
+            fm.setMasterFocus('viewer')
         },
     })
     return <div onKeyDown={handlers.onKeyDown}>
@@ -246,6 +244,7 @@ function MoveMailPopup({mail}) {
     const [folders] = useQuery(q)
     const [selFolder, setSelFolder] = useState(folders[0])
     const pm = useContext(PopupContext)
+    const fm = useContext(FocusContext)
     return <GenericListView
         style={{
             minWidth:'10rem'
@@ -254,17 +253,23 @@ function MoveMailPopup({mail}) {
         ItemTemplate={PopupFolderItem}
         selectedItem={selFolder}
         setSelectedItem={setSelFolder}
+        focusName={'popup'}
         actionHandlers={{
             'move-mail':()=>{
                 console.log('moving',mail,'to',selFolder)
+                fm.popMasterFocus()
                 pm.hide()
             },
-            'exit':()=>pm.hide(),
+            'exit':()=>{
+                fm.popMasterFocus()
+                pm.hide()
+            },
         }}
         ItemProps={{
             moveMail:()=>{
                 console.log("clicked")
                 console.log('moving',mail,'to',selFolder)
+                fm.popMasterFocus()
                 pm.hide()
             }
         }}
