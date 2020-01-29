@@ -146,6 +146,7 @@ function GenericListItemView({
                                  ItemClassName,
                                  ItemProps,
                                  focusName,
+                                 autoFocus,
                              }) {
 
     const isSelected = item === selectedItem
@@ -158,7 +159,7 @@ function GenericListItemView({
     const fm = useContext(FocusContext)
     useEffect(() => {
         const check = () => {
-            if (hbox.current && item === selectedItem && fm.getMasterFocus() === focusName) {
+            if (hbox.current && item === selectedItem && fm.getMasterFocus() === focusName && autoFocus) {
                 hbox.current.focus()
             }
         }
@@ -176,21 +177,21 @@ function GenericListItemView({
         }}
         tabIndex={0}
     >
-        <ItemTemplate item={item} {...ItemProps}/>
+        <ItemTemplate item={item} focusName={focusName} selected={isSelected} {...ItemProps}/>
     </div>
 }
 
 export function GenericListView({
                              className,
-                             style,
                              query,
                              ItemTemplate,
                              selectedItem,
                              setSelectedItem,
                              ItemClassName,
-    ItemProps,
-    actionHandlers,
-    focusName,
+                             ItemProps,
+                             actionHandlers,
+                             focusName,
+                             autoFocus=true
                          }) {
     const [data] = useQuery(query)
     const css = makeClassNames({
@@ -234,6 +235,7 @@ export function GenericListView({
                 ItemProps={ItemProps}
                 selectedItem={selectedItem}
                 focusName={focusName}
+                autoFocus={autoFocus}
             />
         })}
     </div>

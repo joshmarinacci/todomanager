@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {ActionContext, useActionScope} from './actions.js'
-import {HBox, makeClassNames, PopupButton, Spacer, VBox} from './layout.js'
+import {FocusContext, GenericListView, HBox, makeClassNames, PopupButton, Spacer, VBox} from './layout.js'
 import {StorageContext, useObjectUpdate, useQuery} from './storage.js'
 import {Star, File} from 'react-feather'
 
@@ -21,8 +21,6 @@ const ItemEditPanel = ({item, setEditing}) => {
     const endEditing = () => setEditing(false)
 
     const handlers = useActionScope('edit-item',{
-        'toggle-completed': toggleCompleted,
-        'toggle-today': toggleToday,
         'exit-edit-item': endEditing,
     })
 
@@ -58,27 +56,26 @@ const ItemEditPanel = ({item, setEditing}) => {
     </div>
 }
 
-const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=>{
+const ItemViewItem = ({item, setEditing, focusName, selected})=>{
     const hbox = useRef()
     const storage = useContext(StorageContext)
     const [setProp] = useObjectUpdate(storage,'items',item)
     const toggleCompleted = () => setProp('completed',!item.completed)
-    const toggleToday = () => setProp('today',!item.today)
+    const fm = useContext(FocusContext)
+    useEffect(() => {
+        const check = () => {
+            if (hbox.current && selected && fm.getMasterFocus() === focusName) hbox.current.focus()
+        }
+        check()
+        fm.on(check)
+        return ()=>fm.off(check)
+    })
     const handlers = useActionScope('item',{
-        'toggle-completed': toggleCompleted,
-        'toggle-today': toggleToday,
         'edit-item': ()=>  setEditing(true),
         'exit-edit-item': ()=>setEditing(false),
-        'delete-item':()=> setProp('deleted',!item.deleted),
     })
 
-    useEffect(()=>{
-        if(listFocused && isSelected && hbox.current) {
-            hbox.current.focus()
-        }
-    },[listFocused, isSelected])
     const cls = makeClassNames({
-        'selected':isSelected,
         'hbox':true,
         'todo-item':true,
         'deleted':item.deleted,
@@ -87,9 +84,8 @@ const ItemViewItem = ({item, setEditing, isSelected, setSelected, listFocused})=
                 tabIndex={0}
                 className={cls}
                 onKeyDown={handlers.onKeyDown}
-                onClick={() => setSelected(item)}
                 onDoubleClick={()=>setEditing(true)}
-    >
+        >
         <TodayIndicator item={item}/>
         <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
         <VBox>
@@ -116,47 +112,53 @@ const NotesIndicator = ({item})=>{
         return <b className={'empty-icon'}></b>
     }
 }
-const TodoItemView = ({setSelected, isSelected, item, listFocused})=>{
+const TodoItemView = ({item, focusName, selected})=>{
     const [editing, setEditing] = useState(false)
     if(editing) {
         return <ItemEditPanel item={item} setEditing={setEditing}/>
     } else {
-        return <ItemViewItem item={item} setEditing={setEditing} setSelected={setSelected} isSelected={isSelected} listFocused={listFocused}/>
+        return <ItemViewItem item={item} setEditing={setEditing} focusName={focusName} selected={selected}/>
     }
 }
 
 export const ItemsListView = ({query, project, focused}) => {
     const storage = useContext(StorageContext)
-    const [items] = useQuery(query)
-    const [sel, setSel] = useState(items[0])
-    useEffect(()=>{
-        if(items.length > 0) {
-            setSel(items[0])
-        } else {
-            setSel(null)
-        }
-    },[project,query,focused])
+    const [sel, setSel] = useState(null)
     const addItem = () => {
-        const item = am.getAction("add-item-to-target-list")(storage,project)
+        const item = storage.insert('items', {
+            title: 'empty item',
+            tags: [],
+            project:project.id,
+            completed:false,
+            today:(project.special && project.title === 'today'),
+            notes:"",
+            deleted:false,
+        })
         setSel(item)
     }
+    const fm = useContext(FocusContext)
     const handlers = useActionScope('list',{
-        'move-selection-prev':()=>{
-            const index = items.indexOf(sel)
-            if(index > 0) setSel(items[index-1])
+        'focus-prev-master': () => {
+            fm.setMasterFocus('projects')
         },
-        'move-selection-next':()=>{
-            const index = items.indexOf(sel)
-            if(index < items.length-1) setSel(items[index+1])
+        'focus-next-master': () => {
         },
         'add-item-to-target-list':addItem,
+        'toggle-completed': ()=>{
+            storage.update('items',sel,'completed',!sel.completed)
+        },
+        'toggle-today': () => {
+            storage.update('items',sel,'today',!sel.today)
+        },
+        'delete-item':(e)=> {
+            if(e.target.classList.contains('todo-item')) {
+                storage.update('items',sel,'deleted',!sel.deleted)
+            }
+        },
     })
-    const am = useContext(ActionContext)
-    const isFocused = (focused==='items')
     const cls = makeClassNames({
         'list-view':true,
         'items-view':true,
-        'focused':isFocused,
     })
     let emptyTrash = ""
     const emptyTrashAction = () => {
@@ -167,15 +169,16 @@ export const ItemsListView = ({query, project, focused}) => {
         emptyTrash = <button onClick={emptyTrashAction}>empty</button>
         addButton = ""
     }
-    return <VBox className={cls}
-                 onKeyDown={handlers.onKeyDown}>
-        {items.map(item => <TodoItemView
-            key={item.id}
-            item={item}
-            isSelected={item===sel}
-            setSelected={setSel}
-            listFocused={isFocused}
-        />)}
+    return <VBox className={cls}  onKeyDown={handlers.onKeyDown}>
+        <GenericListView
+            className={'items-list-view'}
+            ItemTemplate={TodoItemView}
+            selectedItem={sel}
+            setSelectedItem={setSel}
+            focusName={'items'}
+            query={query}
+            autoFocus={false}
+        />
         <HBox>
             {emptyTrash}
             {addButton}

@@ -6,7 +6,7 @@ import {MailApp} from './mailapp.js'
 import {List, Mail} from "react-feather"
 
 function App() {
-    const [app, setApp] = useState('mail')
+    const [app, setApp] = useState('todo')
     const switchTodo = () => setApp('todo')
     const switchMail = () => setApp('mail')
     let appcontent = ""

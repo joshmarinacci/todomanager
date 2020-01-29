@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
 import {QueryStorage, StorageContext} from './storage.js'
-import {HBox, Toolbar, VBox} from './layout.js'
+import {FocusContext, FocusManager, HBox, Toolbar, VBox} from './layout.js'
 import {ProjectsListView} from './projects.js'
 import {ItemsListView} from './items.js'
 
@@ -77,11 +77,35 @@ export const TodoApp = () => {
     storage.load().then(()=>{
         if(storage.isEmpty()) makeInitialData()
     })
+    AM.registerKeys([
 
+        //navigation
+        {action: 'move-selection-prev', key: 'ArrowUp', scope: 'list'},
+        {action: 'move-selection-prev', key: 'k', scope: 'list'},
+        {action: 'move-selection-next', key: 'ArrowDown', scope: 'list'},
+        {action: 'move-selection-next', key: 'j', scope: 'list'},
+        {action: 'focus-prev-master',  key:'ArrowLeft',  scope:'list'  },
+        {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
+
+        //list scope
+        {action: 'add-item-to-target-list',  scope:'list',  key: 'N',  control:true,  shift:true,  },
+        {action: 'add-item-to-target-list',  scope:'list',  key: 'N',  alt:true, },
+        {action: 'toggle-completed', scope:'list', key: 'period',  control:true},
+        {action: 'toggle-completed', scope: 'list', key: 'period',  alt:true },
+        {action: 'toggle-today',  scope: 'list', key:'t',  control:true,  shift:true },
+        {action: 'toggle-today',  scope:'list',  key:'t',  alt:true },
+        {action: 'delete-item',   scope:'list',  key:'backspace' },
+
+        //item scope
+        {action: 'edit-item',   key: 'Enter',  scope:'item',  },
+        { action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
+    ])
 
     return <ActionContext.Provider value={AM}>
         <StorageContext.Provider value={storage}>
-            <TodoAppContent/>
+            <FocusContext.Provider value={new FocusManager()}>
+                <TodoAppContent/>
+            </FocusContext.Provider>
         </StorageContext.Provider>
     </ActionContext.Provider>
 }
@@ -89,7 +113,6 @@ export const TodoApp = () => {
 const TodoAppContent = () => {
     const storage = useContext(StorageContext)
     const [selectedProject,setSelectedProject] = useState(null)
-    const [focusedList, setFocusedList] = useState("lists")
     const [query,setQuery] = useState(()=>{
         return storage.createQuery('items',(it)=>(selectedProject && it.project === selectedProject.id))
     })
@@ -106,11 +129,8 @@ const TodoAppContent = () => {
     const endSearching = () => {
         changeSelectedProject(selectedProject)
         setSearching(false)
-        setFocusedList("items")
     }
     const handlers = useActionScope('list',{
-        'nav-items': () => setFocusedList("items"),
-        'nav-lists': () => setFocusedList("lists"),
         'find-item': () => setSearching(true)
     })
     return <VBox>
@@ -118,8 +138,8 @@ const TodoAppContent = () => {
             <SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>
         </Toolbar>
         <HBox className={'grow stretch'} onKeyDown={handlers.onKeyDown}>
-            <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject} focusedList={focusedList}/>
-            <ItemsListView query={query} project={selectedProject} focused={focusedList}/>
+            <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
+            <ItemsListView query={query} project={selectedProject}/>
             <VBox>
                 <h3>Shortcuts</h3>
                 <ShortcutsPanel/>
