@@ -63,7 +63,7 @@ const MailAppContent = () => {
         storage.insert('mails', {
             sender: faker.name.firstName(),
             receiver: 'Josh Marinacci',
-            subject: faker.random.word(),
+            subject: faker.random.words(3),
             body: faker.lorem.paragraphs(20),
             deleted: false,
             folder: 'inbox',
@@ -171,7 +171,7 @@ function FoldersListView({selectedFolder, setFolder}) {
         gridRow:'2/3',
         display:'flex',
         flexDirection:'column',
-        overflow:'scroll',
+        overflowY:'scroll'
     }}>
         <GenericListView
             className={'folders-list-view'}
@@ -231,7 +231,7 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
         gridRow:'2/3',
         display:'flex',
         flexDirection:'column',
-        overflow:'scroll',
+        overflowY:'scroll',
         alignItems:'stretch',
     }}>
         <GenericListView
@@ -348,6 +348,9 @@ function ReadingMailView({mail}) {
                      gridColumn:'3/4',
                      gridRow:'2/3',
                      overflow:'scroll',
+                     display:'flex',
+                     flexDirection:'column',
+                     alignItems:'stretch',
                  }}
             >
         <HBox className={'subject-line'}>

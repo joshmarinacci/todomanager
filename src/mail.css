@@ -54,8 +54,6 @@
     border-right: 1px solid black;
     border-top: 1px solid black;
     border-bottom: 1px solid black;
-    min-width: 40rem;
-    max-width: 40rem;
     padding: 1rem;
     background-color: #dddddd;
 }
