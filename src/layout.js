@@ -133,7 +133,7 @@ function GenericListItemView({
                                  ItemTemplate,
                                  ItemClassName,
                                  ItemProps,
-                                 master,
+                                 focusName,
                              }) {
 
     const isSelected = item === selectedItem
@@ -145,7 +145,14 @@ function GenericListItemView({
     const hbox = useRef()
     const fm = useContext(FocusContext)
     useEffect(() => {
-        if (hbox.current && item === selectedItem && fm.getMasterFocus()===master) hbox.current.focus()
+        const check = () => {
+            if (hbox.current && item === selectedItem && fm.getMasterFocus() === focusName) {
+                hbox.current.focus()
+            }
+        }
+        check()
+        fm.on(check)
+        return ()=>fm.off(check)
     })
 
     return <div
@@ -153,7 +160,7 @@ function GenericListItemView({
         className={cname}
         onClick={() => {
             setSelectedItem(item)
-            fm.setMasterFocus(master)
+            fm.setMasterFocus(focusName)
         }}
         tabIndex={0}
     >
@@ -171,6 +178,7 @@ export function GenericListView({
                              ItemClassName,
     ItemProps,
     actionHandlers,
+    focusName,
                          }) {
     const [data] = useQuery(query)
     const css = makeClassNames({
@@ -191,7 +199,6 @@ export function GenericListView({
         },
         ...actionHandlers
     })
-    const [uuid] = useState(Math.random())
     return <div className={'scroll-wrapper'} style={style}>
         <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
             {data.map((item, i) => {
@@ -203,7 +210,7 @@ export function GenericListView({
                     ItemClassName={ItemClassName}
                     ItemProps={ItemProps}
                     selectedItem={selectedItem}
-                    master={uuid}
+                    focusName={focusName}
                 />
             })}
         </div>

@@ -160,13 +160,26 @@ function FolderItemView({item}) {
 function FoldersListView({selectedFolder, setFolder}) {
     const storage = useContext(StorageContext)
     const [afq] = useState(() => storage.createQuery('folders', f => true))
-    return <GenericListView
-        className={'folders-list-view'}
-        ItemTemplate={FolderItemView}
-        selectedItem={selectedFolder}
-        setSelectedItem={setFolder}
-        query={afq}
-    />
+    const fm = useContext(FocusContext)
+    const handlers = useActionScope('list', {
+        'focus-prev-master': () => {
+            console.log("going nowhere")
+        },
+        'focus-next-master': () => {
+            console.log("going to the list viewer")
+            fm.setMasterFocus('mails')
+        },
+    })
+    return <div onKeyDown={handlers.onKeyDown}>
+        <GenericListView
+            className={'folders-list-view'}
+            ItemTemplate={FolderItemView}
+            selectedItem={selectedFolder}
+            setSelectedItem={setFolder}
+            focusName={'folders'}
+            query={afq}
+        />
+    </div>
 }
 
 function MailsListView({setMail, selectedMail, selectedFolder}) {
@@ -189,6 +202,7 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
         }
     }, [selectedFolder])
     const pm = useContext(PopupContext)
+    const fm = useContext(FocusContext)
     const handlers = useActionScope('list',{
         'delete-selected-emails': () => {
             storage.update('mails',selectedMail,'deleted',true)
@@ -202,6 +216,13 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
         'reply': () => {
             console.log("replying to this mail")
         },
+        'focus-prev-master': () => {
+            fm.setMasterFocus('folders')
+            console.log("going to the mail folders")
+        },
+        'focus-next-master': () => {
+            console.log("going to the email viewer")
+        },
     })
     return <div onKeyDown={handlers.onKeyDown}>
         <GenericListView
@@ -210,6 +231,7 @@ function MailsListView({setMail, selectedMail, selectedFolder}) {
         ItemClassName={"mails-item-view"}
         selectedItem={selectedMail}
         setSelectedItem={setMail}
+        focusName={'mails'}
         query={q}
         />
     </div>
@@ -386,6 +408,8 @@ export const MailApp = ({}) => {
         {action: 'move-selection-prev', key: 'k', scope: 'list'},
         {action: 'move-selection-next', key: 'ArrowDown', scope: 'list'},
         {action: 'move-selection-next', key: 'j', scope: 'list'},
+        {action: 'focus-prev-master',  key:'ArrowLeft',  scope:'list'  },
+        {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
         {action: 'archive-selected-emails', key: 'a', scope: 'list'},
         {action: 'reply', key: 'r', scope: 'list'},
         {action: 'move-selected-emails', key: 'm', scope: 'list'},
