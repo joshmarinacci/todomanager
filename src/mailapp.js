@@ -256,35 +256,36 @@ function MoveMailPopup({mail}) {
     const [selFolder, setSelFolder] = useState(folders[0])
     const pm = useContext(PopupContext)
     const fm = useContext(FocusContext)
-    return <GenericListView
-        style={{
-            minWidth:'10rem'
-        }}
-        query={q}
-        ItemTemplate={PopupFolderItem}
-        selectedItem={selFolder}
-        setSelectedItem={setSelFolder}
-        focusName={'popup'}
-        actionHandlers={{
-            'move-mail':()=>{
-                console.log('moving',mail,'to',selFolder)
-                fm.popMasterFocus()
-                pm.hide()
-            },
-            'exit':()=>{
-                fm.popMasterFocus()
-                pm.hide()
-            },
-        }}
-        ItemProps={{
-            moveMail:()=>{
-                console.log("clicked")
-                console.log('moving',mail,'to',selFolder)
-                fm.popMasterFocus()
-                pm.hide()
-            }
-        }}
-        />
+    const handlers = useActionScope('list',{
+        'move-mail':()=>{
+            console.log('moving',mail,'to',selFolder)
+            fm.popMasterFocus()
+            pm.hide()
+        },
+        'exit':()=>{
+            console.log("exiting")
+            fm.popMasterFocus()
+            pm.hide()
+        },
+    })
+
+    return <div className={"move-mail-popup-wrapper"} onKeyDown={handlers.onKeyDown}>
+        <GenericListView
+            query={q}
+            ItemTemplate={PopupFolderItem}
+            selectedItem={selFolder}
+            setSelectedItem={setSelFolder}
+            focusName={'popup'}
+            ItemProps={{
+                moveMail:()=>{
+                    console.log("clicked")
+                    console.log('moving',mail,'to',selFolder)
+                    fm.popMasterFocus()
+                    pm.hide()
+                }
+            }}
+            />
+    </div>
 }
 
 function MailItemView({item}) {

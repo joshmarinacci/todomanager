@@ -88,3 +88,10 @@
 .popup-container.visible {
     display: block;
 }
+.move-mail-popup-wrapper {
+    min-width: 10rem;
+}
+.move-mail-popup-wrapper  .generic-list-item {
+    padding: 1rem;
+}
+
