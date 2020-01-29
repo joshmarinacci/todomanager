@@ -64,7 +64,7 @@ const MailAppContent = () => {
             sender: faker.name.firstName(),
             receiver: 'Josh Marinacci',
             subject: faker.random.word(),
-            body: faker.random.words(20),
+            body: faker.lorem.paragraphs(20),
             deleted: false,
             folder: 'inbox',
             timestamp: faker.date.recent().getTime(),
@@ -319,8 +319,37 @@ function formatTimestamp(timestamp) {
 }
 
 function ReadingMailView({mail}) {
-    if (!mail) return <VBox className={'reading-mail-view'}>no message selected</VBox>
-    return <VBox className={'reading-mail-view'}>
+    const fm = useContext(FocusContext)
+    const vbox = useRef()
+    useEffect(()=>{
+        const acquire = () => {
+            if(fm.getMasterFocus() === 'viewer' && vbox.current) {
+                vbox.current.focus()
+            }
+        }
+        fm.on(acquire)
+        return ()=>fm.off(acquire)
+    })
+    const handlers = useActionScope('list',{
+        'focus-prev-master': () => {
+            fm.setMasterFocus('mails')
+        },
+        'focus-next-master': () => {
+        },
+    })
+    if (!mail) return <VBox className={'reading-mail-view'}
+                            onKeyDown={handlers.onKeyDown}
+                >no message selected</VBox>
+    return <div className={'reading-mail-view'}
+                onKeyDown={handlers.onKeyDown}
+                tabIndex={0}
+                ref={vbox}
+                 style={{
+                     gridColumn:'3/4',
+                     gridRow:'2/3',
+                     overflow:'scroll',
+                 }}
+            >
         <HBox className={'subject-line'}>
             <b>{mail.subject}</b>
         </HBox>
@@ -334,7 +363,7 @@ function ReadingMailView({mail}) {
             <b>{formatTimestamp(mail.timestamp)}</b>
         </HBox>
         <HBox className={'body-line'}>{mail.body}</HBox>
-    </VBox>
+    </div>
 }
 
 function ComposingMailView({mail, done}) {

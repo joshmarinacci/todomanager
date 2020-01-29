@@ -194,6 +194,7 @@ ul > li > ul > li {
 }
 .generic-list-view .generic-list-item {
   background-color: #dddddd;
+  border: 2px solid #dddddd;
 }
 .generic-list-view .generic-list-item.selected {
   background-color: aqua;
