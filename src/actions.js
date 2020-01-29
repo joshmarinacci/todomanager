@@ -106,25 +106,6 @@ class ActionManager {
         })
         return arr
     }
-    handleKeyDown(event) {
-        // console.log("key is",event)
-        if(event.key === 'Control') return
-        const binding = this.keysList.find(binding=> {
-            if(binding.key === event.key) {
-                if(binding.control && event.ctrlKey) return true
-                if(!binding.control && !event.ctrlKey) return true
-                return false
-            }
-            return false
-        })
-        console.log("found the binding",binding)
-        if(binding) {
-            event.preventDefault()
-            event.stopPropagation()
-            const action = this.actionsMap[binding.action]
-            return action
-        }
-    }
     matchBinding(event, scope) {
         // console.log(`scope ${scope} key ${event.key} alt=${event.altKey} shift=${event.shiftKey} ctrl=${event.ctrlKey}`)
         if(event.key === 'Control') return
@@ -139,76 +120,9 @@ class ActionManager {
         })
         return binding
     }
-    getAction(str) {
-        return this.actionsMap[str]
-    }
 }
 
 const am = new ActionManager()
-am.registerActions({
-    'list-nav-prev': (items,selected,onSelect) => {
-        const index = items.indexOf(selected)
-        if(index > 0) onSelect(items[index-1])
-    },
-    'list-nav-next': (items,selected,onSelect) => {
-        const index = items.indexOf(selected)
-        if(index < items.length -1) onSelect(items[index+1])
-    },
-    'add-item-to-target-list': (storage,project) => {
-        return storage.insert('items', {
-            title: 'empty item',
-            tags: [],
-            project:project.id,
-            completed:false,
-            today:false,
-            notes:"",
-            deleted:false,
-        })
-    }
-})
-
-am.registerKeys([
-    // list scope
-    {   action: 'move-selection-prev', key: 'ArrowUp',   scope:'list' },
-    {   action: 'move-selection-next', key: 'ArrowDown', scope:'list' },
-    {   key:'ArrowUp',   shift:true,   scope: 'list',  action: 'extend-selection-prev',  },
-    {   key:'ArrowUp',   alt:true,     scope: 'items',  action: 'shift-selection-prev',  },
-    {   action:'nav-lists',  key:'ArrowLeft',  scope:'list',  },
-    {   action:'nav-items',  scope:'list',  key:'ArrowRight', },
-    {   action:'find-item',  scope:'list',  key:'F',  control:true,  },
-    {   action: 'add-item-to-target-list',  scope:'list',  key: 'N',  control:true,  shift:true,  },
-    {   action: 'add-item-to-target-list',  scope:'list',  key: 'N',  alt:true, },
-
-    {
-        key: 'ArrowDown',
-        shift:true,
-        scope:'list',
-        action: 'extend-selection-next',
-    },
-    {
-        key: 'ArrowDown',
-        alt:true,
-        scope:'items',
-        action: 'shift-selection-next',
-    },
-
-
-    // item scope
-    {   action: 'edit-item',        key: 'Enter',   scope:'item',  },
-    {   action: 'toggle-completed', scope:'item', key: 'period',  control:true},
-    {   action: 'toggle-completed', scope: 'item', key: 'period',  alt:true },
-    {   action: 'toggle-today',     scope: 'item', key:'t',  control:true,  shift:true },
-    {   action: 'toggle-today',     scope:'item',  key:'t',  alt:true },
-    {   action: 'delete-item',      scope:'item',  key:'backspace' },
-
-    // search scope
-    {  action:'exit-search',  scope:'search',  key:'Escape',  },
-
-    //edit-item scope
-    { action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
-    { action: 'toggle-completed', key: 'period',  control:true,   scope: 'edit-item' },
-    { action: 'toggle-today',     key:'t',  control:true,  shift:true,  scope:'edit-item',  },
-])
 
 export const ActionContext = createContext(am)
 
@@ -230,6 +144,9 @@ export const useActionScope = (scope,actions)=>{
     const am = useContext(ActionContext)
     return {
         onKeyDown: (e) => {
+            // console.log("key target is",e.target, e.target.nodeName)
+            //don't filter text input keys
+            if(e.target.nodeName === 'INPUT') return
             const binding = am.matchBinding(e,scope)
             // console.log("matched the binding",binding,'actions',actions)
             if(binding && actions[binding.action]) {
