@@ -71,9 +71,8 @@ export const ProjectsListView = ({selectedProject, setSelectedProject})=> {
             if(index < projects.length-1) setSelectedProject(projects[index+1])
         },
     })
-    return <div onKeyDown={handlers.onKeyDown}>
+    return <div onKeyDown={handlers.onKeyDown} className={'projects-list-view'}>
         <GenericListView
-            className={'projects-list-view'}
             ItemTemplate={ProjectItemView}
             selectedItem={selectedProject}
             setSelectedItem={setSelectedProject}

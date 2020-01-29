@@ -1,0 +1,33 @@
+.todoapp-grid {
+    display: grid;
+    grid-template-columns: 20rem 40rem 1fr;
+    grid-template-rows: 2rem 1fr;
+    border: 1px solid red;
+    height: 100%;
+}
+
+.todoapp-grid .grid-toolbar {
+    grid-column: 1 / span 3;
+}
+
+
+.todoapp-grid .projects-list-view {
+    background-color: #dddddd;
+    grid-column: 1/2;
+    grid-row: 2/3;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+
+
+.todoapp-grid .items-list-view {
+    background-color: #dddddd;
+    grid-column: 2/3;
+    grid-row: 2/3;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    align-items: stretch;
+
+}

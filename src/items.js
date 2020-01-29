@@ -156,10 +156,6 @@ export const ItemsListView = ({query, project, focused}) => {
             }
         },
     })
-    const cls = makeClassNames({
-        'list-view':true,
-        'items-view':true,
-    })
     let emptyTrash = ""
     const emptyTrashAction = () => {
         storage.delete('items',(it)=>it.deleted)
@@ -169,9 +165,8 @@ export const ItemsListView = ({query, project, focused}) => {
         emptyTrash = <button onClick={emptyTrashAction}>empty</button>
         addButton = ""
     }
-    return <VBox className={cls}  onKeyDown={handlers.onKeyDown}>
+    return <div  onKeyDown={handlers.onKeyDown} className={'items-list-view'}>
         <GenericListView
-            className={'items-list-view'}
             ItemTemplate={TodoItemView}
             selectedItem={sel}
             setSelectedItem={setSel}
@@ -183,5 +178,5 @@ export const ItemsListView = ({query, project, focused}) => {
             {emptyTrash}
             {addButton}
         </HBox>
-    </VBox>
+    </div>
 }

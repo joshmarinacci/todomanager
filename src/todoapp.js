@@ -4,6 +4,7 @@ import {QueryStorage, StorageContext} from './storage.js'
 import {FocusContext, FocusManager, HBox, Toolbar, VBox} from './layout.js'
 import {ProjectsListView} from './projects.js'
 import {ItemsListView} from './items.js'
+import './todo.css'
 
 const SearchBox = ({searching, setSearching, setQuery}) => {
     const storage = useContext(StorageContext)
@@ -133,18 +134,16 @@ const TodoAppContent = () => {
     const handlers = useActionScope('list',{
         'find-item': () => setSearching(true)
     })
-    return <VBox>
-        <Toolbar>
+    return <VBox className={'todoapp-grid'}>
+        <Toolbar className={'grid-toolbar'}>
             <SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>
         </Toolbar>
-        <HBox className={'grow stretch'} onKeyDown={handlers.onKeyDown}>
-            <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
-            <ItemsListView query={query} project={selectedProject}/>
-            <VBox>
-                <h3>Shortcuts</h3>
-                <ShortcutsPanel/>
-            </VBox>
-        </HBox>
+        <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
+        <ItemsListView query={query} project={selectedProject}/>
+        <VBox>
+            <h3>Shortcuts</h3>
+            <ShortcutsPanel/>
+        </VBox>
     </VBox>
 
 }
