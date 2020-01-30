@@ -14,7 +14,10 @@ const ItemEditPanel = ({item, setEditing}) => {
     const title = useRef()
     const storage = useContext(StorageContext)
     const [setProp] = useObjectUpdate(storage,'items',item)
-    const toggleCompleted = () => setProp('completed',!item.completed)
+    const toggleCompleted = () => {
+        setProp('completed',!item.completed)
+        setProp('completedTimestamp',Date.now())
+    }
     const toggleToday = () => setProp('today',!item.today)
     const editTitle = (e) => setProp('title',e.target.value)
     const editNotes = (e) => setProp('notes',e.target.value)
@@ -122,7 +125,7 @@ const TodoItemView = ({item, focusName, selected})=>{
     }
 }
 
-export const ItemsListView = ({query, project, focused}) => {
+export const ItemsListView = ({query, project}) => {
     const storage = useContext(StorageContext)
     const [sel, setSel] = useState(null)
     const addItem = () => {
@@ -158,6 +161,7 @@ export const ItemsListView = ({query, project, focused}) => {
             }
         },
         'shift-selection-prev':() => {
+            if(project.special) return console.log("cannot change sort in a special")
             const index = items.indexOf(sel)
             const newIndex = index-1
             console.log("moving the selection up from",index,'to',newIndex, sel)
@@ -174,6 +178,7 @@ export const ItemsListView = ({query, project, focused}) => {
             storage.update('items',sel,'sortOrder',newOrder)
         },
         'shift-selection-next':() => {
+            if(project.special) return console.log("cannot change sort in a special")
             const index = items.indexOf(sel)
             const newIndex = index+1
             console.log('moving selection',sel)

@@ -80,17 +80,27 @@ export const TodoApp = () => {
         const projs = storage.findAll('projects',()=>true)
         projs.forEach((proj) => {
             if(proj.title === 'trash') return proj.sortOrder = Number.MAX_SAFE_INTEGER
+            if(proj.title === 'completed') return proj.sortOrder = Number.MAX_SAFE_INTEGER-1
             if(proj.title === 'today') return proj.sortOrder = 0
             if(!('sortOrder' in proj)) {
                 console.log("have to add a sort order")
                 proj.sortOrder = Math.floor(Math.random()*10*1000*1000)
             }
         })
+
+        const completed = storage.find('projects',p=>p.special && p.title === 'completed')
+        if(!completed) {
+            console.log('we need to add a completed category')
+            storage.insert('projects', {title: 'completed', special: true})
+        }
         const items = storage.findAll('items',()=>true)
         items.forEach(item => {
             if(!('sortOrder' in item)) {
                 console.log("adding a sort order")
                 item.sortOrder = Math.floor(Math.random()*10*1000*1000)
+            }
+            if(!('completedTimestamp' in item)) {
+                item.completedTimestamp = 0
             }
         })
         storage.save()
@@ -141,6 +151,7 @@ const TodoAppContent = () => {
         if(project.special) {
             if(project.title === 'today') return setQuery(storage.createQuery('items', it => it.today === true))
             if(project.title === 'trash') return setQuery(storage.createQuery('items',it => it.deleted === true))
+            if(project.title === 'completed') return setQuery(storage.createQuery('items',it => it.completed === true,(a,b)=>a.completedTimestamp-b.completedTimestamp))
         } else {
             setQuery(storage.createQuery('items',
                     it=>it.project===project.id,
