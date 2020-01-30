@@ -34,3 +34,14 @@
     padding: 0.25rem 0.5rem;
     border: 2px solid transparent;
 }
+
+.notesapp-grid .note-editor {
+    background-color: #dddddd;
+    grid-column: 3/4;
+    grid-row: 2/3;
+}
+
+.note-editor .title {
+    font-size: 150%;
+    font-weight: bold;
+}

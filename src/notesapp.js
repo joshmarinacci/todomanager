@@ -1,10 +1,10 @@
-import {QueryStorage, StorageContext} from './storage.js'
+import {QueryStorage, StorageContext, useQuery} from './storage.js'
 import {ActionContext, AM, ShortcutsPanel} from './actions.js'
 import {FocusContext, FocusManager, Toolbar, VBox} from './layout.js'
 import React, {useContext, useState} from 'react'
 import {ProjectsListView} from './projects.js'
 import './notes.css'
-import {NotesListView} from './notes.js'
+import {NoteEditor, NotesListView} from './notes.js'
 
 export const NotesApp = () => {
     const storage = new QueryStorage("notes")
@@ -62,8 +62,8 @@ export const NotesApp = () => {
         {action: 'delete-note',   scope:'list',  key:'backspace' },
 
         //item scope
-        {action: 'edit-item',   key: 'Enter',  scope:'item',  },
-        { action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
+        {action: 'edit-item',   key: 'Enter',  scope:'item', },
+        {action: 'exit-edit-item',   key:'escape', scope:'edit-item', },
     ])
 
     return <ActionContext.Provider value={AM}>
@@ -81,6 +81,7 @@ const NotesAppContent = ()=>{
     const [query,setQuery] = useState(()=>{
         return storage.createQuery('notes',(it)=>(selectedProject && it.project === selectedProject.id))
     })
+    const [selectedNote, setSelectedNote] = useState(null)
     const changeSelectedProject = (project) => {
         setSelectedProject(project)
         if(project.special) {
@@ -101,10 +102,11 @@ const NotesAppContent = ()=>{
             {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject} nextFocusTarget={"notes"}/>
-        <NotesListView query={query} project={selectedProject}/>
-        <VBox>
-            <h3>Shortcuts</h3>
-            <ShortcutsPanel/>
-        </VBox>
+        <NotesListView query={query} project={selectedProject} selectedNote={selectedNote} setSelectedNote={setSelectedNote}/>
+        <NoteEditor note={selectedNote}/>
+        {/*<VBox>*/}
+        {/*    <h3>Shortcuts</h3>*/}
+        {/*    <ShortcutsPanel/>*/}
+        {/*</VBox>*/}
     </VBox>
 }
