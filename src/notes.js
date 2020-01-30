@@ -8,9 +8,7 @@ const NoteItemView = ({item, focusName, selected}) => {
     const fm = useContext(FocusContext)
     useEffect(() => {
         const check = () => {
-            console.log("checking in the note item view")
             if (hbox.current && selected && fm.getMasterFocus() === focusName) {
-                console.log("getting selected",hbox.current)
                 hbox.current.focus()
             }
         }

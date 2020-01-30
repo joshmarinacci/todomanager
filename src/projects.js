@@ -4,6 +4,7 @@ import {useActionScope} from './actions.js'
 import {FocusContext, GenericListView, makeClassNames, Spacer} from './layout.js'
 import {Star, Square, Trash2, CheckSquare, Coffee} from "react-feather"
 
+
 const ProjectItemView = ({item,selected,focusName})=> {
     const project = item
     const [editing, setEditing] = useState(false)
