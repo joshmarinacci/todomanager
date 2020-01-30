@@ -77,13 +77,20 @@ export const TodoApp = () => {
     const storage = new QueryStorage("todo")
     storage.load().then(()=>{
         if(storage.isEmpty()) makeInitialData()
-        const projs = storage.findAll('projects',p=>true)
+        const projs = storage.findAll('projects',()=>true)
         projs.forEach((proj) => {
             if(proj.title === 'trash') return proj.sortOrder = Number.MAX_SAFE_INTEGER
             if(proj.title === 'today') return proj.sortOrder = 0
             if(!('sortOrder' in proj)) {
                 console.log("have to add a sort order")
                 proj.sortOrder = Math.floor(Math.random()*10*1000*1000)
+            }
+        })
+        const items = storage.findAll('items',()=>true)
+        items.forEach(item => {
+            if(!('sortOrder' in item)) {
+                console.log("adding a sort order")
+                item.sortOrder = Math.floor(Math.random()*10*1000*1000)
             }
         })
         storage.save()
@@ -127,7 +134,7 @@ const TodoAppContent = () => {
     const storage = useContext(StorageContext)
     const [selectedProject,setSelectedProject] = useState(null)
     const [query,setQuery] = useState(()=>{
-        return storage.createQuery('items',(it)=>(selectedProject && it.project === selectedProject.id))
+        return storage.createQuery('items',(it)=>(selectedProject && it.project === selectedProject.id),(a,b)=>a.sortOrder-b.sortOrder)
     })
     const changeSelectedProject = (project) => {
         setSelectedProject(project)
@@ -135,7 +142,9 @@ const TodoAppContent = () => {
             if(project.title === 'today') return setQuery(storage.createQuery('items', it => it.today === true))
             if(project.title === 'trash') return setQuery(storage.createQuery('items',it => it.deleted === true))
         } else {
-            setQuery(storage.createQuery('items',it=>it.project===project.id))
+            setQuery(storage.createQuery('items',
+                    it=>it.project===project.id,
+                (a,b)=>a.sortOrder-b.sortOrder))
         }
     }
     const [searching, setSearching] = useState(false)

@@ -95,6 +95,7 @@ const ItemViewItem = ({item, setEditing, focusName, selected})=>{
             </b>
             <i>{getProjectTitle(storage,item)}</i>
         </VBox>
+        <i>{item.sortOrder}</i>
     </div>
 }
 const TodayIndicator = ({item})=>{
@@ -137,6 +138,7 @@ export const ItemsListView = ({query, project, focused}) => {
         setSel(item)
     }
     const fm = useContext(FocusContext)
+    const [items] = useQuery(query)
     const handlers = useActionScope('list',{
         'focus-prev-master': () => {
             fm.setMasterFocus('projects')
@@ -155,6 +157,38 @@ export const ItemsListView = ({query, project, focused}) => {
                 storage.update('items',sel,'deleted',!sel.deleted)
             }
         },
+        'shift-selection-prev':() => {
+            const index = items.indexOf(sel)
+            const newIndex = index-1
+            console.log("moving the selection up from",index,'to',newIndex, sel)
+            if(newIndex < 0) return console.log("can't move up past the start")
+            const prev = items[newIndex]
+            console.log("prev is",prev)
+            const prevprev = items[newIndex-1]
+            console.log("prevprev",prevprev)
+            let sortA = prev.sortOrder
+            let sortB = 0
+            if(prevprev) sortB = prevprev.sortOrder
+            const newOrder = (sortA + sortB)/2
+            console.log("the new order is",newOrder)
+            storage.update('items',sel,'sortOrder',newOrder)
+        },
+        'shift-selection-next':() => {
+            const index = items.indexOf(sel)
+            const newIndex = index+1
+            console.log('moving selection',sel)
+            if(newIndex > items.length-1) return console.log("cannot move down past the end")
+            const next = items[newIndex]
+            let sortA = next.sortOrder
+            let sortB = Number.MAX_SAFE_INTEGER
+            const nextnext = items[newIndex+1]
+            if(nextnext) sortB = nextnext.sortOrder
+            console.log("will be after",nextnext)
+            const newOrder = (sortA + sortB)/2
+            console.log("the new order is",newOrder)
+            storage.update('items',sel,'sortOrder',newOrder)
+        }
+
     })
     let emptyTrash = ""
     const emptyTrashAction = () => {

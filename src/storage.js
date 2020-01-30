@@ -74,11 +74,7 @@ export class QueryStorage {
     }
     update(table, obj, prop, value) {
         obj[prop] = value
-        this.queries.forEach(query => {
-            if(query.table === table) {
-                query.fire()
-            }
-        })
+        this.refresh(table)
         this.save()
     }
     delete(table,filter) {
