@@ -53,13 +53,13 @@ export const NotesApp = () => {
         {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
 
         //list scope
-        {action: 'add-item-to-target-list',  scope:'list',  key: 'N',  control:true,  shift:true,  },
-        {action: 'add-item-to-target-list',  scope:'list',  key: 'N',  alt:true, },
+        {action: 'add-note-to-target-list',  scope:'list',  key: 'N',  control:true,  shift:true,  },
+        {action: 'add-note-to-target-list',  scope:'list',  key: 'N',  alt:true, },
         {action: 'toggle-completed', scope:'list', key: 'period',  control:true},
         {action: 'toggle-completed', scope: 'list', key: 'period',  alt:true },
         {action: 'toggle-today',  scope: 'list', key:'t',  control:true,  shift:true },
         {action: 'toggle-today',  scope:'list',  key:'t',  alt:true },
-        {action: 'delete-item',   scope:'list',  key:'backspace' },
+        {action: 'delete-note',   scope:'list',  key:'backspace' },
 
         //item scope
         {action: 'edit-item',   key: 'Enter',  scope:'item',  },
@@ -79,8 +79,7 @@ const NotesAppContent = ()=>{
     const storage = useContext(StorageContext)
     const [selectedProject,setSelectedProject] = useState(null)
     const [query,setQuery] = useState(()=>{
-        // return storage.createQuery('items',(it)=>(selectedProject && it.project === selectedProject.id),(a,b)=>a.sortOrder-b.sortOrder)
-        return null
+        return storage.createQuery('notes',(it)=>(selectedProject && it.project === selectedProject.id))
     })
     const changeSelectedProject = (project) => {
         setSelectedProject(project)
@@ -92,9 +91,9 @@ const NotesAppContent = ()=>{
                 (a,b)=>a.lastEditedTimestamp-b.lastEditedTimestamp // sort by last modified
                 ))
         } else {
-            setQuery(storage.createQuery('notes',
-                (it)=>it.project===project.id  ), // only notes in the current project
-                (a,b)=>a.lastEditedTimestamp-b.lastEditedTimestamp) // sort by last modified
+            return setQuery(storage.createQuery('notes',
+                (it)=>it.project===project.id  , // only notes in the current project
+                (a,b)=>a.lastEditedTimestamp-b.lastEditedTimestamp)) // sort by last modified
         }
     }
     return <VBox className={'notesapp-grid'}>

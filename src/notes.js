@@ -1,15 +1,17 @@
 import React, {useContext, useRef, useState} from 'react'
 import {StorageContext, useQuery} from './storage.js'
-import {FocusContext, GenericListView, HBox, VBox} from './layout.js'
+import {FocusContext, GenericListView, HBox, makeClassNames, VBox} from './layout.js'
 import {useActionScope} from './actions.js'
 
 const NoteItemView = ({item, focusName, selected}) => {
     const hbox = useRef()
-    return <div ref={hbox}
-                // tabIndex={0}
-                // className={cls}
-                // onKeyDown={handlers.onKeyDown}
-    >
+    const cls = makeClassNames({
+        'hbox':true,
+        'todo-item':true,
+        'deleted':item.deleted,
+    })
+    return <div ref={hbox} className={cls}>
+        {item.title}
         some stuff is here
     </div>
 
@@ -27,34 +29,30 @@ export const NotesListView = ({query, project}) => {
             project:project.id,
             lastEditedTimestamp:Date.now(),
         })
-        console.log("made a note",note)
         setSel(note)
     }
     const fm = useContext(FocusContext)
     const [notes] = useQuery(query)
-    console.log("query",query,'made',notes)
     const handlers = useActionScope('list',{
         'focus-prev-master': () => {
             fm.setMasterFocus('projects')
         },
         'focus-next-master': () => {
         },
-        // 'add-item-to-target-list':addItem,
+        'add-note-to-target-list':addNote,
         'delete-note':(e)=> {
-            // if(e.target.classList.contains('todo-item')) {
-            //     storage.update('items',sel,'deleted',!sel.deleted)
-            // }
+            storage.update('notes',sel,'deleted',!sel.deleted)
         },
     })
-    // let emptyTrash = ""
-    // const emptyTrashAction = () => {
-    //     storage.delete('items',(it)=>it.deleted)
-    // }
+    let emptyTrash = ""
+    const emptyTrashAction = () => {
+        storage.delete('notes',(it)=>it.deleted)
+    }
     let addButton = <button onClick={addNote}>add</button>
-    // if(project && project.special && project.title === 'trash') {
-    //     emptyTrash = <button onClick={emptyTrashAction}>empty</button>
-    //     addButton = ""
-    // }
+    if(project && project.special && project.title === 'trash') {
+        emptyTrash = <button onClick={emptyTrashAction}>empty</button>
+        addButton = ""
+    }
     return <div  onKeyDown={handlers.onKeyDown} className={'notes-list-view'}>
         <GenericListView
             ItemTemplate={NoteItemView}
@@ -65,7 +63,7 @@ export const NotesListView = ({query, project}) => {
             // autoFocus={false}
         />
         <HBox>
-            {/*{emptyTrash}*/}
+            {emptyTrash}
             {addButton}
         </HBox>
     </div>
