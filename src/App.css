@@ -85,7 +85,7 @@ ul > li > ul > li {
   padding: 0.5rem;
 }
 *:focus {
-  border: 3px solid red !important;
+  border: 2px solid red !important;
 }
 .todo-item.deleted {
   color:#888;
@@ -194,7 +194,7 @@ ul > li > ul > li {
 }
 .generic-list-view .generic-list-item {
   background-color: #dddddd;
-  border: 2px solid #dddddd;
+  border: 5px solid #dddddd;
 }
 .generic-list-view .generic-list-item.selected {
   background-color: aqua;

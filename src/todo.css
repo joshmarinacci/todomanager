@@ -2,7 +2,7 @@
     display: grid;
     grid-template-columns: 20rem 40rem 1fr;
     grid-template-rows: 2rem 1fr;
-    border: 1px solid red;
+    border: 0px solid red;
     height: 100%;
 }
 
@@ -30,4 +30,8 @@
     overflow-y: scroll;
     align-items: stretch;
 
+}
+.todo-item, .project-item {
+    padding: 0.25rem 0.5rem;
+    border: 2px solid transparent;
 }

@@ -89,6 +89,9 @@ export class QueryStorage {
     find(table,filter) {
         return this.tables[table].find(filter)
     }
+    findAll(table,filter) {
+        return this.tables[table].filter(filter)
+    }
 
     refresh(table) {
         this.queries.forEach(query => {
@@ -98,8 +101,8 @@ export class QueryStorage {
         })
     }
 
-    createQuery(table, filter) {
-        const query = new Query(this, table, filter)
+    createQuery(table, filter, sort) {
+        const query = new Query(this, table, filter, sort)
         this.queries.push(query)
         return query
     }
@@ -110,16 +113,19 @@ export class QueryStorage {
 }
 
 export class Query {
-    constructor(storage, table, filter) {
+    constructor(storage, table, filter, sort) {
         this.storage = storage
         this.listeners = []
         this.table = table
         this.filter = filter
+        this.sort = sort
     }
 
     results() {
         if(!this.storage.tables[this.table]) return []
-        return this.storage.tables[this.table].filter(this.filter)
+        const res = this.storage.tables[this.table].filter(this.filter)
+        if(this.sort) res.sort(this.sort)
+        return res
     }
 
     on(cb) {

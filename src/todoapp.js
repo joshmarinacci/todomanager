@@ -77,10 +77,22 @@ export const TodoApp = () => {
     const storage = new QueryStorage("todo")
     storage.load().then(()=>{
         if(storage.isEmpty()) makeInitialData()
+        const projs = storage.findAll('projects',p=>true)
+        projs.forEach((proj) => {
+            if(proj.title === 'trash') return proj.sortOrder = Number.MAX_SAFE_INTEGER
+            if(proj.title === 'today') return proj.sortOrder = 0
+            if(!('sortOrder' in proj)) {
+                console.log("have to add a sort order")
+                proj.sortOrder = Math.floor(Math.random()*10*1000*1000)
+            }
+        })
+        storage.save()
     })
     AM.registerKeys([
 
         //navigation
+        {action: 'shift-selection-prev', key:'ArrowUp', alt:true, scope:'list'},
+        {action: 'shift-selection-next', key:'ArrowDown', alt:true, scope:'list'},
         {action: 'move-selection-prev', key: 'ArrowUp', scope: 'list'},
         {action: 'move-selection-prev', key: 'k', scope: 'list'},
         {action: 'move-selection-next', key: 'ArrowDown', scope: 'list'},
