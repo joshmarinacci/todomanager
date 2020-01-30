@@ -78,14 +78,17 @@ export class QueryStorage {
         this.save()
     }
     delete(table,filter) {
+        if (!this.tables[table]) this.tables[table] = []
         this.tables[table] = this.tables[table].filter((it)=>!filter(it))
         this.save()
         this.refresh(table)
     }
     find(table,filter) {
+        if (!this.tables[table]) this.tables[table] = []
         return this.tables[table].find(filter)
     }
     findAll(table,filter) {
+        if (!this.tables[table]) this.tables[table] = []
         return this.tables[table].filter(filter)
     }
 
