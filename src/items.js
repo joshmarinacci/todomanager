@@ -98,7 +98,6 @@ const ItemViewItem = ({item, setEditing, focusName, selected})=>{
             </b>
             <i>{getProjectTitle(storage,item)}</i>
         </VBox>
-        <i>{item.sortOrder}</i>
     </div>
 }
 const TodayIndicator = ({item})=>{

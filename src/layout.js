@@ -115,7 +115,7 @@ export class FocusManager {
         this.listeners = this.listeners.filter(c => c !== cb)
     }
     setMasterFocus(mf) {
-        console.log('set focus master to',mf)
+        // console.log('set focus master to',mf)
         this.mf = mf
         this.focuses[0] = this.mf
         this.listeners.forEach(cb=>cb())

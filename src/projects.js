@@ -2,12 +2,11 @@ import React, {useContext, useEffect, useRef, useState} from 'react'
 import {StorageContext, useQuery} from './storage.js'
 import {useActionScope} from './actions.js'
 import {FocusContext, GenericListView, makeClassNames, Spacer} from './layout.js'
-import {Star, Trash, Trash2, CheckSquare} from "react-feather"
+import {Star, Square, Trash2, CheckSquare} from "react-feather"
 
 const ProjectItemView = ({item,selected,focusName})=> {
     const project = item
     const [editing, setEditing] = useState(false)
-    let icon = <CheckSquare/>
     const storage = useContext(StorageContext)
     const input = useRef()
     const div = useRef()
@@ -28,8 +27,10 @@ const ProjectItemView = ({item,selected,focusName})=> {
         }
     })
 
+    let icon = <Square/>
     if(project.special && project.title === 'today')  icon = <Star/>
     if(project.special && project.title === 'trash')  icon = <Trash2/>
+    if(project.special && project.title === 'completed')icon = <CheckSquare/>
     if(editing) {
         return (<div>
             <input ref={input} type={'text'} value={project.title} onChange={(e)=>{
@@ -48,7 +49,7 @@ const ProjectItemView = ({item,selected,focusName})=> {
                     onDoubleClick={() => {
             setEditing(true)
             fm.pushMasterFocus('edit')
-        }}> {icon} <b className={"title"}>{project.title}</b> <Spacer/> <i>{project.sortOrder}</i></div>
+        }}> {icon} <b className={"title"}>{project.title}</b> <Spacer/> </div>
     }
 }
 
