@@ -1,6 +1,15 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {ActionContext, useActionScope} from './actions.js'
-import {FocusContext, GenericListView, HBox, makeClassNames, PopupButton, Spacer, VBox} from './layout.js'
+import {
+    FocusContext,
+    GenericListView,
+    HBox,
+    makeClassNames,
+    PopupButton,
+    Spacer,
+    useAutofocusRefWhenSelected,
+    VBox
+} from './layout.js'
 import {StorageContext, useObjectUpdate, useQuery} from './storage.js'
 import {Star, File} from 'react-feather'
 
@@ -64,15 +73,7 @@ const ItemViewItem = ({item, setEditing, focusName, selected})=>{
     const storage = useContext(StorageContext)
     const [setProp] = useObjectUpdate(storage,'items',item)
     const toggleCompleted = () => setProp('completed',!item.completed)
-    const fm = useContext(FocusContext)
-    useEffect(() => {
-        const check = () => {
-            if (hbox.current && selected && fm.getMasterFocus() === focusName) hbox.current.focus()
-        }
-        check()
-        fm.on(check)
-        return ()=>fm.off(check)
-    })
+    useAutofocusRefWhenSelected(hbox,selected,focusName)
     const handlers = useActionScope('item',{
         'edit-item': ()=>  setEditing(true),
         'exit-edit-item': ()=>setEditing(false),

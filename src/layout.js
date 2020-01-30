@@ -241,3 +241,15 @@ export function GenericListView({
     </div>
 }
 
+export const useAutofocusRefWhenSelected = (ref,selected,focusName) => {
+    const fm = useContext(FocusContext)
+    useEffect(() => {
+        const check = () => {
+            if (ref.current && selected && fm.getMasterFocus() === focusName) ref.current.focus()
+        }
+        check()
+        fm.on(check)
+        return ()=>fm.off(check)
+    })
+}
+

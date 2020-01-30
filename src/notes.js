@@ -1,30 +1,17 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {StorageContext, useQuery} from './storage.js'
-import {FocusContext, GenericListView, HBox, makeClassNames, VBox} from './layout.js'
+import {FocusContext, GenericListView, HBox, makeClassNames, useAutofocusRefWhenSelected, VBox} from './layout.js'
 import {useActionScope} from './actions.js'
 
 const NoteItemView = ({item, focusName, selected}) => {
     const hbox = useRef()
-    const fm = useContext(FocusContext)
-    useEffect(() => {
-        const check = () => {
-            if (hbox.current && selected && fm.getMasterFocus() === focusName) {
-                hbox.current.focus()
-            }
-        }
-        check()
-        fm.on(check)
-        return ()=>fm.off(check)
-    })
+    useAutofocusRefWhenSelected(hbox,selected,focusName)
     const cls = makeClassNames({
         'hbox':true,
         'todo-item':true,
         'deleted':item.deleted,
     })
-    return <div ref={hbox} className={cls} tabIndex={0}>
-        {item.title}
-    </div>
-
+    return <div ref={hbox} className={cls} tabIndex={0}>{item.title}</div>
 }
 
 export const NotesListView = ({query, project, selectedNote, setSelectedNote}) => {
@@ -101,7 +88,6 @@ export const NoteEditor = ({note}) => {
     useEffect(() => {
         const check = () => {
             if (fm.getMasterFocus() === 'editor' && input.current) {
-                console.log("grabbing editor the focus")
                 input.current.focus()
             }
         }

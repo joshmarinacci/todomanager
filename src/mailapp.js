@@ -11,6 +11,7 @@ import {
     PopupManager,
     Spacer,
     Toolbar,
+    useAutofocusRefWhenSelected,
     VBox
 } from './layout.js'
 import {AlertOctagon, Archive, ArrowRight, CornerUpLeft, FileText, Folder, Inbox, Layout, Trash2} from "react-feather"
@@ -283,15 +284,7 @@ function formatTimestamp(timestamp) {
 function ReadingMailView({mail}) {
     const fm = useContext(FocusContext)
     const vbox = useRef()
-    useEffect(()=>{
-        const acquire = () => {
-            if(fm.getMasterFocus() === 'viewer' && vbox.current) {
-                vbox.current.focus()
-            }
-        }
-        fm.on(acquire)
-        return ()=>fm.off(acquire)
-    })
+    useAutofocusRefWhenSelected(vbox,true,'viewer')
     const handlers = useActionScope('list',{
         'focus-prev-master': () => {
             fm.setMasterFocus('mails')

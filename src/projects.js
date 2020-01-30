@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {StorageContext, useQuery} from './storage.js'
 import {useActionScope} from './actions.js'
-import {FocusContext, GenericListView, makeClassNames, Spacer} from './layout.js'
+import {FocusContext, GenericListView, makeClassNames, Spacer, useAutofocusRefWhenSelected} from './layout.js'
 import {Star, Square, Trash2, CheckSquare, Coffee} from "react-feather"
 
 
@@ -13,20 +13,17 @@ const ProjectItemView = ({item,selected,focusName})=> {
     const div = useRef()
 
     const fm = useContext(FocusContext)
-    useEffect(() => {
-        const check = () => {
-            if (div.current && selected && fm.getMasterFocus() === focusName) div.current.focus()
-        }
-        check()
-        fm.on(check)
-        return ()=>fm.off(check)
-    })
+    const startEditing = ()=>{
+        if(item.special) return
+        setEditing(true)
+        fm.pushMasterFocus('edit')
+    }
+
+    useAutofocusRefWhenSelected(div,selected,focusName)
 
     useEffect(()=> {
-        if (input.current) {
-            input.current.focus()
-        }
-    })
+        if (input.current) input.current.focus()
+    },[editing])
 
     let icon = <Square/>
     if(project.special && project.title === 'today')  icon = <Star/>
@@ -34,8 +31,9 @@ const ProjectItemView = ({item,selected,focusName})=> {
     if(project.special && project.title === 'completed')icon = <CheckSquare/>
     if(project.special && project.title === 'everything')icon = <Coffee/>
     if(editing) {
-        return (<div>
-            <input ref={input} type={'text'} value={project.title} onChange={(e)=>{
+        return (<div className={'hbox project-item'}> {icon}
+            <input ref={input} type={'text'} className={'grow'}
+                   value={project.title} onChange={(e)=>{
                 storage.update("projects",project,'title',e.target.value)
             }}
                    onKeyDown={(e)=>{
@@ -48,10 +46,13 @@ const ProjectItemView = ({item,selected,focusName})=> {
             </div>)
     } else {
         return <div ref={div} tabIndex={0} className={'hbox project-item'}
-                    onDoubleClick={() => {
-            setEditing(true)
-            fm.pushMasterFocus('edit')
-        }}> {icon} <b className={"title"}>{project.title}</b> <Spacer/> </div>
+                    onKeyDown={(e)=>{
+                        if(e.key === 'Enter') startEditing()
+                    }}
+                    onDoubleClick={startEditing}>
+            {icon}
+            <b className={"title"}>{project.title}</b> <Spacer/>
+        </div>
     }
 }
 

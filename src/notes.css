@@ -19,6 +19,11 @@
     overflow-y: scroll;
 }
 
+.notesapp-grid .projects-list-view .generic-list-item input {
+    border: 1px solid black;
+    font-size: 100%;
+}
+
 
 .notesapp-grid .notes-list-view {
     background-color: #dddddd;
@@ -44,4 +49,10 @@
 .note-editor .title {
     font-size: 150%;
     font-weight: bold;
+}
+
+
+.note-editor textarea {
+    font-size: 100%;
+    font-family: sans-serif;
 }
