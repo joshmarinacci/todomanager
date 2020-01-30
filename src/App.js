@@ -7,7 +7,7 @@ import {List, Mail, FileText, Maximize2} from "react-feather"
 import {NotesApp} from './notesapp.js'
 
 function App() {
-    const [app, setApp] = useState('todo')
+    const [app, setApp] = useState('notes')
     const switchTodo = () => setApp('todo')
     const switchMail = () => setApp('mail')
     const switchNotes = () => setApp('notes')

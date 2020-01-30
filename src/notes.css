@@ -1,0 +1,36 @@
+.notesapp-grid {
+    display: grid;
+    grid-template-columns: 20rem 40rem 1fr;
+    grid-template-rows: 2rem 1fr;
+    border: 0px solid red;
+    height: 100%;
+}
+
+.notesapp-grid .grid-toolbar {
+    grid-column: 1 / span 3;
+}
+
+.notesapp-grid .projects-list-view {
+    background-color: #dddddd;
+    grid-column: 1/2;
+    grid-row: 2/3;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+
+
+.notesapp-grid .notes-list-view {
+    background-color: #dddddd;
+    grid-column: 2/3;
+    grid-row: 2/3;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    align-items: stretch;
+}
+
+.note-item, .project-item {
+    padding: 0.25rem 0.5rem;
+    border: 2px solid transparent;
+}

@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useRef, useState} from 'react'
 import {StorageContext, useQuery} from './storage.js'
 import {useActionScope} from './actions.js'
 import {FocusContext, GenericListView, makeClassNames, Spacer} from './layout.js'
-import {Star, Square, Trash2, CheckSquare} from "react-feather"
+import {Star, Square, Trash2, CheckSquare, Coffee} from "react-feather"
 
 const ProjectItemView = ({item,selected,focusName})=> {
     const project = item
@@ -31,6 +31,7 @@ const ProjectItemView = ({item,selected,focusName})=> {
     if(project.special && project.title === 'today')  icon = <Star/>
     if(project.special && project.title === 'trash')  icon = <Trash2/>
     if(project.special && project.title === 'completed')icon = <CheckSquare/>
+    if(project.special && project.title === 'everything')icon = <Coffee/>
     if(editing) {
         return (<div>
             <input ref={input} type={'text'} value={project.title} onChange={(e)=>{
@@ -53,7 +54,7 @@ const ProjectItemView = ({item,selected,focusName})=> {
     }
 }
 
-export const ProjectsListView = ({selectedProject, setSelectedProject})=> {
+export const ProjectsListView = ({selectedProject, setSelectedProject, nextFocusTarget="items"})=> {
     const storage = useContext(StorageContext)
     const [apq] = useState(()=> storage.createQuery(
         'projects', // only projects
@@ -66,7 +67,7 @@ export const ProjectsListView = ({selectedProject, setSelectedProject})=> {
         'focus-prev-master': () => {
         },
         'focus-next-master': () => {
-            fm.setMasterFocus('items')
+            fm.setMasterFocus(nextFocusTarget)
         },
         'move-selection-prev':()=>{
             const index = projects.indexOf(selectedProject)

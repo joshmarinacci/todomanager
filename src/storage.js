@@ -146,12 +146,14 @@ export class Query {
 
 
 export function useQuery (query)  {
-    const [items, setItems] = useState(query.results())
+    const [items, setItems] = useState(query?query.results():[])
     useEffect(() => {
-        setItems(query.results())
+        setItems(query?query.results():[])
         const update = () => setItems(query.results())
-        query.on(update)
-        return () => query.off(update)
+        if(query)query.on(update)
+        return () => {
+            if(query) query.off(update)
+        }
     }, [query])
     return [
         items

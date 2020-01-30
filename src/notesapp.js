@@ -1,7 +1,10 @@
 import {QueryStorage, StorageContext} from './storage.js'
-import {ActionContext, AM} from './actions.js'
-import {FocusContext, FocusManager} from './layout.js'
-import React from 'react'
+import {ActionContext, AM, ShortcutsPanel} from './actions.js'
+import {FocusContext, FocusManager, Toolbar, VBox} from './layout.js'
+import React, {useContext, useState} from 'react'
+import {ProjectsListView} from './projects.js'
+import './notes.css'
+import {NotesListView} from './notes.js'
 
 export const NotesApp = () => {
     const storage = new QueryStorage("notes")
@@ -31,7 +34,9 @@ export const NotesApp = () => {
 
         const notes = storage.findAll('notes',()=>true)
         notes.forEach(note => {
-
+            if(!('lastEditedTimestamp' in note)) {
+                note.lastEditedTimestamp = Date.now()
+            }
         })
         storage.save()
     })
@@ -71,7 +76,36 @@ export const NotesApp = () => {
 }
 
 const NotesAppContent = ()=>{
-    return <div>
-        notes app
-    </div>
+    const storage = useContext(StorageContext)
+    const [selectedProject,setSelectedProject] = useState(null)
+    const [query,setQuery] = useState(()=>{
+        // return storage.createQuery('items',(it)=>(selectedProject && it.project === selectedProject.id),(a,b)=>a.sortOrder-b.sortOrder)
+        return null
+    })
+    const changeSelectedProject = (project) => {
+        setSelectedProject(project)
+        if(project.special) {
+            if(project.title === 'everything') return setQuery(storage.createQuery('notes', () => true))
+            if(project.title === 'trash') return setQuery(storage.createQuery(
+                'notes',
+                it => it.deleted === true, // all deleted notes
+                (a,b)=>a.lastEditedTimestamp-b.lastEditedTimestamp // sort by last modified
+                ))
+        } else {
+            setQuery(storage.createQuery('notes',
+                (it)=>it.project===project.id  ), // only notes in the current project
+                (a,b)=>a.lastEditedTimestamp-b.lastEditedTimestamp) // sort by last modified
+        }
+    }
+    return <VBox className={'notesapp-grid'}>
+        <Toolbar className={'grid-toolbar'}>
+            {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
+        </Toolbar>
+        <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject} nextFocusTarget={"notes"}/>
+        <NotesListView query={query} project={selectedProject}/>
+        <VBox>
+            <h3>Shortcuts</h3>
+            <ShortcutsPanel/>
+        </VBox>
+    </VBox>
 }
