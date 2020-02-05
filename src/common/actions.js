@@ -4,6 +4,16 @@ import {useContext} from 'react'
 class ActionManager {
     constructor() {
         this.keysList = []
+        this.actionsList = {}
+        this._globalOnKeyDownHandler = (e) => {
+            const binding = this.matchBinding(e,'global')
+            if(binding) {
+                if(this.actionsList[binding.action]) {
+                    const action = this.actionsList[binding.action]
+                    action()
+                }
+            }
+        }
     }
     registerKeys(arr) {
         this.keysList = arr.map(binding => {
@@ -43,6 +53,20 @@ class ActionManager {
             return false
         })
         return binding
+    }
+    globalOnKeyDownHandler() {
+        return this._globalOnKeyDownHandler
+    }
+    registerAction(scope,name,fn) {
+        this.actionsList[name] = fn
+    }
+    runAction(scope,name) {
+        if(this.actionsList[name]) {
+            const action = this.actionsList[name]
+            action()
+        } else {
+            console.warn("missing action",name)
+        }
     }
 }
 

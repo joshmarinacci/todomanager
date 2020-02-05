@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {FocusContext, GenericListView, HBox, makeClassNames, useAutofocusRefWhenSelected, VBox} from '../common/layout.js'
-import {useActionScope} from '../common/actions.js'
+import {ActionContext, useActionScope} from '../common/actions.js'
 import {StorageContext, useQuery} from '../common/storage2.js'
 
 const NoteItemView = ({item, focusName, selected}) => {
@@ -16,50 +16,47 @@ const NoteItemView = ({item, focusName, selected}) => {
 
 const CSS = makeClassNames
 
+const AddNoteButton = ({project}) => {
+    const am = useContext(ActionContext)
+    const addNote = () => am.runAction('global','add-note-to-target-list')
+    if(project && project.special && project.title === 'trash') return ""
+    return <button onClick={addNote}>add</button>
+}
+
+const EmptyTrashButton = ({project}) => {
+    const am = useContext(ActionContext)
+    const empty = () => am.runAction('global','empty-trash')
+    if(project && project.special && project.title === 'trash') return <button onClick={empty}>empty</button>
+    return ""
+}
+
 export const NotesListView = ({query, project, selectedNote, setSelectedNote}) => {
     const storage = useContext(StorageContext)
-    const addNote = () => {
-        setSelectedNote(storage.makeObject('note',{
-            title:'my new note',
-            project:project,
-        }))
-    }
     const fm = useContext(FocusContext)
     const handlers = useActionScope('list',{
-        'focus-prev-master': () => {
-            fm.setMasterFocus('projects')
-        },
-        'focus-next-master': () => {
-            fm.setMasterFocus('editor')
-        },
-        'add-note-to-target-list':addNote,
+        'focus-prev-master': () => fm.setMasterFocus('projects'),
+        'focus-next-master': () => fm.setMasterFocus('editor'),
         'delete-note':(e)=> {
-            storage.update('notes',selectedNote,'deleted',!selectedNote.deleted)
+            storage.updateObject('note',selectedNote,'deleted',!selectedNote.deleted)
         },
     })
-    let emptyTrash = ""
-    const emptyTrashAction = () => {
-        storage.delete('notes',(it)=>it.deleted)
-    }
-    let addButton = <button onClick={addNote}>add</button>
-    if(project && project.special && project.title === 'trash') {
-        emptyTrash = <button onClick={emptyTrashAction}>empty</button>
-        addButton = ""
-    }
     const notes = useQuery(query)
     return <div className={"left-panel"} onKeyDown={handlers.onKeyDown}>
         {notes.map((n,i)=>{
-            const selected = (n === selectedNote)
             return <div key={i}
-                        className={CSS({selected,hbox:true})}
+                        className={CSS({
+                            selected:n === selectedNote,
+                            deleted:n.deleted,
+                            hbox:true,
+                        })}
                         tabIndex={0}
                         onClick={()=>setSelectedNote(n)}>
                 {n.title}
             </div>
         })}
         <HBox>
-            {emptyTrash}
-            {addButton}
+            <AddNoteButton project={project}/>
+            <EmptyTrashButton project={project}/>
         </HBox>
     </div>
 }

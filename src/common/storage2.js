@@ -70,6 +70,22 @@ export class Storage {
         this.queries.forEach(q=> q.updateIfMatch(table,newObj))
         return newObj
     }
+    updateObject(table,obj,key,val) {
+        this.log('updating object in table',table)
+        const tdata = this._accessTableData(table)
+        const uptObj = tdata.find(o => o._id === obj._id)
+        uptObj[key] = val
+        this.queries.forEach(q=> q.updateIfMatch(table,uptObj))
+        return uptObj
+    }
+
+    removeObjects(table,toDelete) {
+        this.log('removing objects in table',table)
+        let tdata = this._accessTableData(table)
+        tdata = tdata.filter((o)=>!toDelete(o))
+        this.data[table] = tdata
+        this.queries.forEach(q=> q.updateIfMatch(table,null))
+    }
 
     createEmptyQuery() {
         return new EmptyQuery()

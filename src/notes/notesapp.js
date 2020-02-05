@@ -1,5 +1,5 @@
 import {SortOrder, StorageContext, Storage, useQuery} from '../common/storage2.js'
-import {ActionContext, AM} from '../common/actions.js'
+import {ActionContext, AM, useActionScope} from '../common/actions.js'
 import {FocusContext, FocusManager, HBox, makeClassNames, VBox} from '../common/layout.js'
 import React, {useContext, useEffect, useState} from 'react'
 import './notes.css'
@@ -67,6 +67,9 @@ storage.init("notes",generate).then(()=>{
 
 export const NotesApp = () => {
     AM.registerKeys([
+        //global. anywhere in the app
+        {action: 'add-note-to-target-list',  scope:'global',  key: 'N',  control:true,  shift:true, },
+        {action: 'add-note-to-target-list',  scope:'global',  key: 'N',  alt:true, },
 
         //navigation
         {action: 'shift-selection-prev', key:'ArrowUp', alt:true, scope:'list'},
@@ -79,12 +82,6 @@ export const NotesApp = () => {
         {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
 
         //list scope
-        {action: 'add-note-to-target-list',  scope:'list',  key: 'N',  control:true,  shift:true,  },
-        {action: 'add-note-to-target-list',  scope:'list',  key: 'N',  alt:true, },
-        {action: 'toggle-completed', scope:'list', key: 'period',  control:true},
-        {action: 'toggle-completed', scope: 'list', key: 'period',  alt:true },
-        {action: 'toggle-today',  scope: 'list', key:'t',  control:true,  shift:true },
-        {action: 'toggle-today',  scope:'list',  key:'t',  alt:true },
         {action: 'delete-note',   scope:'list',  key:'backspace' },
 
         //item scope
@@ -110,6 +107,7 @@ const ProjectsListView = ({query, proj, setProj}) => {
             const selected = (p === proj)
             return <div key={i}
                          className={CSS({selected,hbox:true})}
+                         tabIndex={0}
                          onClick={()=>setProj(p)}>
                 {p.title}
             </div>
@@ -118,6 +116,7 @@ const ProjectsListView = ({query, proj, setProj}) => {
 }
 
 const NotesAppContent = ()=>{
+    const actionManager = useContext(ActionContext)
     const storage = useContext(StorageContext)
     const byLastEdited = (a,b)=> a.lastEdited-b.lastEdited
     function calcNewQuery(proj) {
@@ -141,7 +140,7 @@ const NotesAppContent = ()=>{
     }
     const [proj,setProj] = useState(null)
     const [query,setQuery] = useState(calcNewQuery(null))
-    const [selectedNote, setSelectedNote] = useState(null)
+    const [note,setNote] = useState(null)
 
     const [allProjects] = useState(()=>{
         return storage.createQuery({
@@ -154,9 +153,18 @@ const NotesAppContent = ()=>{
         setProj(newProj)
         setQuery(calcNewQuery(newProj))
     }
-    return <VBox className={'notesapp-grid'}>
+    actionManager.registerAction('global','add-note-to-target-list',()=>{
+        setNote(storage.makeObject('note',{
+            title:'my new note',
+            project:proj,
+        }))
+    })
+    actionManager.registerAction('global','empty-trash',()=>{
+        storage.removeObjects('note',(n) => n.deleted)
+    })
+    return <VBox className={'notesapp-grid'} onKeyDown={actionManager.globalOnKeyDownHandler()}>
         <ProjectsListView query={allProjects} proj={proj} setProj={changeSelectedProject} nextFocusTarget={"notes"}/>
-        <NotesListView query={query} project={proj} selectedNote={selectedNote} setSelectedNote={setSelectedNote}/>
-        <NoteEditor note={selectedNote}/>
+        <NotesListView query={query} project={proj} selectedNote={note} setSelectedNote={setNote}/>
+        <NoteEditor note={note}/>
     </VBox>
 }
