@@ -150,7 +150,7 @@ const NotesAppContent = ()=>{
         })
     })
 
-    const changeSelectedProject = (newProj) => {
+    const selectProject = (newProj) => {
         setProj(newProj)
         setQuery(calcNewQuery(newProj))
     }
@@ -165,11 +165,8 @@ const NotesAppContent = ()=>{
     })
     return <VBox className={'notesapp-grid'}
                  onKeyDown={actionManager.globalOnKeyDownHandler()}>
-        <ProjectsListView query={allProjects}
-                          proj={proj} setProj={changeSelectedProject}
-                          nextFocusTarget={"notes"}/>
-        <NotesListView query={query} project={proj}
-                       note={note} setNote={setNote}/>
+        <ProjectsListView query={allProjects} proj={proj} setProj={selectProject} nextFocusTarget={"notes"}/>
+        <NotesListView query={query} project={proj}  note={note} setNote={setNote}/>
         <NoteEditor note={note}/>
     </VBox>
 }

@@ -59,22 +59,29 @@ export const NotesListView = ({query, project, note, setNote}) => {
     </div>
 }
 
-
 export const NoteEditor = ({note}) => {
+    if (!note) {
+        return <div className={'note-editor'}>no note selected</div>
+    } else {
+        return <RealNoteEditor note={note}/>
+    }
+}
+
+export const RealNoteEditor = ({note}) => {
     const storage = useContext(StorageContext)
-    const [body,setBody] = useState(note?note.body:"")
-    const [title,setTitle] = useState(note?note.title:"")
+    const [body,setBody] = useState(note.body)
+    const [title,setTitle] = useState(note.title)
     const changedBody = (e) => {
-        storage.update('notes',note,'body',e.target.value)
+        storage.updateObject('note',note,'body',e.target.value)
         setBody(e.target.value)
     }
     const changedTitle = (e) => {
-        storage.update('notes',note,'title',e.target.value)
+        storage.updateObject('note',note,'title',e.target.value)
         setTitle(e.target.value)
     }
     useEffect(()=>{
-        setBody(note?note.body:"")
-        setTitle(note?note.title:"")
+        setBody(note.body)
+        setTitle(note.title)
     },[note])
     const editor = useRef()
     const input = useRef()
@@ -89,11 +96,8 @@ export const NoteEditor = ({note}) => {
         fm.on(check)
         return ()=>fm.off(check)
     },[note])
-    if(note) {
-        return <div className={'note-editor vbox'}>
-            <input ref={input} value={title} onChange={changedTitle}/>
-            <textarea ref={editor} className={'grow'} value={body} onChange={changedBody}/>
-        </div>
-    }
-    return <div className={'note-editor'}>no note selected</div>
+    return <div className={'note-editor vbox'}>
+        <input ref={input} value={title} onChange={changedTitle}/>
+        <textarea ref={editor} className={'grow'} value={body} onChange={changedBody}/>
+    </div>
 }
