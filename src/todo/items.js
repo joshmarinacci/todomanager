@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {useActionScope} from './actions.js'
+import {useActionScope} from '../common/actions.js'
 import {
     FocusContext,
     GenericListView,
@@ -9,8 +9,8 @@ import {
     Spacer,
     useAutofocusRefWhenSelected,
     VBox
-} from './layout.js'
-import {StorageContext, useObjectUpdate, useQuery} from './storage.js'
+} from '../common/layout.js'
+import {StorageContext, useObjectUpdate, useQuery} from '../common/storage.js'
 import {File, Star} from 'react-feather'
 
 const getProjectTitle = (storage, item) => {

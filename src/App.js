@@ -1,10 +1,10 @@
 import React, {useRef, useState} from 'react'
 import './App.css'
-import {Spacer, Toolbar} from './layout.js'
-import {TodoApp} from './todoapp.js'
-import {MailApp} from './mailapp.js'
+import {Spacer, Toolbar} from './common/layout.js'
+import {TodoApp} from './todo/todoapp.js'
+import {MailApp} from './mail/mailapp.js'
 import {FileText, List, Mail, Maximize2, Minimize2} from "react-feather"
-import {NotesApp} from './notesapp.js'
+import {NotesApp} from './notes/notesapp.js'
 
 function App() {
     const [app, setApp] = useState('notes')

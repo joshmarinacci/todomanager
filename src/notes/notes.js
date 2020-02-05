@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {StorageContext, useQuery} from './storage.js'
-import {FocusContext, GenericListView, HBox, makeClassNames, useAutofocusRefWhenSelected, VBox} from './layout.js'
-import {useActionScope} from './actions.js'
+import {StorageContext, useQuery} from '../common/storage.js'
+import {FocusContext, GenericListView, HBox, makeClassNames, useAutofocusRefWhenSelected, VBox} from '../common/layout.js'
+import {useActionScope} from '../common/actions.js'
 
 const NoteItemView = ({item, focusName, selected}) => {
     const hbox = useRef()

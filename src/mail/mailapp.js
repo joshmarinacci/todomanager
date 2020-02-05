@@ -1,6 +1,6 @@
-import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from './storage.js'
-import {ActionContext, AM, ShortcutsPanel, useActionScope} from './actions.js'
-import React, {createContext, useContext, useEffect, useRef, useState} from 'react'
+import {QueryStorage, StorageContext, useObjectUpdate, useQuery} from '../common/storage.js'
+import {ActionContext, AM, useActionScope} from '../common/actions.js'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import {
     FocusContext, FocusManager,
     GenericListView,
@@ -13,7 +13,7 @@ import {
     Toolbar,
     useAutofocusRefWhenSelected,
     VBox
-} from './layout.js'
+} from '../common/layout.js'
 import {AlertOctagon, Archive, ArrowRight, CornerUpLeft, FileText, Folder, Inbox, Layout, Trash2} from "react-feather"
 import "./mail.css"
 import * as faker from "faker"

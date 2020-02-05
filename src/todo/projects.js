@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {StorageContext, useQuery} from './storage.js'
-import {useActionScope} from './actions.js'
-import {FocusContext, GenericListView, Spacer, useAutofocusRefWhenSelected} from './layout.js'
+import {StorageContext, useQuery} from '../common/storage.js'
+import {useActionScope} from '../common/actions.js'
+import {FocusContext, GenericListView, Spacer, useAutofocusRefWhenSelected} from '../common/layout.js'
 import {CheckSquare, Coffee, Square, Star, Trash2} from "react-feather"
 
 

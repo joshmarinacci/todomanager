@@ -1,8 +1,8 @@
-import {QueryStorage, StorageContext, useQuery} from './storage.js'
-import {ActionContext, AM, ShortcutsPanel} from './actions.js'
-import {FocusContext, FocusManager, Toolbar, VBox} from './layout.js'
+import {QueryStorage, StorageContext, useQuery} from '../common/storage.js'
+import {ActionContext, AM, ShortcutsPanel} from '../common/actions.js'
+import {FocusContext, FocusManager, Toolbar, VBox} from '../common/layout.js'
 import React, {useContext, useState} from 'react'
-import {ProjectsListView} from './projects.js'
+import {ProjectsListView} from '../todo/projects.js'
 import './notes.css'
 import {NoteEditor, NotesListView} from './notes.js'
 
