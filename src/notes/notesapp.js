@@ -1,45 +1,71 @@
-import {QueryStorage, StorageContext, useQuery} from '../common/storage.js'
-import {ActionContext, AM, ShortcutsPanel} from '../common/actions.js'
-import {FocusContext, FocusManager, Toolbar, VBox} from '../common/layout.js'
-import React, {useContext, useState} from 'react'
-import {ProjectsListView} from '../todo/projects.js'
+import {SortOrder, StorageContext, Storage, useQuery} from '../common/storage2.js'
+import {ActionContext, AM} from '../common/actions.js'
+import {FocusContext, FocusManager, HBox, makeClassNames, VBox} from '../common/layout.js'
+import React, {useContext, useEffect, useState} from 'react'
 import './notes.css'
 import {NoteEditor, NotesListView} from './notes.js'
 
-export const NotesApp = () => {
-    const storage = new QueryStorage("notes")
-    function makeInitialData() {
-        storage.insert('projects', {title: 'everything', special: true})
-        const good = storage.insert('projects', {title: 'good'})
-        storage.insert('projects', {title: 'trash', special: true})
-        storage.insert("notes", {
-            id: 1,
-            title: 'first, that I can forget',
-            body: 'this is some notes: https://www.mozilla.com/',
-            tags: ['foo'],
-            sortOrder: Math.floor(Math.random()*10*1000*1000),
-            deleted: false,
-            project: good.id
-        })
+const storage = new Storage()
+const PROJECT = storage.defineTable({
+    name:'project',
+    schema: {
+        title:{
+            type:String,
+            default:'untitled'
+        },
+        deleted:{
+            type:Boolean,
+            default:false,
+        },
+        special:{
+            type:Boolean,
+            default:false,
+        },
+    },
+})
+const NOTE = storage.defineTable({
+    name:'note',
+    schema: {
+        title:{
+            type:String,
+            default:'untitled',
+        },
+        body:{
+            type:String,
+            default:'empty',
+        },
+        deleted:{
+            type:Boolean,
+            default:false,
+        },
+        order: {
+            type:SortOrder,
+            default:false,
+        },
+        lastEdited:{
+            type:Date,
+            default:()=>Date.now(),
+        },
+        project:PROJECT,
     }
-    storage.load().then(()=>{
-        if(storage.isEmpty()) makeInitialData()
-        const projs = storage.findAll('projects',()=>true)
-        projs.forEach((proj) => {
-            if(proj.title === 'trash') return proj.sortOrder = Number.MAX_SAFE_INTEGER
-            if(!('sortOrder' in proj)) {
-                proj.sortOrder = Math.floor(Math.random()*10*1000*1000)
-            }
-        })
+})
+function generate(storage) {
+    console.log("making new data in storage")
+    storage.makeObject('project',{title:'everything', special:true})
+    const good = storage.makeObject('project',{title:'good',special:false})
+    storage.makeObject('project',{title:'better',special:false})
+    const best = storage.makeObject('project',{title:'best',special:false})
+    storage.makeObject('project',{title:'trash',special:true})
+    storage.makeObject('note',   {title:'first object', body:'cool note', deleted:false, lastEdited: Date.now(), project:good})
+    storage.makeObject('note',   {title:'second object', body:'cool note', deleted:false, lastEdited: Date.now(), project:good})
+    storage.makeObject('note',   {title:'third object', body:'cool note', deleted:false, lastEdited: Date.now(), project:best})
+}
+storage.init("notes",generate).then(()=>{
+    console.log("storage is loaded")
+})
 
-        const notes = storage.findAll('notes',()=>true)
-        notes.forEach(note => {
-            if(!('lastEditedTimestamp' in note)) {
-                note.lastEditedTimestamp = Date.now()
-            }
-        })
-        storage.save()
-    })
+
+export const NotesApp = () => {
     AM.registerKeys([
 
         //navigation
@@ -75,38 +101,66 @@ export const NotesApp = () => {
     </ActionContext.Provider>
 }
 
+const CSS = makeClassNames
+
+const ProjectsListView = ({query, proj, setProj}) => {
+    const projects = useQuery(query)
+    return <div className={"left-panel"}>
+        {projects.map((p,i)=>{
+            const selected = (p === proj)
+            return <div key={i}
+                         className={CSS({selected,hbox:true})}
+                         onClick={()=>setProj(p)}>
+                {p.title}
+            </div>
+        })}
+    </div>
+}
+
 const NotesAppContent = ()=>{
     const storage = useContext(StorageContext)
-    const [selectedProject,setSelectedProject] = useState(null)
-    const [query,setQuery] = useState(()=>{
-        return storage.createQuery('notes',(it)=>(selectedProject && it.project === selectedProject.id))
-    })
-    const [selectedNote, setSelectedNote] = useState(null)
-    const changeSelectedProject = (project) => {
-        setSelectedProject(project)
-        if(project.special) {
-            if(project.title === 'everything') return setQuery(storage.createQuery('notes', () => true))
-            if(project.title === 'trash') return setQuery(storage.createQuery(
-                'notes',
-                it => it.deleted === true, // all deleted notes
-                (a,b)=>a.lastEditedTimestamp-b.lastEditedTimestamp // sort by last modified
-                ))
-        } else {
-            return setQuery(storage.createQuery('notes',
-                (it)=>it.project===project.id  , // only notes in the current project
-                (a,b)=>a.lastEditedTimestamp-b.lastEditedTimestamp)) // sort by last modified
+    const byLastEdited = (a,b)=> a.lastEdited-b.lastEdited
+    function calcNewQuery(proj) {
+        if(!proj) return storage.createEmptyQuery()
+        if(!proj.special) {
+            return storage.createQuery({
+                table:'note',
+                find:n => n.project === proj,
+                sort:byLastEdited,
+            })
         }
+
+        if(proj.title === 'everything') return storage.createQuery({
+            table:'note',
+            find: n=> true,
+            sort:byLastEdited,
+        })
+
+        if(proj.title === 'trash') return storage.createQuery({
+            table:'note',
+            find:n => n.deleted,
+            sort:byLastEdited,
+        })
+        return storage.createEmptyQuery()
+    }
+    const [proj,setProj] = useState(null)
+    const [query,setQuery] = useState(calcNewQuery(null))
+    const [selectedNote, setSelectedNote] = useState(null)
+
+    const [allProjects] = useState(()=>{
+        return storage.createQuery({
+            table:'project',
+            find: p => true,
+        })
+    })
+
+    const changeSelectedProject = (newProj) => {
+        setProj(newProj)
+        setQuery(calcNewQuery(newProj))
     }
     return <VBox className={'notesapp-grid'}>
-        <Toolbar className={'grid-toolbar'}>
-            {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
-        </Toolbar>
-        <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject} nextFocusTarget={"notes"}/>
-        <NotesListView query={query} project={selectedProject} selectedNote={selectedNote} setSelectedNote={setSelectedNote}/>
+        <ProjectsListView query={allProjects} proj={proj} setProj={changeSelectedProject} nextFocusTarget={"notes"}/>
+        <NotesListView query={query} project={proj} selectedNote={selectedNote} setSelectedNote={setSelectedNote}/>
         <NoteEditor note={selectedNote}/>
-        {/*<VBox>*/}
-        {/*    <h3>Shortcuts</h3>*/}
-        {/*    <ShortcutsPanel/>*/}
-        {/*</VBox>*/}
     </VBox>
 }
