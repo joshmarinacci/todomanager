@@ -106,7 +106,7 @@ const ProjectsListView = ({query, proj, setProj}) => {
         {projects.map((p,i)=>{
             const selected = (p === proj)
             return <div key={i}
-                         className={CSS({selected,hbox:true})}
+                         className={CSS({selected,hbox:true,'project-item':true})}
                          tabIndex={0}
                          onClick={()=>setProj(p)}>
                 {p.title}

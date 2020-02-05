@@ -1,20 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {FocusContext, GenericListView, HBox, makeClassNames, useAutofocusRefWhenSelected, VBox} from '../common/layout.js'
+import {FocusContext, HBox, CSS} from '../common/layout.js'
 import {ActionContext, useActionScope} from '../common/actions.js'
 import {StorageContext, useQuery} from '../common/storage2.js'
-
-const NoteItemView = ({item, focusName, selected}) => {
-    const hbox = useRef()
-    useAutofocusRefWhenSelected(hbox,selected,focusName)
-    const cls = makeClassNames({
-        'hbox':true,
-        'todo-item':true,
-        'deleted':item.deleted,
-    })
-    return <div ref={hbox} className={cls} tabIndex={0}>{item.title}</div>
-}
-
-const CSS = makeClassNames
 
 const AddNoteButton = ({project}) => {
     const am = useContext(ActionContext)
@@ -33,20 +20,33 @@ const EmptyTrashButton = ({project}) => {
 export const NotesListView = ({query, project, selectedNote, setSelectedNote}) => {
     const storage = useContext(StorageContext)
     const fm = useContext(FocusContext)
+    const notes = useQuery(query)
     const handlers = useActionScope('list',{
         'focus-prev-master': () => fm.setMasterFocus('projects'),
         'focus-next-master': () => fm.setMasterFocus('editor'),
         'delete-note':(e)=> {
             storage.updateObject('note',selectedNote,'deleted',!selectedNote.deleted)
         },
+        'move-selection-prev': () => {
+            const index = notes.indexOf(selectedNote)
+            if (index > 0) {
+                setSelectedNote(notes[index - 1])
+            }
+        },
+        'move-selection-next': () => {
+            const index = notes.indexOf(selectedNote)
+            if (index < notes.length - 1) {
+                setSelectedNote(notes[index + 1])
+            }
+        },
     })
-    const notes = useQuery(query)
     return <div className={"left-panel"} onKeyDown={handlers.onKeyDown}>
         {notes.map((n,i)=>{
             return <div key={i}
                         className={CSS({
                             selected:n === selectedNote,
                             deleted:n.deleted,
+                            'note-item':true,
                             hbox:true,
                         })}
                         tabIndex={0}

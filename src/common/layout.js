@@ -25,6 +25,8 @@ export function makeClassNames(map) {
     return classNames
 }
 
+export const CSS = makeClassNames
+
 export const PopupButton = ({children, getItems, itemSelected, stringify})=>{
     const [open,setOpen] = useState(false)
     const toggleOpen = () => setOpen(!open)

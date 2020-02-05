@@ -10,13 +10,20 @@
     grid-column: 1 / span 3;
 }
 
-.notesapp-grid .projects-list-view {
+.notesapp-grid .left-panel {
     background-color: #dddddd;
-    grid-column: 1/2;
+    /*grid-column: 1/2;*/
     grid-row: 2/3;
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
+    overflow-y: auto;
+    border: 1px solid black;
+    border-width: 1px 1px 1px 0;
+}
+
+.notesapp-grid button {
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0.5rem;
 }
 
 .notesapp-grid .projects-list-view .generic-list-item input {
@@ -38,6 +45,9 @@
 .note-item, .project-item {
     padding: 0.25rem 0.5rem;
     border: 2px solid transparent;
+}
+.note-item.deleted {
+    text-decoration: line-through;
 }
 
 .notesapp-grid .note-editor {
