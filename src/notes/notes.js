@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {StorageContext, useQuery} from '../common/storage.js'
 import {FocusContext, GenericListView, HBox, makeClassNames, useAutofocusRefWhenSelected, VBox} from '../common/layout.js'
 import {useActionScope} from '../common/actions.js'
+import {StorageContext, useQuery} from '../common/storage2.js'
 
 const NoteItemView = ({item, focusName, selected}) => {
     const hbox = useRef()
@@ -14,18 +14,15 @@ const NoteItemView = ({item, focusName, selected}) => {
     return <div ref={hbox} className={cls} tabIndex={0}>{item.title}</div>
 }
 
+const CSS = makeClassNames
+
 export const NotesListView = ({query, project, selectedNote, setSelectedNote}) => {
     const storage = useContext(StorageContext)
     const addNote = () => {
-        const note = storage.insert('notes', {
-            title: 'my note',
-            tags: [],
-            body:"some cool text",
-            deleted:false,
-            project:project.id,
-            lastEditedTimestamp:Date.now(),
-        })
-        setSelectedNote(note)
+        setSelectedNote(storage.makeObject('note',{
+            title:'my new note',
+            project:project,
+        }))
     }
     const fm = useContext(FocusContext)
     const handlers = useActionScope('list',{
@@ -49,15 +46,17 @@ export const NotesListView = ({query, project, selectedNote, setSelectedNote}) =
         emptyTrash = <button onClick={emptyTrashAction}>empty</button>
         addButton = ""
     }
-    return <div  onKeyDown={handlers.onKeyDown} className={'notes-list-view'}>
-        <GenericListView
-            ItemTemplate={NoteItemView}
-            selectedItem={selectedNote}
-            setSelectedItem={setSelectedNote}
-            focusName={'notes'}
-            query={query}
-            autoFocus={false}
-        />
+    const notes = useQuery(query)
+    return <div className={"left-panel"} onKeyDown={handlers.onKeyDown}>
+        {notes.map((n,i)=>{
+            const selected = (n === selectedNote)
+            return <div key={i}
+                        className={CSS({selected,hbox:true})}
+                        tabIndex={0}
+                        onClick={()=>setSelectedNote(n)}>
+                {n.title}
+            </div>
+        })}
         <HBox>
             {emptyTrash}
             {addButton}

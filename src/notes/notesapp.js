@@ -122,20 +122,16 @@ const NotesAppContent = ()=>{
     const byLastEdited = (a,b)=> a.lastEdited-b.lastEdited
     function calcNewQuery(proj) {
         if(!proj) return storage.createEmptyQuery()
-        if(!proj.special) {
-            return storage.createQuery({
-                table:'note',
-                find:n => n.project === proj,
-                sort:byLastEdited,
-            })
-        }
-
+        if(!proj.special) return storage.createQuery({
+            table:'note',
+            find:n => n.project === proj,
+            sort:byLastEdited,
+        })
         if(proj.title === 'everything') return storage.createQuery({
             table:'note',
             find: n=> true,
             sort:byLastEdited,
         })
-
         if(proj.title === 'trash') return storage.createQuery({
             table:'note',
             find:n => n.deleted,
