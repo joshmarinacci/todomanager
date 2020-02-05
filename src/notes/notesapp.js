@@ -1,7 +1,7 @@
 import {SortOrder, StorageContext, Storage, useQuery} from '../common/storage2.js'
-import {ActionContext, AM, useActionScope} from '../common/actions.js'
-import {FocusContext, FocusManager, HBox, makeClassNames, VBox} from '../common/layout.js'
-import React, {useContext, useEffect, useState} from 'react'
+import {ActionContext, AM} from '../common/actions.js'
+import {FocusContext, FocusManager, CSS, VBox} from '../common/layout.js'
+import React, {useContext, useState} from 'react'
 import './notes.css'
 import {NoteEditor, NotesListView} from './notes.js'
 
@@ -98,15 +98,16 @@ export const NotesApp = () => {
     </ActionContext.Provider>
 }
 
-const CSS = makeClassNames
-
 const ProjectsListView = ({query, proj, setProj}) => {
     const projects = useQuery(query)
     return <div className={"left-panel"}>
         {projects.map((p,i)=>{
-            const selected = (p === proj)
             return <div key={i}
-                         className={CSS({selected,hbox:true,'project-item':true})}
+                         className={CSS({
+                             selected:(p===proj),
+                             hbox:true,
+                             'project-item':true
+                         })}
                          tabIndex={0}
                          onClick={()=>setProj(p)}>
                 {p.title}
@@ -162,9 +163,13 @@ const NotesAppContent = ()=>{
     actionManager.registerAction('global','empty-trash',()=>{
         storage.removeObjects('note',(n) => n.deleted)
     })
-    return <VBox className={'notesapp-grid'} onKeyDown={actionManager.globalOnKeyDownHandler()}>
-        <ProjectsListView query={allProjects} proj={proj} setProj={changeSelectedProject} nextFocusTarget={"notes"}/>
-        <NotesListView query={query} project={proj} selectedNote={note} setSelectedNote={setNote}/>
+    return <VBox className={'notesapp-grid'}
+                 onKeyDown={actionManager.globalOnKeyDownHandler()}>
+        <ProjectsListView query={allProjects}
+                          proj={proj} setProj={changeSelectedProject}
+                          nextFocusTarget={"notes"}/>
+        <NotesListView query={query} project={proj}
+                       note={note} setNote={setNote}/>
         <NoteEditor note={note}/>
     </VBox>
 }

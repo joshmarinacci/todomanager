@@ -17,26 +17,24 @@ const EmptyTrashButton = ({project}) => {
     return ""
 }
 
-export const NotesListView = ({query, project, selectedNote, setSelectedNote}) => {
+export const NotesListView = ({query, project, note, setNote}) => {
     const storage = useContext(StorageContext)
     const fm = useContext(FocusContext)
     const notes = useQuery(query)
     const handlers = useActionScope('list',{
         'focus-prev-master': () => fm.setMasterFocus('projects'),
         'focus-next-master': () => fm.setMasterFocus('editor'),
-        'delete-note':(e)=> {
-            storage.updateObject('note',selectedNote,'deleted',!selectedNote.deleted)
-        },
+        'delete-note':(e)=> storage.updateObject('note',note,'deleted',!note.deleted),
         'move-selection-prev': () => {
-            const index = notes.indexOf(selectedNote)
+            const index = notes.indexOf(note)
             if (index > 0) {
-                setSelectedNote(notes[index - 1])
+                setNote(notes[index - 1])
             }
         },
         'move-selection-next': () => {
-            const index = notes.indexOf(selectedNote)
+            const index = notes.indexOf(note)
             if (index < notes.length - 1) {
-                setSelectedNote(notes[index + 1])
+                setNote(notes[index + 1])
             }
         },
     })
@@ -44,13 +42,13 @@ export const NotesListView = ({query, project, selectedNote, setSelectedNote}) =
         {notes.map((n,i)=>{
             return <div key={i}
                         className={CSS({
-                            selected:n === selectedNote,
+                            selected:n === note,
                             deleted:n.deleted,
                             'note-item':true,
                             hbox:true,
                         })}
                         tabIndex={0}
-                        onClick={()=>setSelectedNote(n)}>
+                        onClick={()=>setNote(n)}>
                 {n.title}
             </div>
         })}
