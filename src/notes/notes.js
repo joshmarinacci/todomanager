@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {FocusContext, HBox, CSS} from '../common/layout.js'
 import {ActionContext, useActionScope} from '../common/actions.js'
-import {StorageContext, useQuery} from '../common/storage2.js'
+import {StorageContext, useDraft, useQuery} from '../common/storage2.js'
 
 const AddNoteButton = ({project}) => {
     const am = useContext(ActionContext)
@@ -68,36 +68,10 @@ export const NoteEditor = ({note}) => {
 }
 
 export const RealNoteEditor = ({note}) => {
-    const storage = useContext(StorageContext)
-    const [body,setBody] = useState(note.body)
-    const [title,setTitle] = useState(note.title)
-    const changedBody = (e) => {
-        storage.updateObject('note',note,'body',e.target.value)
-        setBody(e.target.value)
-    }
-    const changedTitle = (e) => {
-        storage.updateObject('note',note,'title',e.target.value)
-        setTitle(e.target.value)
-    }
-    useEffect(()=>{
-        setBody(note.body)
-        setTitle(note.title)
-    },[note])
-    const editor = useRef()
-    const input = useRef()
-    const fm = useContext(FocusContext)
-    useEffect(() => {
-        const check = () => {
-            if (fm.getMasterFocus() === 'editor' && input.current) {
-                input.current.focus()
-            }
-        }
-        check()
-        fm.on(check)
-        return ()=>fm.off(check)
-    },[note])
+    const [draft, update, save] = useDraft(note)
     return <div className={'note-editor vbox'}>
-        <input ref={input} value={title} onChange={changedTitle}/>
-        <textarea ref={editor} className={'grow'} value={body} onChange={changedBody}/>
+        <input value={draft.title} onChange={(e)=>update('title',e.target.value)}/>
+        <textarea className={'grow'} value={draft.body} onChange={(e)=>update('body',e.target.value)}/>
+        <button onClick={save}>save</button>
     </div>
 }

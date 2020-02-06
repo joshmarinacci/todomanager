@@ -11,7 +11,7 @@
 * Queries have updatable parameters
  */
 
-import {createContext, useEffect, useState} from 'react'
+import {createContext, useContext, useEffect, useState} from 'react'
 import * as localforage from "localforage"
 
 const ID_COUNTER_KEY = 'ID_COUNTER'
@@ -151,3 +151,36 @@ export function useQuery (query) {
 export const SortOrder = "SortOrder"
 
 export const StorageContext = createContext()
+
+
+export const useDraft = (note) => {
+    const storage = useContext(StorageContext)
+    const [temp,setTemp] = useState(()=>{
+        const obj = {}
+        Object.keys(note).forEach(key => {
+            obj[key] = note[key]
+        })
+        return obj
+    })
+    const update = (target,val) => {
+        const obj = {}
+        Object.keys(note).forEach(key => {
+            obj[key] = (key===target)?val:temp[key]
+        })
+        setTemp(obj)
+    }
+    const save = () => {
+        Object.keys(note).forEach(key => {
+            const oval = note[key]
+            const nval = temp[key]
+            if(oval !== nval) {
+                storage.updateObject('note',note,key,nval)
+            }
+        })
+    }
+    useEffect(()=>{
+        setTemp(note)
+    },[note])
+    return [temp, update, save]
+}
+
