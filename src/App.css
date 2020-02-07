@@ -199,3 +199,8 @@ ul > li > ul > li {
 .generic-list-view .generic-list-item.selected {
   background-color: aqua;
 }
+
+
+button.selected {
+  background-color: aqua;
+}

@@ -1,13 +1,13 @@
 import React, {useRef, useState} from 'react'
 import './App.css'
-import {Spacer, Toolbar} from './common/layout.js'
+import {CSS, Spacer, Toolbar} from './common/layout.js'
 import {TodoApp} from './todo/todoapp.js'
 import {MailApp} from './mail/mailapp.js'
 import {FileText, List, Mail, Maximize2, Minimize2} from "react-feather"
 import {NotesApp} from './notes/notesapp.js'
 
 function App() {
-    const [app, setApp] = useState('notes')
+    const [app, setApp] = useState('mail')
     const switchTodo = () => setApp('todo')
     const switchMail = () => setApp('mail')
     const switchNotes = () => setApp('notes')
@@ -27,9 +27,12 @@ function App() {
 
     return <div className={'fillbox'} ref={top}>
         <Toolbar>
-            <button onClick={switchTodo}><List/> todo</button>
-            <button onClick={switchMail}><Mail/> mail</button>
-            <button onClick={switchNotes}><FileText/> notes</button>
+            <button onClick={switchTodo}
+                    className={CSS({selected:app==='todo'})}><List/> todo</button>
+            <button onClick={switchMail}
+                    className={CSS({selected:app==='mail'})}><Mail/> mail</button>
+            <button onClick={switchNotes}
+                    className={CSS({selected:app==='notes'})}><FileText/> notes</button>
             <Spacer/>
             <button onClick={toggleFullscreen}>{fsicon} full screen</button>
         </Toolbar>

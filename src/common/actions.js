@@ -1,7 +1,7 @@
 import React, {createContext} from 'react'
 import {useContext} from 'react'
 
-class ActionManager {
+export class ActionManager {
     constructor() {
         this.keysList = []
         this.actionsList = {}

@@ -143,12 +143,7 @@ const NotesAppContent = ()=>{
     const [query,setQuery] = useState(calcNewQuery(null))
     const [note,setNote] = useState(null)
 
-    const [allProjects] = useState(()=>{
-        return storage.createQuery({
-            table:'project',
-            find: p => true,
-        })
-    })
+    const [allProjects] = useState(()=> storage.createQuery({ table:'project', find: p => true, }))
 
     const selectProject = (newProj) => {
         setProj(newProj)
