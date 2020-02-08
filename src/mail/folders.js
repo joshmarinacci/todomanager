@@ -127,6 +127,7 @@ function MoveMailPopup({mail}) {
     const handlers = useActionScope('list',{
         'move-mail':()=>{
             console.log('moving',mail,'to',selFolder)
+            storage.updateObject('message',mail,'folder',selFolder.title)
             fm.popMasterFocus()
             pm.hide()
         },
