@@ -154,6 +154,7 @@ function GenericListItemView({
     const isSelected = item === selectedItem
     const cname = makeClassNames({
         selected: isSelected,
+        'item':true,
         'generic-list-item': true,
         [ItemClassName]:ItemClassName?true:false,
     })

@@ -16,7 +16,7 @@ export function ReadingMailView({mail}) {
     if (!mail) return <VBox className={'reading-mail-view'}
                             onKeyDown={handlers.onKeyDown}
     >no message selected</VBox>
-    return <div className={'reading-mail-view'}
+    return <div className={'reading-mail-view panel'}
                 onKeyDown={handlers.onKeyDown}
                 tabIndex={0}
                 ref={vbox}

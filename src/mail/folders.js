@@ -31,7 +31,7 @@ export function FoldersListView({selectedFolder, setFolder}) {
             fm.setMasterFocus('mails')
         },
     })
-    return <div onKeyDown={handlers.onKeyDown} style={{
+    return <div onKeyDown={handlers.onKeyDown} className={"panel"} style={{
         gridColumn: '1/2',
         gridRow:'2/3',
         display:'flex',
@@ -94,12 +94,12 @@ export function MailsListView({setMail, selectedMail, selectedFolder}) {
             fm.setMasterFocus('viewer')
         },
     })
-    return <div onKeyDown={handlers.onKeyDown} style={{
+    return <div onKeyDown={handlers.onKeyDown} className={'panel'} style={{
         gridColumn:'2/3',
         gridRow:'2/3',
         display:'flex',
         flexDirection:'column',
-        overflowY:'scroll',
+        overflowY:'auto',
         alignItems:'stretch',
     }}>
         <GenericListView
