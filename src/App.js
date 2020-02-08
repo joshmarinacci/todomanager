@@ -1,10 +1,28 @@
-import React, {useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import './App.css'
 import {CSS, Spacer, Toolbar} from './common/layout.js'
 import {TodoApp} from './todo/todoapp.js'
 import {MailApp} from './mail/mailapp.js'
-import {FileText, List, Mail, Maximize2, Minimize2} from "react-feather"
+import {FileText, List, Mail, Maximize2, Minimize2, Settings} from "react-feather"
 import {NotesApp} from './notes/notesapp.js'
+
+const ConnectedButton = () => {
+    const [online, setOnline] = useState(window.navigator.onLine)
+    useEffect(()=>{
+        const h = () =>  setOnline(window.navigator.onLine)
+        window.addEventListener('online',h)
+        window.addEventListener('offline',h)
+        return ()=>{
+            window.removeEventListener('online',h)
+            window.removeEventListener('offline',h)
+        }
+    })
+    if(online) {
+        return <label>online</label>
+    } else {
+        return <label>offline</label>
+    }
+}
 
 function App() {
     const [app, setApp] = useState('mail')
@@ -34,7 +52,8 @@ function App() {
             <button onClick={switchNotes}
                     className={CSS({selected:app==='notes'})}><FileText/> notes</button>
             <Spacer/>
-            <button onClick={toggleFullscreen}>{fsicon} full screen</button>
+            <button onClick={toggleFullscreen}>{fsicon}</button>
+            <ConnectedButton/>
         </Toolbar>
         {appcontent}
     </div>

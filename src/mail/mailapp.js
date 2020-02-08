@@ -1,19 +1,26 @@
 import {ActionContext, ActionManager, AM, useActionScope} from '../common/actions.js'
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {
+    DialogManager,
+    DialogContext,
     FocusContext, FocusManager,
-    GenericListView,
-    HBox,
-    makeClassNames,
     PopupContainer,
     PopupContext,
     PopupManager,
     Spacer,
     Toolbar,
-    useAutofocusRefWhenSelected,
-    VBox
+    DialogContainer, CSS
 } from '../common/layout.js'
-import {AlertOctagon, Archive, ArrowRight, CornerUpLeft, FileText, Folder, Inbox, Layout, Trash2} from "react-feather"
+import {
+    AlertOctagon,
+    Archive,
+    ArrowRight,
+    CornerUpLeft,
+    FileText,
+    Layout,
+    Settings,
+    Trash2
+} from "react-feather"
 import "./mail.css"
 import * as faker from "faker"
 import {StorageContext, Storage} from '../common/storage2.js'
@@ -110,15 +117,36 @@ export const MailApp = () => {
     ])
     return <ActionContext.Provider value={am}>
         <StorageContext.Provider value={storage}>
-            <PopupContext.Provider value={new PopupManager()}>
-                <FocusContext.Provider value={new FocusManager()}>
-                    <MailAppContent/>
-                </FocusContext.Provider>
-            </PopupContext.Provider>
+            <DialogContext.Provider value={new DialogManager()}>
+                <PopupContext.Provider value={new PopupManager()}>
+                    <FocusContext.Provider value={new FocusManager()}>
+                        <MailAppContent/>
+                    </FocusContext.Provider>
+                </PopupContext.Provider>
+            </DialogContext.Provider>
         </StorageContext.Provider>
     </ActionContext.Provider>
 }
 
+const SettingsDialog = () => {
+    const dm = useContext(DialogContext)
+    const css = CSS({
+        dialog:'true'
+    })
+    const hide = () => {
+        dm.hide()
+    }
+    return <div className={css}>
+        <header>Settings</header>
+        <div className='body'>
+            <label>change your theme</label>
+        </div>
+        <footer>
+            <Spacer/>
+            <button onClick={hide}>done</button>
+        </footer>
+    </div>
+}
 const MailAppContent = () => {
     const storage = useContext(StorageContext)
     const [mail, setMail] = useState(null)
@@ -168,6 +196,11 @@ const MailAppContent = () => {
         setComposing(true)
         setMail(newMail)
     }
+    const dm = useContext(DialogContext)
+    const showSettings = () => {
+        dm.show(<SettingsDialog/>)
+    }
+
     const handlers = useActionScope('global', {
         'compose-new-mail': composeNewEmail,
         'reply': reply
@@ -191,10 +224,12 @@ const MailAppContent = () => {
             <Spacer/>
             <button><Layout/></button>
             <button onClick={generateFakeEmail}><AlertOctagon/> fake</button>
+            <button onClick={showSettings}><Settings/></button>
         </Toolbar>
         <FoldersListView selectedFolder={folder} setFolder={setFolder}/>
         <MailsListView setMail={setMail} selectedMail={mail} selectedFolder={folder}/>
         {mainView}
+        <DialogContainer/>
         <PopupContainer/>
     </div>
 }
