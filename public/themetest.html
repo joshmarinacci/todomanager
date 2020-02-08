@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        main {
+            border: 5px solid black;
+            width: 30em;
+            height: 20em;
+            display: flex;
+            flex-direction: row;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        ul {
+            border: 5px solid gray;
+            padding: 0;
+            list-style: none;
+            padding: 1rem;
+            border-width: 1px 1px 1px 0;
+            margin:0;
+        }
+
+        ul.focused {
+        }
+
+        li {
+            border: 0px solid red;
+            padding: 1rem;
+            border-radius: 1.5rem;
+        }
+
+        li + li.selected {
+            background-color: aquamarine;
+            border-radius: 1.5rem 1.5rem 0 0;
+        }
+        li.selected + li.selected {
+            background-color: aquamarine;
+            border-radius: 0 0 1.5rem 1.5rem;
+        }
+
+        li.selected + li {
+            background-color: transparent;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<main>
+
+<ul>
+    <li>Project 1</li>
+    <li>Project 2</li>
+    <li>Project 3</li>
+    <li>Trash</li>
+</ul>
+
+<ul class="focused">
+    <li>The first thing I need to do</li>
+    <li class="selected">the second thing I need to do. sel.</li>
+    <li class="selected">the third thign I need to do. sel.</li>
+    <li>the fourth thing I need to do.</li>
+    <li>the fifth thing I need to do</li>
+</ul>
+
+</main>
+
+</body>
+</html>
