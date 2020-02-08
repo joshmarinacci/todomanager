@@ -3,7 +3,7 @@ import './App.css'
 import {CSS, Spacer, Toolbar} from './common/layout.js'
 import {TodoApp} from './todo/todoapp.js'
 import {MailApp} from './mail/mailapp.js'
-import {FileText, List, Mail, Maximize2, Minimize2, Settings} from "react-feather"
+import {FileText, List, Mail, Maximize2, Minimize2, Wifi, WifiOff} from "react-feather"
 import {NotesApp} from './notes/notesapp.js'
 
 const ConnectedButton = () => {
@@ -18,9 +18,9 @@ const ConnectedButton = () => {
         }
     })
     if(online) {
-        return <label>online</label>
+        return <Wifi/>
     } else {
-        return <label>offline</label>
+        return <WifiOff/>
     }
 }
 
