@@ -9,7 +9,7 @@ import {
     PopupManager,
     Spacer,
     Toolbar,
-    DialogContainer, CSS
+    DialogContainer, CSS, HBox
 } from '../common/layout.js'
 import {
     AlertOctagon,
@@ -128,6 +128,10 @@ export const MailApp = () => {
     </ActionContext.Provider>
 }
 
+const SPACING = {
+    'comfortable': '1.0rem',
+    'tight':'0.5rem',
+}
 const SettingsDialog = () => {
     const dm = useContext(DialogContext)
     const css = CSS({
@@ -136,10 +140,23 @@ const SettingsDialog = () => {
     const hide = () => {
         dm.hide()
     }
+
+    const [spacing,setSpacing] = useState('comfortable')
     return <div className={css}>
         <header>Settings</header>
         <div className='body'>
             <label>change your theme</label>
+            <HBox>
+            <label>spacing</label>
+            <select value={spacing} onChange={(e)=>{
+                const v = e.target.value
+                document.documentElement.style.setProperty('--spacing',SPACING[v])
+                setSpacing(v)
+            }}>
+                <option value={"comfortable"}>comfortable</option>
+                <option value={"tight"}>tight</option>
+            </select>
+            </HBox>
         </div>
         <footer>
             <Spacer/>

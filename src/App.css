@@ -60,11 +60,12 @@ body {
 
 /* ======== default colors ============= */
 
-body {
+html {
   --tool-bg: #aaaaaa;
   --content-bg: #dddddd;
   --focus-bg: #ffffff;
   --font-color: #333333;
+  --spacing: 1.0rem;
 }
 
 /* ========= toolbars ========== */
@@ -92,7 +93,7 @@ body {
   background-color: var(--content-bg);
   transition: all 0.15s ease-out;
   border: 1px solid gray;
-  padding: 1rem;
+  padding: var(--spacing);
   border-width: 0px 1px 0px 0;
   color: var(--font-color);
 }
@@ -102,7 +103,7 @@ body {
 
 .item {
   border: 0px solid red;
-  padding: 1rem;
+  padding: var(--spacing);
   background-color: transparent;
   transition: all 0.2s ease-out;
 }
@@ -182,38 +183,6 @@ body {
 /*  padding: 1em;*/
 /*}*/
 
-/*button {*/
-/*  border: 1px solid black;*/
-/*  background-color: #ddd;*/
-/*}*/
-/*button.primary {*/
-/*  background-color: aqua;*/
-/*}*/
-
-
-/*ul.shortcuts {*/
-/*  list-style: none;*/
-/*  min-width: 20em;*/
-/*}*/
-/*ul > li {*/
-/*  border:0px solid red;*/
-/*}*/
-/*ul > li > ul {*/
-/*  padding:0;*/
-/*  padding-left: 0.5em;*/
-/*  display: block;*/
-/*}*/
-/*ul > li > ul > li {*/
-/*  display: inline;*/
-/*  padding-left: 0.5em;*/
-/*  font-weight: bold;*/
-/*}*/
-
-/*.items-view {*/
-/*  min-width: 20em;*/
-/*  width: 20em;*/
-/*}*/
-
 /*.todo-item {*/
 /*  border: 0px solid black;*/
 /*  align-items: center;*/
@@ -233,23 +202,10 @@ body {
 /*  margin-left: 0.5rem;*/
 /*}*/
 
-/*.project-item:focus {*/
-/*  border: 0px solid red;*/
-/*}*/
-/*.project-item .title {*/
-/*  padding-left: 0.5rem;*/
-/*}*/
-
 /*.empty-icon {*/
 /*  width: 1rem;*/
 /*}*/
 
-/*.list-view {*/
-/*  border: 2px solid black;*/
-/*}*/
-/*.list-view.focused {*/
-/*  border: 2px solid red;*/
-/*}*/
 
 /*.edit-panel {*/
 /*  border: 1px solid green;*/

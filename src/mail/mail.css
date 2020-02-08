@@ -17,42 +17,11 @@
     min-width: 10rem;
     padding: 0.0rem;
 }
-
-.folders-list-view .generic-list-item {
-    padding: 0.5rem 1.0rem;
-}
-
-
-
-/*
-.mails-list-view {
-    border-right: 1px solid black;
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
-    background-color: #dddddd;
-}
-
-.mails-list-view .mail {
-    padding: 1.0rem;
- }
-
-
-
-
-.mails-list-view .subject {
-    font-size: 90%;
-}
-.mails-list-view {
-    font-weight: bold;
-}
-
-.mails-list-view .mail.read  {
-    font-weight: normal;
-}
 .mail.deleted {
     text-decoration: line-through;
 }
 
+/*
 
 
 .reading-mail-view {
