@@ -27,6 +27,7 @@ import {StorageContext, Storage} from '../common/storage2.js'
 import {ReadingMailView} from './read.js'
 import {ComposingMailView} from './compose.js'
 import {FoldersListView, MailsListView} from './folders.js'
+import {SettingsDialog} from './settings.js'
 
 const storage = new Storage()
 const FOLDER = storage.defineTable({
@@ -128,42 +129,6 @@ export const MailApp = () => {
     </ActionContext.Provider>
 }
 
-const SPACING = {
-    'comfortable': '1.0rem',
-    'tight':'0.5rem',
-}
-const SettingsDialog = () => {
-    const dm = useContext(DialogContext)
-    const css = CSS({
-        dialog:'true'
-    })
-    const hide = () => {
-        dm.hide()
-    }
-
-    const [spacing,setSpacing] = useState('comfortable')
-    return <div className={css}>
-        <header>Settings</header>
-        <div className='body'>
-            <label>change your theme</label>
-            <HBox>
-            <label>spacing</label>
-            <select value={spacing} onChange={(e)=>{
-                const v = e.target.value
-                document.documentElement.style.setProperty('--spacing',SPACING[v])
-                setSpacing(v)
-            }}>
-                <option value={"comfortable"}>comfortable</option>
-                <option value={"tight"}>tight</option>
-            </select>
-            </HBox>
-        </div>
-        <footer>
-            <Spacer/>
-            <button onClick={hide}>done</button>
-        </footer>
-    </div>
-}
 
 
 const MailAppContent = () => {

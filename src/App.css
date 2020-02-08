@@ -59,27 +59,32 @@ body {
 
 html {
   --tool-bg: #aaaaaa;
+  --tool-fg: #333;
   --content-bg: #dddddd;
   --focus-bg: #ffffff;
+  --active-bg: aquamarine;
   --font-color: #333333;
   --spacing: 1.0rem;
 }
 
 /* ========= toolbars ========== */
 .toolbar {
-  background-color: var(--tool-bg);
+  background: var(--tool-bg);
   display: flex;
   flex-direction: row;
   box-sizing: content-box;
   min-height: calc(1.0rem + 2 * var(--spacing));
+  color: var(--tool-fg)
 }
 .toolbar button {
+  color: inherit;
   background-color: transparent;
   border-width: 0;
   transition: all 0.1s;
+  border-radius: var(--spacing);
 }
 .toolbar button:hover {
-  background-color: aquamarine;
+  background: var(--active-bg);
   color: #666666;
 }
 .toolbar button:active {
@@ -111,7 +116,7 @@ html {
   align-items: center;
 }
 .item.selected {
-  background-color: aquamarine;
+  background: var(--active-bg);
 }
 
 /* =============== popup ============= */
@@ -135,7 +140,7 @@ html {
   left:0;
   right:0;
   display: none;
-  background-color: rgba(255,255,255,0.8);
+  background-color: rgba(255,255,255,0.5);
   flex-direction: column;
   align-items: center;
 }
