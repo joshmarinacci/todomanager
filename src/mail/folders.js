@@ -119,7 +119,7 @@ function PopupFolderItem({item, moveMail}) {
 }
 function MoveMailPopup({mail}) {
     const storage = useContext(StorageContext)
-    const [q] = useState(() => storage.createQuery('folders', f => !f.special))
+    const [q] = useState(() => storage.createQuery({table:'folder', find:f => !f.special}))
     const [folders] = useQuery(q)
     const [selFolder, setSelFolder] = useState(folders[0])
     const pm = useContext(PopupContext)

@@ -64,6 +64,7 @@ body {
   --tool-bg: #aaaaaa;
   --content-bg: #dddddd;
   --focus-bg: #ffffff;
+  --font-color: #333333;
 }
 
 /* ========= toolbars ========== */
@@ -82,6 +83,10 @@ body {
 .panel {
   background-color: var(--content-bg);
   transition: all 0.15s ease-out;
+  border: 1px solid gray;
+  padding: 1rem;
+  border-width: 0px 1px 0px 0;
+  color: var(--font-color);
 }
 .panel:focus-within {
   background-color: var(--focus-bg);
@@ -96,6 +101,20 @@ body {
 .item.selected {
   background-color: aquamarine;
 }
+
+/* =============== popup ============= */
+.popup-container {
+  position: fixed;
+  top:0;
+  display: none;
+  background-color: white;
+  border: 0px solid green;
+  box-shadow: 0px 3px 4px rgba(50,50,50,0.5);
+}
+.popup-container.visible {
+  display: block;
+}
+
 
 /*hr {*/
 /*  display: block;*/

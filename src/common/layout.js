@@ -219,6 +219,7 @@ export function GenericListView({
     useEffect(()=>{
         const acquire = () => {
             //create a selected item if there isn't one
+            console.log("checking focus",focusName, fm.getMasterFocus())
             if(fm.getMasterFocus() === focusName) {
                 const n = data.indexOf(selectedItem)
                 if(n < 0 && data.length > 0) setSelectedItem(data[0])

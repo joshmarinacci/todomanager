@@ -4,8 +4,8 @@
     grid-template-columns: 20rem 40rem 1fr;
     grid-template-rows: 2rem 1fr;
     background-color: #dddddd;
-    /*border: 1px solid red;*/
-    /*height: 100%;*/
+    /*border: 5px solid red;*/
+    height: 100%;
 }
 
 .mailapp-grid .grid-toolbar {
@@ -80,17 +80,8 @@
 }
 
 
-
-.popup-container {
-    position: fixed;
-    top:0;
-    display: none;
-    background-color: white;
-    border: 5px solid green;
-}
-.popup-container.visible {
-    display: block;
-}
+*/
+/*
 .move-mail-popup-wrapper {
     min-width: 10rem;
 }
