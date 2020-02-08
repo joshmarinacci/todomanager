@@ -10,7 +10,7 @@
             min-height: 20em;
             display: flex;
             flex-direction: row;
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: Georgia, "Times New Roman", Times, serif;
         }
 
         .panel {
@@ -32,9 +32,11 @@
             border: 0px solid red;
             padding: 1rem;
             border-radius: 0rem;
+            background-color: transparent;
+            transition: all 0.2s ease-out;
         }
 
-        li.selected {
+        li.selected, li:focus, li::selection {
             background-color: aquamarine;
         }
 
@@ -45,7 +47,7 @@
             height: 3rem;
         }
 
-        .toolbar button {
+        button {
             padding: 1rem;
             border-radius: 1.5rem;
             border: 0px solid black;
@@ -67,6 +69,32 @@
         .panel:focus-within {
             background-color: white;
         }
+
+
+
+        @font-face {
+            font-family: Franklin;
+            src: url(fonts/librefranklin-regular.ttf) format('truetype');
+        }
+        @font-face {
+            font-family: Franklin;
+            src: url(fonts/librefranklin-bold.ttf) format('truetype');
+            font-weight: bold;
+        }
+        @font-face {
+            font-family: Franklin;
+            src: url(fonts/librefranklin-italic.ttf) format('truetype');
+            font-style: italic;
+        }
+        main {
+            font-family: Franklin;
+        }
+
+        button {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 75%;
+        }
     </style>
 
 </head>
@@ -85,10 +113,10 @@
 
         <ul class="focused">
             <li>The first thing I need to do</li>
-            <li class="selected" tabindex="0">the second thing I need to do. sel.</li>
-            <li class="selected" tabindex="0">the third thign I need to do. sel.</li>
-            <li>the fourth thing I need to do.</li>
-            <li>the fifth thing I need to do</li>
+            <li tabindex="0">the second thing I need to do. sel.</li>
+            <li tabindex="0">the <b>third</b> <i>thing</i> I need to do. sel.</li>
+            <li tabindex="0">the fourth thing I need to do.</li>
+            <li tabindex="0">the fifth thing I need to do</li>
         </ul>
 
         <div class="toolbar">
