@@ -135,12 +135,12 @@ class StorageQuery {
 export function useQuery (query) {
     const [items, setItems] = useState(query ? query.results() : [])
     useEffect(() => {
-        console.log("updating the use query")
+        // console.log("updating the use query")
         setItems(query ? query.results() : [])
         const update = () => setItems(query.results())
         if (query) query.on(update)
         return () => {
-            console.log("removing the use query")
+            // console.log("removing the use query")
             if (query) query.off(update)
         }
     }, [query])

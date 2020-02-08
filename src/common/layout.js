@@ -126,6 +126,7 @@ export class FocusManager {
         return this.mf
     }
     pushMasterFocus(mf) {
+        // console.log("pushing the master focus to",mf)
         this.mf = mf
         this.focuses.unshift(this.mf)
         this.listeners.forEach(cb=>cb())
@@ -219,13 +220,14 @@ export function GenericListView({
     useEffect(()=>{
         const acquire = () => {
             //create a selected item if there isn't one
-            console.log("checking focus",focusName, fm.getMasterFocus())
+            // console.log("checking focus",focusName, fm.getMasterFocus())
             if(fm.getMasterFocus() === focusName) {
                 const n = data.indexOf(selectedItem)
                 if(n < 0 && data.length > 0) setSelectedItem(data[0])
             }
         }
         fm.on(acquire)
+        acquire()
         return ()=>fm.off(acquire)
     })
     return <div className={css + " " + className} onKeyDown={handlers.onKeyDown}>
