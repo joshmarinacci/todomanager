@@ -40,6 +40,7 @@ export class Storage {
             if(data) {
                 this.log("loaded the old table data",data)
                 this.data = data
+                this.updateAllTables()
             } else {
                 this.log("no existing data. calling generator")
                 generator(this)
@@ -49,6 +50,13 @@ export class Storage {
                 if(count) this._idcount = count
             })
         })
+    }
+    save() {
+        console.log("trhing to save",this.data)
+        return this.lf.setItem(this.prefix+'data',this.data)
+            .catch((e)=>{
+                console.log("error saving",e)
+            })
     }
     _accessTableData(name) {
         if(!this.tables[name]) throw new Error(`no table defined for ${name}`)
@@ -68,7 +76,7 @@ export class Storage {
         newObj._id = this._idcount
         tdata.push(newObj)
         this.queries.forEach(q=> q.updateIfMatch(table,newObj))
-        return newObj
+        return this.save().then(()=>newObj)
     }
     updateObject(table,obj,key,val) {
         this.log('updating object in table',table)
@@ -76,7 +84,7 @@ export class Storage {
         const uptObj = tdata.find(o => o._id === obj._id)
         uptObj[key] = val
         this.queries.forEach(q=> q.updateIfMatch(table,uptObj))
-        return uptObj
+        return this.save().then(()=>uptObj)
     }
 
     removeObjects(table,toDelete) {
@@ -85,6 +93,7 @@ export class Storage {
         tdata = tdata.filter((o)=>!toDelete(o))
         this.data[table] = tdata
         this.queries.forEach(q=> q.updateIfMatch(table,null))
+        return this.save()
     }
 
     createEmptyQuery() {
@@ -95,6 +104,13 @@ export class Storage {
         const q = new StorageQuery(this,opts)
         this.queries.push(q)
         return q
+    }
+
+    updateAllTables() {
+        Object.keys(this.tables).forEach(table => {
+            console.log("updating table",table)
+        })
+        this.queries.forEach(q => q.update())
     }
 }
 
@@ -125,6 +141,9 @@ class StorageQuery {
     }
     off(cb) {
         this.listeners = this.listeners.filter(c => c !== cb)
+    }
+    update() {
+        this.listeners.forEach(cb => cb(this))
     }
     updateIfMatch(table,obj) {
         if(this.table !== table) return console.log("different table",table)
