@@ -7,18 +7,21 @@
         main {
             border: 5px solid black;
             width: 30em;
-            height: 20em;
+            min-height: 20em;
             display: flex;
             flex-direction: row;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
 
-        ul {
+        .panel {
             border: 5px solid gray;
+            padding: 1rem;
+            border-width: 0px 1px 0px 0;
+        }
+
+        ul {
             padding: 0;
             list-style: none;
-            padding: 1rem;
-            border-width: 1px 1px 1px 0;
             margin:0;
         }
 
@@ -44,6 +47,25 @@
             background-color: transparent;
         }
 
+        .toolbar {
+            border: 0px solid black;
+            display: flex;
+            flex-direction: row;
+            height: 3rem;
+        }
+
+        .toolbar button {
+            padding: 1rem;
+            border-radius: 1.5rem;
+            border: 1px solid black;
+            font-size: 100%;
+            margin: 0;
+        }
+
+        .spacer {
+            flex: 1.0;
+        }
+
     </style>
 
 </head>
@@ -51,21 +73,29 @@
 
 <main>
 
-<ul>
+<ul class="panel">
     <li>Project 1</li>
     <li>Project 2</li>
     <li>Project 3</li>
     <li>Trash</li>
 </ul>
 
-<ul class="focused">
-    <li>The first thing I need to do</li>
-    <li class="selected">the second thing I need to do. sel.</li>
-    <li class="selected">the third thign I need to do. sel.</li>
-    <li>the fourth thing I need to do.</li>
-    <li>the fifth thing I need to do</li>
-</ul>
+    <div class="panel">
 
+        <ul class="focused">
+            <li>The first thing I need to do</li>
+            <li class="selected">the second thing I need to do. sel.</li>
+            <li class="selected">the third thign I need to do. sel.</li>
+            <li>the fourth thing I need to do.</li>
+            <li>the fifth thing I need to do</li>
+        </ul>
+
+        <div class="toolbar">
+            <div class="spacer"></div>
+            <button>add</button>
+        </div>
+
+    </div>
 </main>
 
 </body>
