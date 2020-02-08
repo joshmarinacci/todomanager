@@ -1,7 +1,7 @@
 import {Archive, FileText, Folder, Inbox, Trash2} from 'react-feather'
 import React, {useContext, useEffect, useState} from 'react'
 import {StorageContext, useQuery} from '../common/storage2.js'
-import {CSS, FocusContext, GenericListView, makeClassNames, PopupContext, VBox} from '../common/layout.js'
+import {CSS, FocusContext, GenericListView, PopupContext, VBox} from '../common/layout.js'
 import {useActionScope} from '../common/actions.js'
 
 function FolderIcon({folder}) {
@@ -16,6 +16,7 @@ function FolderIcon({folder}) {
 function FolderItemView({item}) {
     return <>
         <FolderIcon folder={item}/>
+        <span style={{padding:'0.5rem'}}></span>
         <b>{item.title}</b>
     </>
 }
