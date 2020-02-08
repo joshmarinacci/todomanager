@@ -6,6 +6,7 @@
     background-color: #dddddd;
     border: 0px solid red;
     flex: 1.0;
+    max-height: 90vh;
 }
 
 .mailapp-grid .grid-toolbar {
