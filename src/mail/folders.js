@@ -17,7 +17,7 @@ function FolderItemView({item}) {
     return <>
         <FolderIcon folder={item}/>
         <span style={{padding:'0.5rem'}}></span>
-        <b>{item.title}</b>
+        <span>{item.title}</span>
     </>
 }
 
@@ -166,7 +166,8 @@ function MailItemView({item}) {
         mail: true,
         hbox: true,
         deleted: mail.deleted,
-        read: mail.read
+        read: mail.read,
+        grow:true,
     })
     const fm = useContext(FocusContext)
     const clickedMail = () => {
@@ -176,10 +177,10 @@ function MailItemView({item}) {
     }
     return <div className={css} onClick={clickedMail}>
         <VBox className={'grow'}>
-            <b className={'sender'}>{mail.sender}</b>
-            <b className={'subject'}>{mail.subject}</b>
+            <span className={'sender'}>{mail.sender}</span>
+            <span className={'subject'}>{mail.subject}</span>
         </VBox>
-        <b className={'timestamp'}>{new Date(mail.timestamp).toLocaleTimeString()}</b>
+        <span className={'timestamp'}>{new Date(mail.timestamp).toLocaleTimeString()}</span>
     </div>
 }
 

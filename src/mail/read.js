@@ -19,16 +19,7 @@ export function ReadingMailView({mail}) {
     return <div className={'reading-mail-view panel'}
                 onKeyDown={handlers.onKeyDown}
                 tabIndex={0}
-                ref={vbox}
-                style={{
-                    gridColumn:'3/4',
-                    gridRow:'2/3',
-                    overflow:'scroll',
-                    display:'flex',
-                    flexDirection:'column',
-                    alignItems:'stretch',
-                }}
-    >
+                ref={vbox}>
         <HBox className={'subject-line'}>
             <b>{mail.subject}</b>
         </HBox>

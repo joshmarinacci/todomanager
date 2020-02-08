@@ -99,7 +99,7 @@ html {
   transition: all 0.15s ease-out;
   border: 1px solid gray;
   padding: var(--spacing);
-  border-width: 0px 1px 0px 0;
+  border-width: 1px 1px 0px 0;
   color: var(--font-color);
 }
 .panel:focus-within {
