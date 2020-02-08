@@ -164,6 +164,8 @@ const SettingsDialog = () => {
         </footer>
     </div>
 }
+
+
 const MailAppContent = () => {
     const storage = useContext(StorageContext)
     const [mail, setMail] = useState(null)
@@ -198,7 +200,6 @@ const MailAppContent = () => {
         setMail(newMail)
     }
     const reply = () => {
-        console.log("replying")
         const newMail = storage.makeObject('message', {
             sender: 'Josh Marinacci',
             receiver: mail.sender,
@@ -230,7 +231,7 @@ const MailAppContent = () => {
     } else {
         mainView = <ReadingMailView mail={mail}/>
     }
-    return <div onKeyDown={handlers.onKeyDown} className={'mailapp-grid'}>
+    return <div onKeyDown={handlers.onKeyDown} className={'mailapp-grid grow'}>
         <Toolbar className={'grid-toolbar'}>
             {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
             <button><CornerUpLeft/>Reply</button>
