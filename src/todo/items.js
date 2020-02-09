@@ -10,58 +10,58 @@ import {
     useAutofocusRefWhenSelected,
     VBox
 } from '../common/layout.js'
-import {StorageContext, useObjectUpdate, useQuery} from '../common/storage.js'
+import {StorageContext, useDraft, useQuery} from '../common/storage2.js'
 import {File, Star} from 'react-feather'
 
 const getProjectTitle = (storage, item) => {
-    const proj = storage.find('projects', (proj) => proj.id === item.project)
+    const proj = storage.find('project', (proj) => proj._id === item.project)
     if (proj) return proj.title
     return ""
 }
 
 const ItemEditPanel = ({item, setEditing}) => {
-    const title = useRef()
-    const storage = useContext(StorageContext)
-    const [setProp] = useObjectUpdate(storage, 'items', item)
-    const toggleCompleted = () => {
-        setProp('completed', !item.completed)
-        setProp('completedTimestamp', Date.now())
+    const [draft, update, save] = useDraft('item',item)
+    const endEditing = () => {
+        save()
+        setEditing(false)
     }
-    const toggleToday = () => setProp('today', !item.today)
-    const editTitle = (e) => setProp('title', e.target.value)
-    const editNotes = (e) => setProp('notes', e.target.value)
-    const endEditing = () => setEditing(false)
 
     const handlers = useActionScope('edit-item', {
         'exit-edit-item': endEditing
     })
 
-    const [projects] = useState(() => storage.createQuery('projects', (p) => !p.special))
-
-
-    //focus when first opening
-    useEffect(() => {
-        if (title.current) title.current.focus()
-    }, [item])
+    // const [projects] = useState(() => storage.createQuery({table:'project', find:(p) => !p.special}))
 
     return <div className={"edit-panel"} onKeyDown={handlers.onKeyDown}>
         <HBox>
-            <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
-            <input type="text" value={item.title} className="grow" onChange={editTitle} ref={title} onKeyDown={(e) => {
-                if (e.key === 'Enter') endEditing()
+            <input type="checkbox" checked={draft.completed} onChange={(e)=>{
+                update('completed',e.target.checked)
+                // update('completedTimestamp',Date.now())
+            }}/>
+            <input type="text" value={draft.title} className="grow"
+                   onChange={(e)=>{
+                       update('title',e.target.value)
+                   }} onKeyDown={(e) => {
+                       if (e.key === 'Enter') endEditing()
+                   }
+            }/>
+        </HBox>
+        <HBox>
+            <textarea className={"grow"} value={draft.notes} onChange={(e)=>{
+                update('notes',e.target.value)
             }}/>
         </HBox>
         <HBox>
-            <textarea className={"grow"} value={item.notes} onChange={editNotes}/>
-        </HBox>
-        <HBox>
             <label>today</label>
-            <input type={'checkbox'} checked={item.today} onChange={toggleToday}/>
-            <PopupButton
-                getItems={() => projects.results()}
-                stringify={(item) => item.title}
-                itemSelected={(item) => setProp('project', item.id)}
-            >{getProjectTitle(storage, item)}</PopupButton>
+            <input type={'checkbox'} checked={draft.today} onChange={(e)=>{
+                update('today',e.target.checked)
+            }}/>
+            <label>project:{draft.project}</label>
+            {/*<PopupButton*/}
+            {/*    getItems={() => projects.results()}*/}
+            {/*    stringify={(item) => item.title}*/}
+            {/*    itemSelected={(item) => setProp('project', item.id)}*/}
+            {/*>{draft.project}</PopupButton>*/}
             <Spacer/>
             <button onClick={endEditing}>done</button>
         </HBox>
@@ -71,8 +71,6 @@ const ItemEditPanel = ({item, setEditing}) => {
 const ItemViewItem = ({item, setEditing, focusName, selected}) => {
     const hbox = useRef()
     const storage = useContext(StorageContext)
-    const [setProp] = useObjectUpdate(storage, 'items', item)
-    const toggleCompleted = () => setProp('completed', !item.completed)
     useAutofocusRefWhenSelected(hbox, selected, focusName)
     const handlers = useActionScope('item', {
         'edit-item': () => setEditing(true),
@@ -91,7 +89,9 @@ const ItemViewItem = ({item, setEditing, focusName, selected}) => {
                 onDoubleClick={() => setEditing(true)}
     >
         <TodayIndicator item={item}/>
-        <input type="checkbox" checked={item.completed} onChange={toggleCompleted}/>
+        <input type="checkbox" checked={item.completed} onChange={(e)=>{
+            storage.updateObject('item',item,'completed',e.target.checked)
+        }}/>
         <VBox>
             <b>
                 <span className={'title'}>{item.title}</span>
@@ -129,10 +129,10 @@ export const ItemsListView = ({query, project}) => {
     const storage = useContext(StorageContext)
     const [sel, setSel] = useState(null)
     const addItem = () => {
-        const item = storage.insert('items', {
+        const item = storage.makeObject('item', {
             title: 'empty item',
             tags: [],
-            project: project.id,
+            project: project._id,
             completed: false,
             today: (project.special && project.title === 'today'),
             notes: "",
@@ -141,7 +141,7 @@ export const ItemsListView = ({query, project}) => {
         setSel(item)
     }
     const fm = useContext(FocusContext)
-    const [items] = useQuery(query)
+    const items = useQuery(query)
     const handlers = useActionScope('list', {
         'focus-prev-master': () => {
             fm.setMasterFocus('projects')
@@ -150,14 +150,14 @@ export const ItemsListView = ({query, project}) => {
         },
         'add-item-to-target-list': addItem,
         'toggle-completed': () => {
-            storage.update('items', sel, 'completed', !sel.completed)
+            storage.updateObject('item', sel, 'completed', !sel.completed)
         },
         'toggle-today': () => {
-            storage.update('items', sel, 'today', !sel.today)
+            storage.updateObject('item', sel, 'today', !sel.today)
         },
         'delete-item': (e) => {
             if (e.target.classList.contains('todo-item')) {
-                storage.update('items', sel, 'deleted', !sel.deleted)
+                storage.updateObject('item', sel, 'deleted', true)
             }
         },
         'shift-selection-prev': () => {
@@ -175,7 +175,7 @@ export const ItemsListView = ({query, project}) => {
             if (prevprev) sortB = prevprev.sortOrder
             const newOrder = (sortA + sortB) / 2
             console.log("the new order is", newOrder)
-            storage.update('items', sel, 'sortOrder', newOrder)
+            storage.updateObject('item', sel, 'sortOrder', newOrder)
         },
         'shift-selection-next': () => {
             if (project.special) return console.log("cannot change sort in a special")
@@ -191,13 +191,13 @@ export const ItemsListView = ({query, project}) => {
             console.log("will be after", nextnext)
             const newOrder = (sortA + sortB) / 2
             console.log("the new order is", newOrder)
-            storage.update('items', sel, 'sortOrder', newOrder)
+            storage.updateObject('item', sel, 'sortOrder', newOrder)
         }
 
     })
     let emptyTrash = ""
     const emptyTrashAction = () => {
-        storage.delete('items', (it) => it.deleted)
+        storage.delete('item', (it) => it.deleted)
     }
     let addButton = <button onClick={addItem}>add</button>
     if (project && project.special && project.title === 'trash') {

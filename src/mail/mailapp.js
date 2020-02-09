@@ -129,8 +129,6 @@ export const MailApp = () => {
     </ActionContext.Provider>
 }
 
-
-
 const MailAppContent = () => {
     const storage = useContext(StorageContext)
     const [mail, setMail] = useState(null)

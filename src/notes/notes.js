@@ -68,7 +68,7 @@ export const NoteEditor = ({note}) => {
 }
 
 export const RealNoteEditor = ({note}) => {
-    const [draft, update, save] = useDraft(note)
+    const [draft, update, save] = useDraft('note',note)
     return <div className={'note-editor vbox'}>
         <input value={draft.title} onChange={(e)=>update('title',e.target.value)}/>
         <textarea className={'grow'} value={draft.body} onChange={(e)=>update('body',e.target.value)}/>

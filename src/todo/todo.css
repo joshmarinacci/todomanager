@@ -35,3 +35,9 @@
     padding: 0.25rem 0.5rem;
     border: 2px solid transparent;
 }
+
+
+
+.todo-item.deleted {
+    text-decoration: line-through;
+}

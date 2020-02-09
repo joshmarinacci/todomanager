@@ -115,6 +115,14 @@ export class Storage {
     find(table,find) {
         return this._accessTableData(table).filter(find)
     }
+
+    deleteAll() {
+        return this.lf.clear().then(()=>{
+            console.log("completely deleted data for",this.prefix)
+        }).catch(e => {
+            console.log('error deleting data',e)
+        })
+    }
 }
 
 class EmptyQuery {

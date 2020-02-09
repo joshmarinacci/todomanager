@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {StorageContext, useQuery} from '../common/storage.js'
+import {StorageContext, useQuery} from '../common/storage2.js'
 import {useActionScope} from '../common/actions.js'
 import {FocusContext, GenericListView, Spacer, useAutofocusRefWhenSelected} from '../common/layout.js'
 import {CheckSquare, Coffee, Square, Star, Trash2} from "react-feather"
@@ -34,7 +34,7 @@ const ProjectItemView = ({item, selected, focusName}) => {
         return (<div className={'hbox project-item'}> {icon}
             <input ref={input} type={'text'} className={'grow'}
                    value={project.title} onChange={(e) => {
-                storage.update("projects", project, 'title', e.target.value)
+                storage.updateObject("project", project, 'title', e.target.value)
             }}
                    onKeyDown={(e) => {
                        if (e.key === 'Enter') {
@@ -58,12 +58,12 @@ const ProjectItemView = ({item, selected, focusName}) => {
 
 export const ProjectsListView = ({selectedProject, setSelectedProject, nextFocusTarget = "items"}) => {
     const storage = useContext(StorageContext)
-    const [apq] = useState(() => storage.createQuery(
-        'projects', // only projects
-        () => true, // all projects
-        (a, b) => a.sortOrder - b.sortOrder) // sort by the sort order
-    )
-    const [projects] = useQuery(apq)
+    const [apq] = useState(() => storage.createQuery({
+        table:'project', // only projects
+        find:() => true, // all projects
+        sort:(a, b) => a.sortOrder - b.sortOrder // sort by the sort order
+        }))
+    const projects = useQuery(apq)
     const fm = useContext(FocusContext)
     const handlers = useActionScope('list', {
         'focus-prev-master': () => {
@@ -98,7 +98,7 @@ export const ProjectsListView = ({selectedProject, setSelectedProject, nextFocus
             console.log("prevprev", prevprev)
             const newOrder = (prev.sortOrder + prevprev.sortOrder) / 2
             console.log("the new order is", newOrder)
-            storage.update('projects', selectedProject, 'sortOrder', newOrder)
+            storage.updateObject('project', selectedProject, 'sortOrder', newOrder)
         },
         'shift-selection-next': () => {
             if (selectedProject.special) {
@@ -115,7 +115,7 @@ export const ProjectsListView = ({selectedProject, setSelectedProject, nextFocus
             console.log("will be after", nextnext)
             const newOrder = (next.sortOrder + nextnext.sortOrder) / 2
             console.log("the new order is", newOrder)
-            storage.update('projects', selectedProject, 'sortOrder', newOrder)
+            storage.updateObject('project', selectedProject, 'sortOrder', newOrder)
         }
     })
     return <div onKeyDown={handlers.onKeyDown} className={'projects-list-view'}>

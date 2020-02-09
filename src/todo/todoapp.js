@@ -1,10 +1,69 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {ActionContext, AM, ShortcutsPanel, useActionScope} from '../common/actions.js'
-import {QueryStorage, StorageContext} from '../common/storage.js'
-import {FocusContext, FocusManager, HBox, Toolbar, VBox} from '../common/layout.js'
+import {ActionContext, ActionManager, AM, useActionScope} from '../common/actions.js'
+import {StorageContext, Storage} from '../common/storage2.js'
+import {
+    DialogContext,
+    DialogManager,
+    FocusContext,
+    FocusManager,
+    PopupContext, PopupManager,
+    Toolbar,
+    VBox
+} from '../common/layout.js'
 import {ProjectsListView} from './projects.js'
 import {ItemsListView} from './items.js'
 import './todo.css'
+
+const storage = new Storage()
+const PROJECT = storage.defineTable({
+    name:'project',
+    schema: {}
+})
+const ITEM = storage.defineTable({
+    name:'item',
+    schema:{}
+})
+
+function makeInitialData() {
+    storage.makeObject('project', {title: 'today', special: true})
+    storage.makeObject('project', {title: 'forget'}).then(forget => {
+        storage.makeObject("item", {
+            today: true,
+            title: 'first, that I can forget',
+            notes: 'this is some notes: https://www.mozilla.com/',
+            tags: ['foo'],
+            completed: false,
+            deleted: false,
+            project: forget._id
+        })
+
+    })
+    storage.makeObject('project', {title: 'good'}).then(good => {
+        storage.makeObject("item", {
+            today: false,
+            title: 'second is good',
+            tags: ['foo', 'bar'],
+            project: good._id,
+            deleted: false,
+            completed: true,
+        })
+        storage.makeObject("item", {
+            today: true,
+            title: 'third is good',
+            tags: ['bar'],
+            project: good._id,
+            deleted: false,
+            completed: false,
+        })
+
+    })
+    storage.makeObject('project', {title: 'trash', special: true})
+}
+storage.init('todos',makeInitialData).then(()=>{
+    console.log("todos storage is loaded")
+    // storage.deleteAll()
+})
+
 
 const SearchBox = ({searching, setSearching, setQuery}) => {
     const storage = useContext(StorageContext)
@@ -25,7 +84,7 @@ const SearchBox = ({searching, setSearching, setQuery}) => {
         const txt = e.target.value
         setSearchText(txt)
         if(txt.length > 0) {
-            setQuery(storage.createQuery('items',(it)=>it.title.includes(txt)))
+            setQuery(storage.createQuery({table:'item',find:(it)=>it.title.includes(txt)}))
         } else {
             setQuery(storage.createEmptyQuery())
         }
@@ -39,41 +98,7 @@ const SearchBox = ({searching, setSearching, setQuery}) => {
 }
 
 export const TodoApp = () => {
-    function makeInitialData() {
-        storage.insert('projects', {title: 'today', special: true})
-        const good = storage.insert('projects', {title: 'good'})
-        const forget = storage.insert('projects', {title: 'forget'})
-        storage.insert('projects', {title: 'trash', special: true})
-
-        storage.insert("items", {
-            id: 1,
-            today: true,
-            title: 'first, that I can forget',
-            notes: 'this is some notes: https://www.mozilla.com/',
-            tags: ['foo'],
-            completed: false,
-            deleted: false,
-            project: forget.id
-        })
-        storage.insert("items", {
-            id: 2,
-            today: false,
-            title: 'second is good',
-            tags: ['foo', 'bar'],
-            project: good.id,
-            deleted: false,
-            completed: true,
-        })
-        storage.insert("items", {
-            id: 3,
-            today: true,
-            title: 'third is good',
-            tags: ['bar'],
-            project: good.id,
-            deleted: false,
-            completed: false,
-        })
-    }
+    /*
     const storage = new QueryStorage("todo")
     storage.load().then(()=>{
         if(storage.isEmpty()) makeInitialData()
@@ -104,8 +129,9 @@ export const TodoApp = () => {
             }
         })
         storage.save()
-    })
-    AM.registerKeys([
+    })*/
+    const am = new ActionManager()
+    am.registerKeys([
 
         //navigation
         {action: 'shift-selection-prev', key:'ArrowUp', alt:true, scope:'list'},
@@ -131,11 +157,15 @@ export const TodoApp = () => {
         { action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
     ])
 
-    return <ActionContext.Provider value={AM}>
+    return <ActionContext.Provider value={am}>
         <StorageContext.Provider value={storage}>
-            <FocusContext.Provider value={new FocusManager()}>
-                <TodoAppContent/>
-            </FocusContext.Provider>
+            <DialogContext.Provider value={new DialogManager()}>
+                <PopupContext.Provider value={new PopupManager()}>
+                    <FocusContext.Provider value={new FocusManager()}>
+                        <TodoAppContent/>
+                    </FocusContext.Provider>
+                </PopupContext.Provider>
+            </DialogContext.Provider>
         </StorageContext.Provider>
     </ActionContext.Provider>
 }
@@ -144,18 +174,28 @@ const TodoAppContent = () => {
     const storage = useContext(StorageContext)
     const [selectedProject,setSelectedProject] = useState(null)
     const [query,setQuery] = useState(()=>{
-        return storage.createQuery('items',(it)=>(selectedProject && it.project === selectedProject.id),(a,b)=>a.sortOrder-b.sortOrder)
+        return storage.createQuery({
+            table:'item',
+            find: (it)=>(selectedProject && it.project === selectedProject._id),
+            sort:(a,b)=>a.sortOrder-b.sortOrder,
+        })
     })
     const changeSelectedProject = (project) => {
         setSelectedProject(project)
         if(project.special) {
-            if(project.title === 'today') return setQuery(storage.createQuery('items', it => it.today === true))
-            if(project.title === 'trash') return setQuery(storage.createQuery('items',it => it.deleted === true))
-            if(project.title === 'completed') return setQuery(storage.createQuery('items',it => it.completed === true,(a,b)=>a.completedTimestamp-b.completedTimestamp))
+            if(project.title === 'today') return setQuery(storage.createQuery({table:'item', find:it => it.today === true}))
+            if(project.title === 'trash') return setQuery(storage.createQuery({table:'item',find:it => it.deleted === true}))
+            if(project.title === 'completed') return setQuery(storage.createQuery({
+                    table: 'item',
+                    find: it => it.completed === true,
+                    sort: (a, b) => a.completedTimestamp - b.completedTimestamp
+                }))
         } else {
-            setQuery(storage.createQuery('items',
-                    it=>it.project===project.id,
-                (a,b)=>a.sortOrder-b.sortOrder))
+            setQuery(storage.createQuery({
+                table: 'item',
+                find: it => it.project === project._id,
+                sort: (a, b) => a.sortOrder - b.sortOrder,
+            }))
         }
     }
     const [searching, setSearching] = useState(false)
@@ -172,10 +212,6 @@ const TodoAppContent = () => {
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
         <ItemsListView query={query} project={selectedProject}/>
-        <VBox>
-            <h3>Shortcuts</h3>
-            <ShortcutsPanel/>
-        </VBox>
     </VBox>
 
 }
