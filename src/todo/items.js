@@ -32,6 +32,10 @@ const ItemEditPanel = ({item, setEditing}) => {
 
     const storage = useContext(StorageContext)
     const [projects] = useState(() => storage.createQuery({table:'project', find:(p) => !p.special}))
+    const title = useRef()
+    useEffect(()=>{
+        title.current.focus()
+    },[])
 
     return <div className={"edit-panel"} onKeyDown={handlers.onKeyDown}>
         <HBox>
@@ -39,7 +43,7 @@ const ItemEditPanel = ({item, setEditing}) => {
                 update('completed',e.target.checked)
                 // update('completedTimestamp',Date.now())
             }}/>
-            <input type="text" value={draft.title} className="grow"
+            <input ref={title} type="text" value={draft.title} className="grow"
                    onChange={(e)=>{
                        update('title',e.target.value)
                    }} onKeyDown={(e) => {

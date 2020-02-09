@@ -50,3 +50,16 @@
 .todo-item.deleted {
     text-decoration: line-through;
 }
+
+.edit-panel {
+    flex: 1.0;
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-panel input {
+    font-family: Franklin;
+    font-size: 100%;
+    padding: 0.25em 0.5em;
+}
+
