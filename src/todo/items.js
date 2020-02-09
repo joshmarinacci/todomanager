@@ -130,7 +130,7 @@ export const ItemsListView = ({query, project}) => {
     const storage = useContext(StorageContext)
     const [sel, setSel] = useState(null)
     const addItem = () => {
-        const item = storage.makeObject('item', {
+        storage.makeObject('item', {
             title: 'empty item',
             tags: [],
             project: project._id,
@@ -138,8 +138,7 @@ export const ItemsListView = ({query, project}) => {
             today: (project.special && project.title === 'today'),
             notes: "",
             deleted: false
-        })
-        setSel(item)
+        }).then(item =>  setSel(item))
     }
     const fm = useContext(FocusContext)
     const items = useQuery(query)

@@ -45,7 +45,7 @@ export class Storage {
                 this.log("no existing data. calling generator")
                 generator(this)
             }
-            return this.lf.getItem(ID_COUNTER_KEY).then(count=>{
+            return this.lf.getItem(this.prefix+ID_COUNTER_KEY).then(count=>{
                 this.log("loaded the id counter",count)
                 if(count) this._idcount = count
             })
@@ -57,6 +57,9 @@ export class Storage {
             .catch((e)=>{
                 console.log("error saving",e)
             })
+    }
+    saveCounter() {
+        return this.lf.setItem(this.prefix+ID_COUNTER_KEY,this._idcount)
     }
     _accessTableData(name) {
         if(!this.tables[name]) throw new Error(`no table defined for ${name}`)
@@ -76,7 +79,9 @@ export class Storage {
         newObj._id = this._idcount
         tdata.push(newObj)
         this.queries.forEach(q=> q.updateIfMatch(table,newObj))
-        return this.save().then(()=>newObj)
+        return this.save()
+            .then(()=>this.saveCounter())
+            .then(()=>newObj)
     }
     updateObject(table,obj,key,val) {
         this.log('updating object in table',table)
