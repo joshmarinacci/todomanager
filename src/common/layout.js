@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useEffect, useRef, useState} from 'react'
-import {useQuery} from './storage.js'
+import {useQuery} from './storage2.js'
 import {useActionScope} from './actions.js'
 
 export const FillBox = ({children, className="", ...rest}) => {
@@ -242,7 +242,11 @@ export function GenericListView({
                              focusName,
                              autoFocus=true
                          }) {
-    const [data] = useQuery(query)
+    const data = useQuery(query)
+    if(!data) {
+        console.log("no data for",query)
+        throw new Error(`no data returned for query ${query.toString()}`)
+    }
     const css = makeClassNames({
         'generic-list-view': true
     })

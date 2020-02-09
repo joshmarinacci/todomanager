@@ -25,10 +25,10 @@ export class Storage {
     }
     log(...args) {
         console.log("STORAGE",...args)
-        console.log("queries",this.queries.length)
+        // console.log("queries",this.queries.length)
     }
     defineTable({name,schema}) {
-        this.log("making a table",name)
+        // this.log("making a table",name)
         this.tables[name] = {
             name:name,
             schema:schema
@@ -112,6 +112,9 @@ export class Storage {
         })
         this.queries.forEach(q => q.update())
     }
+    find(table,find) {
+        return this._accessTableData(table).filter(find)
+    }
 }
 
 class EmptyQuery {
@@ -172,7 +175,7 @@ export const SortOrder = "SortOrder"
 export const StorageContext = createContext()
 
 
-export const useDraft = (note) => {
+export const useDraft = (table,note) => {
     const storage = useContext(StorageContext)
     const [temp,setTemp] = useState(()=>{
         const obj = {}
@@ -189,11 +192,13 @@ export const useDraft = (note) => {
         setTemp(obj)
     }
     const save = () => {
+        console.log('saving',temp)
         Object.keys(note).forEach(key => {
             const oval = note[key]
             const nval = temp[key]
+            if(!(key in temp)) return
             if(oval !== nval) {
-                storage.updateObject('note',note,key,nval)
+                storage.updateObject(table,note,key,nval)
             }
         })
     }
