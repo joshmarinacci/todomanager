@@ -25,7 +25,7 @@ const ConnectedButton = () => {
 }
 
 function App() {
-    const [app, setApp] = useState('mail')
+    const [app, setApp] = useState('todo')
     const switchTodo = () => setApp('todo')
     const switchMail = () => setApp('mail')
     const switchNotes = () => setApp('notes')

@@ -51,7 +51,8 @@ const ProjectItemView = ({item, selected, focusName}) => {
                     }}
                     onDoubleClick={startEditing}>
             {icon}
-            <b className={"title"}>{project.title}</b> <Spacer/>
+            <span style={{padding:'0.5rem'}}></span>
+            <span className={"title"}>{project.title}</span> <Spacer/>
         </div>
     }
 }
@@ -118,7 +119,7 @@ export const ProjectsListView = ({selectedProject, setSelectedProject, nextFocus
             storage.updateObject('project', selectedProject, 'sortOrder', newOrder)
         }
     })
-    return <div onKeyDown={handlers.onKeyDown} className={'projects-list-view'}>
+    return <div onKeyDown={handlers.onKeyDown} className={'projects-list-view panel'}>
         <GenericListView
             ItemTemplate={ProjectItemView}
             selectedItem={selectedProject}

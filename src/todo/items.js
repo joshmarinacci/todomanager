@@ -14,9 +14,9 @@ import {StorageContext, useDraft, useQuery} from '../common/storage2.js'
 import {File, Star} from 'react-feather'
 
 const getProjectTitle = (storage, item) => {
-    const proj = storage.find('project', (proj) => proj._id === item.project)
+    const proj = storage.findOne('project', (proj) => proj._id === item.project)
     if (proj) return proj.title
-    return ""
+    return "[no project]"
 }
 
 const ItemEditPanel = ({item, setEditing}) => {
@@ -93,11 +93,11 @@ const ItemViewItem = ({item, setEditing, focusName, selected}) => {
             storage.updateObject('item',item,'completed',e.target.checked)
         }}/>
         <VBox>
-            <b>
+            <HBox>
                 <span className={'title'}>{item.title}</span>
                 <NotesIndicator item={item}/>
-            </b>
-            <i>{getProjectTitle(storage, item)}</i>
+            </HBox>
+            <span className={'project'}>{getProjectTitle(storage, item)}</span>
         </VBox>
     </div>
 }
@@ -204,7 +204,7 @@ export const ItemsListView = ({query, project}) => {
         emptyTrash = <button onClick={emptyTrashAction}>empty</button>
         addButton = ""
     }
-    return <div onKeyDown={handlers.onKeyDown} className={'items-list-view'}>
+    return <div onKeyDown={handlers.onKeyDown} className={'items-list-view panel'}>
         <GenericListView
             ItemTemplate={TodoItemView}
             selectedItem={sel}

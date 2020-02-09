@@ -115,6 +115,11 @@ export class Storage {
     find(table,find) {
         return this._accessTableData(table).filter(find)
     }
+    findOne(table,find) {
+        const res = this._accessTableData(table).filter(find)
+        if(res.length >0) return res[0]
+        return null
+    }
 
     deleteAll() {
         return this.lf.clear().then(()=>{

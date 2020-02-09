@@ -1,9 +1,11 @@
 .todoapp-grid {
     display: grid;
     grid-template-columns: 20rem 40rem 1fr;
-    grid-template-rows: 2rem 1fr;
+    grid-template-rows: calc(1rem + 2 * var(--spacing)) 1fr;
+    background-color: #dddddd;
     border: 0px solid red;
-    height: 100%;
+    flex: 1.0;
+    max-height: 90vh;
 }
 
 .todoapp-grid .grid-toolbar {
@@ -12,28 +14,30 @@
 
 
 .todoapp-grid .projects-list-view {
-    background-color: #dddddd;
     grid-column: 1/2;
     grid-row: 2/3;
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 
 .todoapp-grid .items-list-view {
-    background-color: #dddddd;
     grid-column: 2/3;
     grid-row: 2/3;
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
+    overflow-y: auto;
     align-items: stretch;
-
 }
 .todo-item, .project-item {
     padding: 0.25rem 0.5rem;
     border: 2px solid transparent;
+}
+
+.todo-item .project {
+    font-size: 70%;
+    font-weight: bold;
 }
 
 
