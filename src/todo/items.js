@@ -30,7 +30,8 @@ const ItemEditPanel = ({item, setEditing}) => {
         'exit-edit-item': endEditing
     })
 
-    // const [projects] = useState(() => storage.createQuery({table:'project', find:(p) => !p.special}))
+    const storage = useContext(StorageContext)
+    const [projects] = useState(() => storage.createQuery({table:'project', find:(p) => !p.special}))
 
     return <div className={"edit-panel"} onKeyDown={handlers.onKeyDown}>
         <HBox>
@@ -56,12 +57,13 @@ const ItemEditPanel = ({item, setEditing}) => {
             <input type={'checkbox'} checked={draft.today} onChange={(e)=>{
                 update('today',e.target.checked)
             }}/>
-            <label>project:{draft.project}</label>
-            {/*<PopupButton*/}
-            {/*    getItems={() => projects.results()}*/}
-            {/*    stringify={(item) => item.title}*/}
-            {/*    itemSelected={(item) => setProp('project', item.id)}*/}
-            {/*>{draft.project}</PopupButton>*/}
+            <PopupButton
+                getItems={() => projects.results()}
+                stringify={(item) => item.title}
+                itemSelected={(item) => {
+                    update('project',item._id)
+                }}
+            >{getProjectTitle(storage,draft)}</PopupButton>
             <Spacer/>
             <button onClick={endEditing}>done</button>
         </HBox>
