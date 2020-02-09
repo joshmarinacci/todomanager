@@ -40,7 +40,12 @@
     font-weight: bold;
 }
 
-
+.todo-item {
+    align-items: center;
+}
+.project-item {
+    align-items: center;
+}
 
 .todo-item.deleted {
     text-decoration: line-through;

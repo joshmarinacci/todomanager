@@ -88,10 +88,11 @@ const ItemViewItem = ({item, setEditing, focusName, selected}) => {
                 onKeyDown={handlers.onKeyDown}
                 onDoubleClick={() => setEditing(true)}
     >
-        <TodayIndicator item={item}/>
         <input type="checkbox" checked={item.completed} onChange={(e)=>{
             storage.updateObject('item',item,'completed',e.target.checked)
         }}/>
+        <TodayIndicator item={item}/>
+        <span style={{width:'0.5rem'}}></span>
         <VBox>
             <HBox>
                 <span className={'title'}>{item.title}</span>
@@ -157,7 +158,7 @@ export const ItemsListView = ({query, project}) => {
         },
         'delete-item': (e) => {
             if (e.target.classList.contains('todo-item')) {
-                storage.updateObject('item', sel, 'deleted', true)
+                storage.updateObject('item', sel, 'deleted', !sel.deleted)
             }
         },
         'shift-selection-prev': () => {
