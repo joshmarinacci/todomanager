@@ -19,6 +19,25 @@ const PROJECT = storage.defineTable({
         title: { type: String},
         special: { type:Boolean},
         name: { type: String},
+        sortOrder: {type:Number},
+    },
+    fixer: (p,table,sto)=>{
+        if(!p.sortOrder) {
+            if(p.special && p.name === 'today') return storage.updateObject('project',p,'sortOrder',0)
+            if(p.special && p.name === 'trash') return storage.updateObject('project',p,'sortOrder',Number.MAX_SAFE_INTEGER)
+
+            console.log("missing a sort order. lets add one")
+            console.log("looking for from table",table)
+            const data = sto.find(table,f=>true,(a,b)=>a.sortOrder-b.sortOrder)
+            console.log("fixing based on data",data)
+            const last = data[data.length-1]
+            const prev = data[data.length-2]
+            console.log("last is",last,'prev',prev)
+            const newsort = (last.sortOrder+prev.sortOrder)/2
+            console.log('setting new sort order to',newsort)
+            p.sortOrder = newsort
+            sto.updateObject(table,p,'sortOrder',newsort)
+        }
     }
 })
 const ITEM = storage.defineTable({
@@ -35,7 +54,7 @@ const ITEM = storage.defineTable({
 })
 
 function makeInitialData() {
-    storage.makeObject('project', {title: 'today', special: true, name:'todo'})
+    storage.makeObject('project', {title: 'today', special: true, name:'today'})
     storage.makeObject('project', {title: 'trash', special: true, name:'trash'})
 }
 storage.init('todos',makeInitialData).then(()=>{
@@ -81,7 +100,9 @@ export const TodoApp = () => {
 
         //navigation
         {action: 'shift-selection-prev', key:'ArrowUp', alt:true, scope:'list'},
+        {action: 'shift-selection-prev', key:'ArrowUp', meta:true, scope:'list'},
         {action: 'shift-selection-next', key:'ArrowDown', alt:true, scope:'list'},
+        {action: 'shift-selection-next', key:'ArrowDown', meta:true, scope:'list'},
         {action: 'move-selection-prev', key: 'ArrowUp', scope: 'list'},
         {action: 'move-selection-prev', key: 'k', scope: 'list'},
         {action: 'move-selection-next', key: 'ArrowDown', scope: 'list'},
@@ -229,6 +250,8 @@ const TodoAppContent = () => {
             })
     }
     const deleteAll = () =>  storage.deleteTableData('item')
+    const deleteAllProjects = () =>  storage.deleteTableData('project')
+    const deleteAllLocal = () => storage.clearData()
     const dumpServer = () => {
         auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob`)
             .then(res => res.json())
@@ -246,6 +269,8 @@ const TodoAppContent = () => {
             <button disabled={!loggedIn} onClick={copyFromServer}>merge from server</button>
             <button disabled={!loggedIn} onClick={deleteOnServer}>delete on server</button>
             <button onClick={deleteAll}>delete all notes</button>
+            <button onClick={deleteAllProjects}>delete all projects</button>
+            <button onClick={deleteAllLocal}>delete all local </button>
             <button onClick={dumpServer}>dump server</button>
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>

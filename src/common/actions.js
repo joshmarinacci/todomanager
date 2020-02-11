@@ -48,6 +48,7 @@ export class ActionManager {
             if(binding.shift && !event.shiftKey) return false
             if(binding.alt && !event.altKey) return false
             if(binding.control && !event.ctrlKey) return false
+            if(binding.meta && !event.metaKey) return false
             if(event.ctrlKey && !binding.control) return false
             if(binding.key === event.key.toLowerCase()) return true
             return false

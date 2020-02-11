@@ -27,11 +27,12 @@ export class Storage {
         console.log("STORAGE",...args)
         // console.log("queries",this.queries.length)
     }
-    defineTable({name,schema}) {
+    defineTable({name,schema,fixer}) {
         // this.log("making a table",name)
         this.tables[name] = {
             name:name,
-            schema:schema
+            schema:schema,
+            fixer: fixer,
         }
     }
     init(prefix,generator) {
@@ -40,6 +41,14 @@ export class Storage {
             if(data) {
                 this.log("loaded the old table data",data)
                 this.data = data
+                Object.keys(this.data).forEach(table => {
+                    if(this.tables[table].fixer) {
+                        this.data[table].forEach(obj=>{
+                            this.tables[table].fixer(obj,table,this)
+                        })
+                    }
+                })
+
                 this.updateAllTables()
             } else {
                 this.log("no existing data. calling generator")
@@ -106,6 +115,7 @@ export class Storage {
         })
         this._idcount++
         newObj._id = this._idcount
+        if(this.tables[table].fixer) this.tables[table].fixer(newObj,table,this)
         tdata.push(newObj)
         this.queries.forEach(q=> q.updateIfMatch(table,newObj))
         return this.save()
@@ -116,7 +126,7 @@ export class Storage {
         this.log('updating object in table',table)
         const tdata = this._accessTableData(table)
         const uptObj = tdata.find(o => o._id === obj._id)
-        uptObj[key] = val
+        if(uptObj) uptObj[key] = val
         this.queries.forEach(q=> q.updateIfMatch(table,uptObj))
         return this.save().then(()=>uptObj)
     }
@@ -142,12 +152,14 @@ export class Storage {
 
     updateAllTables() {
         Object.keys(this.tables).forEach(table => {
-            console.log("updating table",table)
+            // console.log("updating table",table)
         })
         this.queries.forEach(q => q.update())
     }
-    find(table,find) {
-        return this._accessTableData(table).filter(find)
+    find(table,find, sort) {
+        let data = this._accessTableData(table).filter(find)
+        if(sort) data.sort(sort)
+        return data
     }
     findOne(table,find) {
         const res = this._accessTableData(table).filter(find)
@@ -162,6 +174,9 @@ export class Storage {
         return this.save().then(()=>{
             console.log("deleted table",table)
         })
+    }
+    clearData() {
+        return this.lf.removeItem(this.prefix + 'data').then(() => console.log("deleted all local data"))
     }
 }
 
@@ -180,12 +195,15 @@ class StorageQuery {
         this.table = opts.table
         if(!opts.find) throw new Error("query must have a find")
         this.find = opts.find
+        this.sort = opts.sort
         this.storage.log(`made new query in table ${opts.table} with results`,this.results().length)
     }
 
     results() {
         const data = this.storage._accessTableData(this.table)
-        return data.filter(this.find)
+        const d2 = data.filter(this.find)
+        if(this.sort) d2.sort(this.sort)
+        return d2
     }
     on(cb) {
         this.listeners.push(cb)
