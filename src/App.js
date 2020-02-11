@@ -1,10 +1,22 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import './App.css'
-import {CSS, DialogContainer, DialogContext, DialogManager, Spacer, Toolbar} from './common/layout.js'
+import {
+    CSS,
+    DialogContainer,
+    DialogContext,
+    DialogManager,
+    PopupContext,
+    PopupManager,
+    Spacer,
+    Toolbar
+} from './common/layout.js'
 import {TodoApp} from './todo/todoapp.js'
 import {MailApp} from './mail/mailapp.js'
 import {FileText, List, Mail, Maximize2, Minimize2, Settings, Wifi, WifiOff} from "react-feather"
 import {NotesApp} from './notes/notesapp.js'
+import {StorageContext} from './common/storage2.js'
+import {ActionContext} from './common/actions.js'
+import {SettingsDialog} from './mail/settings.js'
 
 const ConnectedButton = () => {
     const [online, setOnline] = useState(window.navigator.onLine)
@@ -36,7 +48,7 @@ const FullscreenButton = ({top}) => {
     return <button onClick={toggleFullscreen}>{fsicon}</button>
 }
 
-function App() {
+function AppContent() {
     const [app, setApp] = useState('todo')
     const switchTodo = () => setApp('todo')
     const switchMail = () => setApp('mail')
@@ -47,6 +59,8 @@ function App() {
     if (app === 'notes') appcontent = <NotesApp/>
 
     const top = useRef()
+    const dm = useContext(DialogContext)
+    const showSettings = () => dm.show(<SettingsDialog/>)
 
     return <div className={'fillbox main-wrapper'} ref={top}>
         <div className={'toolbar vertical left-edge'}>
@@ -56,9 +70,20 @@ function App() {
             <button onClick={switchMail}  className={CSS({selected:app==='mail'})}><Mail/> mail</button>
             <button onClick={switchNotes} className={CSS({selected:app==='notes'})}><FileText/> notes</button>
             <Spacer/>
+            <button onClick={showSettings}><Settings/></button>
         </div>
         {appcontent}
+        <DialogContainer/>
     </div>
 }
+
+function App() {
+    return  <DialogContext.Provider value={new DialogManager()}>
+        <PopupContext.Provider value={new PopupManager()}>
+            <AppContent/>
+        </PopupContext.Provider>d
+    </DialogContext.Provider>
+}
+
 
 export default App

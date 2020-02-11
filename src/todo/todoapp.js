@@ -1,12 +1,9 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {ActionContext, ActionManager, AM, useActionScope} from '../common/actions.js'
+import {ActionContext, ActionManager, useActionScope} from '../common/actions.js'
 import {StorageContext, Storage} from '../common/storage2.js'
 import {
-    DialogContext,
-    DialogManager,
     FocusContext,
     FocusManager,
-    PopupContext, PopupManager,
     Toolbar,
     VBox
 } from '../common/layout.js'
@@ -159,13 +156,9 @@ export const TodoApp = () => {
 
     return <ActionContext.Provider value={am}>
         <StorageContext.Provider value={storage}>
-            <DialogContext.Provider value={new DialogManager()}>
-                <PopupContext.Provider value={new PopupManager()}>
-                    <FocusContext.Provider value={new FocusManager()}>
-                        <TodoAppContent/>
-                    </FocusContext.Provider>
-                </PopupContext.Provider>
-            </DialogContext.Provider>
+            <FocusContext.Provider value={new FocusManager()}>
+                <TodoAppContent/>
+            </FocusContext.Provider>
         </StorageContext.Provider>
     </ActionContext.Provider>
 }

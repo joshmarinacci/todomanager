@@ -1,15 +1,10 @@
-import {ActionContext, ActionManager, AM, useActionScope} from '../common/actions.js'
-import React, {useContext, useEffect, useRef, useState} from 'react'
+import {ActionContext, ActionManager, useActionScope} from '../common/actions.js'
+import React, {useContext, useState} from 'react'
 import {
-    DialogManager,
-    DialogContext,
     FocusContext, FocusManager,
     PopupContainer,
-    PopupContext,
-    PopupManager,
     Spacer,
-    Toolbar,
-    DialogContainer, CSS, HBox
+    Toolbar
 } from '../common/layout.js'
 import {
     AlertOctagon,
@@ -18,7 +13,6 @@ import {
     CornerUpLeft,
     FileText,
     Layout,
-    Settings,
     Trash2
 } from "react-feather"
 import "./mail.css"
@@ -27,7 +21,6 @@ import {StorageContext, Storage} from '../common/storage2.js'
 import {ReadingMailView} from './read.js'
 import {ComposingMailView} from './compose.js'
 import {FoldersListView, MailsListView} from './folders.js'
-import {SettingsDialog} from './settings.js'
 
 const storage = new Storage()
 const FOLDER = storage.defineTable({
@@ -118,13 +111,9 @@ export const MailApp = () => {
     ])
     return <ActionContext.Provider value={am}>
         <StorageContext.Provider value={storage}>
-            <DialogContext.Provider value={new DialogManager()}>
-                <PopupContext.Provider value={new PopupManager()}>
-                    <FocusContext.Provider value={new FocusManager()}>
-                        <MailAppContent/>
-                    </FocusContext.Provider>
-                </PopupContext.Provider>
-            </DialogContext.Provider>
+            <FocusContext.Provider value={new FocusManager()}>
+                <MailAppContent/>
+            </FocusContext.Provider>
         </StorageContext.Provider>
     </ActionContext.Provider>
 }
@@ -177,10 +166,6 @@ const MailAppContent = () => {
         setComposing(true)
         setMail(newMail)
     }
-    const dm = useContext(DialogContext)
-    const showSettings = () => {
-        dm.show(<SettingsDialog/>)
-    }
 
     const handlers = useActionScope('global', {
         'compose-new-mail': composeNewEmail,
@@ -205,12 +190,10 @@ const MailAppContent = () => {
             <Spacer/>
             <button><Layout/></button>
             <button onClick={generateFakeEmail}><AlertOctagon/> fake</button>
-            <button onClick={showSettings}><Settings/></button>
         </Toolbar>
         <FoldersListView selectedFolder={folder} setFolder={setFolder}/>
         <MailsListView setMail={setMail} selectedMail={mail} selectedFolder={folder}/>
         {mainView}
-        <DialogContainer/>
         <PopupContainer/>
     </div>
 }
