@@ -32,6 +32,17 @@
   flex-direction: column;
 }
 
+.main-wrapper {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  grid-template-rows: 1fr;
+}
+
+.left-edge {
+  grid-column: 1/2;
+  grid-row: 1/2;
+}
+
 
 
 /* ============ fonts ========== */
@@ -68,6 +79,9 @@ html {
   --spacing: 1.0rem;
 }
 
+
+
+
 /* ========= toolbars ========== */
 .toolbar {
   background: var(--tool-bg);
@@ -76,6 +90,11 @@ html {
   box-sizing: content-box;
   min-height: calc(1.0rem + 2 * var(--spacing));
   color: var(--tool-fg)
+}
+.toolbar.vertical {
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
 }
 .toolbar button {
   color: inherit;

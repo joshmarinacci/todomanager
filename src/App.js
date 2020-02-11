@@ -1,9 +1,9 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import './App.css'
-import {CSS, Spacer, Toolbar} from './common/layout.js'
+import {CSS, DialogContainer, DialogContext, DialogManager, Spacer, Toolbar} from './common/layout.js'
 import {TodoApp} from './todo/todoapp.js'
 import {MailApp} from './mail/mailapp.js'
-import {FileText, List, Mail, Maximize2, Minimize2, Wifi, WifiOff} from "react-feather"
+import {FileText, List, Mail, Maximize2, Minimize2, Settings, Wifi, WifiOff} from "react-feather"
 import {NotesApp} from './notes/notesapp.js'
 
 const ConnectedButton = () => {
@@ -24,6 +24,18 @@ const ConnectedButton = () => {
     }
 }
 
+const FullscreenButton = ({top}) => {
+    const [full, setFull] = useState(false)
+    const toggleFullscreen = () => {
+        if (full) return document.exitFullscreen().then(() => setFull(false))
+        if (top.current) return top.current.requestFullscreen().then(() => setFull(true))
+    }
+
+    let fsicon = full ? <Minimize2/> : <Maximize2/>
+
+    return <button onClick={toggleFullscreen}>{fsicon}</button>
+}
+
 function App() {
     const [app, setApp] = useState('todo')
     const switchTodo = () => setApp('todo')
@@ -35,26 +47,16 @@ function App() {
     if (app === 'notes') appcontent = <NotesApp/>
 
     const top = useRef()
-    const [full, setFull] = useState(false)
-    const toggleFullscreen = () => {
-        if (full) return document.exitFullscreen().then(() => setFull(false))
-        if (top.current) return top.current.requestFullscreen().then(() => setFull(true))
-    }
 
-    let fsicon = full ? <Minimize2/> : <Maximize2/>
-
-    return <div className={'fillbox'} ref={top}>
-        <Toolbar>
-            <button onClick={switchTodo}
-                    className={CSS({selected:app==='todo'})}><List/> todo</button>
-            <button onClick={switchMail}
-                    className={CSS({selected:app==='mail'})}><Mail/> mail</button>
-            <button onClick={switchNotes}
-                    className={CSS({selected:app==='notes'})}><FileText/> notes</button>
-            <Spacer/>
-            <button onClick={toggleFullscreen}>{fsicon}</button>
+    return <div className={'fillbox main-wrapper'} ref={top}>
+        <div className={'toolbar vertical left-edge'}>
             <ConnectedButton/>
-        </Toolbar>
+            <FullscreenButton top={top}/>
+            <button onClick={switchTodo}  className={CSS({selected:app==='todo'})}><List/> todo</button>
+            <button onClick={switchMail}  className={CSS({selected:app==='mail'})}><Mail/> mail</button>
+            <button onClick={switchNotes} className={CSS({selected:app==='notes'})}><FileText/> notes</button>
+            <Spacer/>
+        </div>
         {appcontent}
     </div>
 }
