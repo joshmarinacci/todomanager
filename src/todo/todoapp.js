@@ -139,21 +139,34 @@ const TodoAppContent = () => {
     })
 
     const copyToServer = () => {
-        storage.asJSON()
-            .then(json => {
-                console.log("sending to the server",json)
-                return auth.fetch(`${BASE_URL}joshmarinacci/upload/?type=todoblob&mimetype=application/json&title=primary`,{
-                    method:'POST',
-                    body:JSON.stringify(json),
-                    headers: {
-                        'Content-Type':'application/json'
-                    }
+        auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("data is", data)
+                let query = '?type=todoblob&mimetype=application/json&title=primary'
+                if(data.results.length === 1) {
+                    console.log("already exists. we just want to overwrite it")
+                    query += '&id='+data.results[0]._id
+                } else {
+
+                }
+                return storage.asJSON().then(json => {
+                    console.log("sending to the server",json)
+                    console.log("with the query",query)
+                    return auth.fetch(`${BASE_URL}joshmarinacci/upload/${query}`,{
+                        method:'POST',
+                        body:JSON.stringify(json),
+                        headers: {
+                            'Content-Type':'application/json'
+                        }
+                    })
                 })
             })
             .then(res => res.json())
             .then(res => {
                 console.log("got result",res)
             })
+
     }
     const copyFromServer = () => {
         auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)
@@ -171,7 +184,17 @@ const TodoAppContent = () => {
             .then(res => res.json())
             .then(res => {
                 console.log("final results",res)
-                storage.mergeJSON(res)
+                storage.mergeJSON(res,(table,local,remote)=>{
+                    if(table === 'project') {
+                        console.log("same project id",local,remote)
+                        if(local.special) return local
+                    }
+                    if(table === 'item') {
+                        console.log("merging item",local,remote)
+                        if(remote && !local) return remote
+                        return local
+                    }
+                })
             })
     }
     const deleteOnServer = () => {
@@ -183,6 +206,13 @@ const TodoAppContent = () => {
             })
     }
     const deleteAll = () =>  storage.deleteTableData('item')
+    const dumpServer = () => {
+        auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("data is", data)
+            })
+    }
 
     const [loggedIn,setLoggedIn] = useState(auth.isLoggedIn())
 
@@ -190,9 +220,10 @@ const TodoAppContent = () => {
         <Toolbar className={'grid-toolbar'}>
             <SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>
             <button disabled={!loggedIn} onClick={copyToServer}>copy to server</button>
-            <button disabled={!loggedIn} onClick={copyFromServer}>copy from server</button>
+            <button disabled={!loggedIn} onClick={copyFromServer}>merge from server</button>
             <button disabled={!loggedIn} onClick={deleteOnServer}>delete on server</button>
             <button onClick={deleteAll}>delete all notes</button>
+            <button onClick={dumpServer}>dump server</button>
 
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>

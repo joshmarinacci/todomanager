@@ -63,8 +63,29 @@ export class Storage {
             res(JSON.parse(JSON.stringify(this.data)))
         })
     }
-    mergeJSON(data) {
+    mergeJSON(data,cb) {
         console.log("merging data from",data,'with local',this.data)
+        Object.keys(this.tables).forEach(table => {
+            console.log("processing table",table)
+            let local = this.data[table]?this.data[table]:[]
+            let remote = data[table]?data[table]:[]
+            console.log("remote is",remote)
+            remote.forEach(row => {
+                // console.log("processing remote",row)
+                const lrow = local.find(r => r._id === row._id)
+                const res = cb(table,lrow,row)
+                if(res) {
+                    let n = local.indexOf(lrow)
+                    console.log("replacing",lrow,'with',res)
+                    if(n>=0) {
+                        local[n] = res
+                    } else {
+                        local.push(res)
+                    }
+                }
+            })
+        })
+        this.updateAllTables()
     }
     saveCounter() {
         return this.lf.setItem(this.prefix+ID_COUNTER_KEY,this._idcount)
