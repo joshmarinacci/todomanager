@@ -41,7 +41,17 @@ export const SettingsDialog = () => {
     }
 
     useEffect(()=>{
-        const h = () => setLoggedIn(auth.isLoggedIn())
+        const h = () => {
+            setLoggedIn(auth.isLoggedIn())
+            if(auth.isLoggedIn()) {
+                console.log("doing an authed fetch")
+                auth.fetch('https://joshbigmac.ngrok.io/docs/joshmarinacci/search')
+                    .then(res => res.json())
+                    .then((data)=>{
+                        console.log("got back data",data)
+                    })
+            }
+        }
         auth.on(LOGIN,h)
         return ()=>auth.off(LOGIN,h)
     })

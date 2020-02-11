@@ -56,7 +56,7 @@ export class AuthModuleSingleton {
         return localStorage.getItem('username')
     }
 
-    fetch(url, options) {
+    fetch(url, options={}) {
         options.mode = 'cors'
         options.cache = 'no-cache'
         if (!options.headers) options.headers = {}
