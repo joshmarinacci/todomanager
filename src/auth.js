@@ -1,4 +1,10 @@
+import {createContext} from 'react'
+
 export const LOGIN = "LOGIN"
+export const BASE_BASE_URL = "https://docs.josh.earth/"
+// export const BASE_BASE_URL = "https://joshbigmac.ngrok.io/"
+export const AUTH_URL = `${BASE_BASE_URL}auth/github/`
+export const BASE_URL = `${BASE_BASE_URL}docs/`
 export class AuthModuleSingleton {
     constructor() {
         this.listeners = {}
@@ -69,3 +75,5 @@ export class AuthModuleSingleton {
             })
     }
 }
+
+export const AuthContext = createContext()

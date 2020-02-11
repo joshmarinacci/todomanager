@@ -58,6 +58,14 @@ export class Storage {
                 console.log("error saving",e)
             })
     }
+    asJSON() {
+        return new Promise((res,rej)=>{
+            res(JSON.parse(JSON.stringify(this.data)))
+        })
+    }
+    mergeJSON(data) {
+        console.log("merging data from",data,'with local',this.data)
+    }
     saveCounter() {
         return this.lf.setItem(this.prefix+ID_COUNTER_KEY,this._idcount)
     }

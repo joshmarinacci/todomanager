@@ -110,6 +110,13 @@ html {
 .toolbar button:active {
   background-color: mediumaquamarine;
 }
+.toolbar button:disabled {
+  background-color: transparent;
+  color: #888;
+}
+.toolbar button:disabled:hover {
+  color: #888;
+}
 
 /* ========= generic panels and list items ========= */
 

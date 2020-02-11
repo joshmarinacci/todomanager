@@ -17,6 +17,7 @@ import {NotesApp} from './notes/notesapp.js'
 import {StorageContext} from './common/storage2.js'
 import {ActionContext} from './common/actions.js'
 import {SettingsDialog} from './mail/settings.js'
+import {AuthContext, AuthModuleSingleton} from './auth.js'
 
 const ConnectedButton = () => {
     const [online, setOnline] = useState(window.navigator.onLine)
@@ -80,8 +81,10 @@ function AppContent() {
 function App() {
     return  <DialogContext.Provider value={new DialogManager()}>
         <PopupContext.Provider value={new PopupManager()}>
-            <AppContent/>
-        </PopupContext.Provider>d
+            <AuthContext.Provider value={new AuthModuleSingleton()}>
+                <AppContent/>
+            </AuthContext.Provider>
+        </PopupContext.Provider>
     </DialogContext.Provider>
 }
 

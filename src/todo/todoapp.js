@@ -10,6 +10,7 @@ import {
 import {ProjectsListView} from './projects.js'
 import {ItemsListView} from './items.js'
 import './todo.css'
+import {AuthContext, BASE_URL} from '../auth.js'
 
 const storage = new Storage()
 const PROJECT = storage.defineTable({
@@ -95,38 +96,6 @@ const SearchBox = ({searching, setSearching, setQuery}) => {
 }
 
 export const TodoApp = () => {
-    /*
-    const storage = new QueryStorage("todo")
-    storage.load().then(()=>{
-        if(storage.isEmpty()) makeInitialData()
-        const projs = storage.findAll('projects',()=>true)
-        projs.forEach((proj) => {
-            if(proj.title === 'trash') return proj.sortOrder = Number.MAX_SAFE_INTEGER
-            if(proj.title === 'completed') return proj.sortOrder = Number.MAX_SAFE_INTEGER-1
-            if(proj.title === 'today') return proj.sortOrder = 0
-            if(!('sortOrder' in proj)) {
-                console.log("have to add a sort order")
-                proj.sortOrder = Math.floor(Math.random()*10*1000*1000)
-            }
-        })
-
-        const completed = storage.find('projects',p=>p.special && p.title === 'completed')
-        if(!completed) {
-            console.log('we need to add a completed category')
-            storage.insert('projects', {title: 'completed', special: true})
-        }
-        const items = storage.findAll('items',()=>true)
-        items.forEach(item => {
-            if(!('sortOrder' in item)) {
-                console.log("adding a sort order")
-                item.sortOrder = Math.floor(Math.random()*10*1000*1000)
-            }
-            if(!('completedTimestamp' in item)) {
-                item.completedTimestamp = 0
-            }
-        })
-        storage.save()
-    })*/
     const am = new ActionManager()
     am.registerKeys([
 
@@ -164,6 +133,7 @@ export const TodoApp = () => {
 }
 
 const TodoAppContent = () => {
+    const auth = useContext(AuthContext)
     const storage = useContext(StorageContext)
     const [selectedProject,setSelectedProject] = useState(null)
     const [query,setQuery] = useState(()=>{
@@ -199,9 +169,60 @@ const TodoAppContent = () => {
     const handlers = useActionScope('list',{
         'find-item': () => setSearching(true)
     })
+
+    const copyToServer = () => {
+        storage.asJSON()
+            .then(json => {
+                console.log("sending to the server",json)
+                return auth.fetch(`${BASE_URL}joshmarinacci/upload/?type=todoblob&mimetype=application/json&title=primary`,{
+                    method:'POST',
+                    body:JSON.stringify(json),
+                    headers: {
+                        'Content-Type':'application/json'
+                    }
+                })
+            })
+            .then(res => res.json())
+            .then(res => {
+                console.log("got result",res)
+            })
+    }
+    const copyFromServer = () => {
+        auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("data is",data)
+                if(data.results.length !== 1) {
+                    console.log("too many results")
+                } else {
+                    const d = data.results[0]
+                    console.log("found d",d)
+                    return auth.fetch(`${BASE_URL}joshmarinacci/data/${d._id}/latest/application/json/data.json`)
+                }
+            })
+            .then(res => res.json())
+            .then(res => {
+                console.log("final results",res)
+                storage.mergeJSON(res)
+            })
+    }
+    const deleteOnServer = () => {
+        auth.fetch(`${BASE_URL}joshmarinacci/delete/?type=todoblob`, {
+            method:'POST'
+        }).then(res => res.json())
+            .then(res => {
+                console.log("final result",res)
+            })
+    }
+    const [loggedIn,setLoggedIn] = useState(auth.isLoggedIn())
+
     return <VBox className={'todoapp-grid'}>
         <Toolbar className={'grid-toolbar'}>
             <SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>
+            <button disabled={!loggedIn} onClick={copyToServer}>copy to server</button>
+            <button disabled={!loggedIn} onClick={copyFromServer}>copy from server</button>
+            <button disabled={!loggedIn} onClick={deleteOnServer}>delete on server</button>
+
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
         <ItemsListView query={query} project={selectedProject}/>

@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {CSS, DialogContext, HBox, Spacer} from '../common/layout.js'
-import {AuthModuleSingleton, LOGIN} from '../auth.js'
+import {AUTH_URL, AuthContext, AuthModuleSingleton, BASE_URL, LOGIN} from '../auth.js'
 
 const SPACING = {
     'comfortable': '1.0rem',
@@ -28,10 +28,10 @@ const COLOR_THEME = {
         '--content-bg':'#f0f0f0',
     }
 }
-const auth = new AuthModuleSingleton()
 
 export const SettingsDialog = () => {
     const dm = useContext(DialogContext)
+    const auth = useContext(AuthContext)
     const [loggedIn,setLoggedIn] = useState(auth.isLoggedIn())
     const css = CSS({
         dialog:'true'
@@ -45,7 +45,7 @@ export const SettingsDialog = () => {
             setLoggedIn(auth.isLoggedIn())
             if(auth.isLoggedIn()) {
                 console.log("doing an authed fetch")
-                auth.fetch('https://docs.josh.earth/docs/joshmarinacci/search')
+                auth.fetch(`${BASE_URL}joshmarinacci/search`)
                     .then(res => res.json())
                     .then((data)=>{
                         console.log("got back data",data)
@@ -59,7 +59,7 @@ export const SettingsDialog = () => {
         if(auth.isLoggedIn()) {
             auth.logout()
         } else {
-            auth.login("https://docs.josh.earth/auth/github")
+            auth.login(AUTH_URL)
         }
     }
 
