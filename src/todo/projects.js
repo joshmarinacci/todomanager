@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useRef, useState} from 'react'
 import {StorageContext, useQuery} from '../common/storage2.js'
 import {ActionContext, useActionScope} from '../common/actions.js'
 import {FocusContext, GenericListView, Spacer, Toolbar, useAutofocusRefWhenSelected} from '../common/layout.js'
-import {CheckSquare, Coffee, Square, Star, Trash2, PlusCircle} from "react-feather"
+import {CheckSquare, Coffee, Square, Star, Trash2, PlusCircle, XCircle} from "react-feather"
 
 
 const ProjectItemView = ({item, selected, focusName}) => {
@@ -25,6 +25,11 @@ const ProjectItemView = ({item, selected, focusName}) => {
         if (input.current) input.current.focus()
     }, [editing])
 
+    const deleteProject = () => {
+        setEditing(false)
+        storage.removeObjects('project',p=>p._id===project._id)
+    }
+
     let icon = <Square/>
     if (project.special && project.title === 'today') icon = <Star/>
     if (project.special && project.title === 'trash') icon = <Trash2/>
@@ -43,6 +48,7 @@ const ProjectItemView = ({item, selected, focusName}) => {
                        }
                    }}
             />
+            <button onClick={deleteProject}><XCircle/></button>
         </div>)
     } else {
         return <div ref={div} tabIndex={0} className={'hbox project-item'}
