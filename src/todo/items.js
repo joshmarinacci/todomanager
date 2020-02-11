@@ -205,7 +205,7 @@ export const ItemsListView = ({query, project}) => {
     })
     let emptyTrash = ""
     const emptyTrashAction = () => {
-        storage.delete('item', (it) => it.deleted)
+        storage.removeObjects('item', (it) => it.deleted)
     }
     let addButton = <button onClick={addItem}>add</button>
     if (project && project.special && project.title === 'trash') {
