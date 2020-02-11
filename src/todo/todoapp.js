@@ -66,8 +66,10 @@ const SearchBox = ({searching, setSearching, setQuery}) => {
     const storage = useContext(StorageContext)
     const [searchText, setSearchText] = useState("")
     const searchBox = useRef()
+    const fm = useContext(FocusContext)
     const handlers = useActionScope('search',{
         'exit-search': () => {
+            fm.popMasterFocus()
             setSearchText("")
             setSearching(false)
         }
@@ -86,9 +88,15 @@ const SearchBox = ({searching, setSearching, setQuery}) => {
             setQuery(storage.createEmptyQuery())
         }
     }
+    const startSearch = () => {
+        fm.pushMasterFocus('search')
+        setSearching(true)
+    }
 
     return <>
-        <input type="search" ref={searchBox} placeholder={'search here'} value={searchText} onChange={updateSearchText}
+        <input type="search" ref={searchBox} placeholder={'search here'} value={searchText}
+               onClick={startSearch}
+               onChange={updateSearchText}
                onKeyDown={handlers.onKeyDown}
         />
     </>
@@ -123,6 +131,9 @@ export const TodoApp = () => {
         //item scope
         {action: 'edit-item',   key: 'Enter',  scope:'item',  },
         { action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
+
+        //search scope
+        {action:'exit-search', key: 'escape', scope:'search',}
     ])
 
     return <ActionContext.Provider value={am}>
@@ -147,6 +158,7 @@ const TodoAppContent = () => {
     })
     const changeSelectedProject = (project) => {
         setSelectedProject(project)
+        if(!project) return
         if(project.special) {
             if(project.title === 'today') return setQuery(storage.createQuery({table:'item', find:it => it.today === true}))
             if(project.title === 'trash') return setQuery(storage.createQuery({table:'item',find:it => it.deleted === true}))
@@ -180,6 +192,9 @@ const TodoAppContent = () => {
         }).then(obj => {
             setSelectedProject(obj)
         })
+    })
+    am.registerAction('global','start-search',()=>{
+        console.log("starting to search everywhere")
     })
 
     const copyToServer = () => {

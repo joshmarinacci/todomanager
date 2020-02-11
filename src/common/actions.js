@@ -93,11 +93,14 @@ export const useActionScope = (scope,actions)=>{
     const am = useContext(ActionContext)
     return {
         onKeyDown: (e) => {
-            // console.log("key target is",e.target, e.target.nodeName)
+            // console.log("key target is",e.target, e.target.nodeName, e.key)
             //don't filter text input keys
             if(e.target.nodeName === 'INPUT'
                 || e.target.nodeName === 'TEXTAREA'
-            ) return
+            ) {
+                //some keys are allowed
+                if(e.key !== 'Escape') return
+            }
             const binding = am.matchBinding(e,scope)
             // console.log("matched the binding",binding,'actions',actions)
             if(binding && actions[binding.action]) {
