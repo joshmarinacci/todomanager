@@ -1,8 +1,8 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {StorageContext, useQuery} from '../common/storage2.js'
-import {useActionScope} from '../common/actions.js'
-import {FocusContext, GenericListView, Spacer, useAutofocusRefWhenSelected} from '../common/layout.js'
-import {CheckSquare, Coffee, Square, Star, Trash2} from "react-feather"
+import {ActionContext, useActionScope} from '../common/actions.js'
+import {FocusContext, GenericListView, Spacer, Toolbar, useAutofocusRefWhenSelected} from '../common/layout.js'
+import {CheckSquare, Coffee, Square, Star, Trash2, PlusCircle} from "react-feather"
 
 
 const ProjectItemView = ({item, selected, focusName}) => {
@@ -119,6 +119,8 @@ export const ProjectsListView = ({selectedProject, setSelectedProject, nextFocus
             storage.updateObject('project', selectedProject, 'sortOrder', newOrder)
         }
     })
+    const am = useContext(ActionContext)
+    const addProject = () => am.runAction('global','add-project')
     return <div onKeyDown={handlers.onKeyDown} className={'projects-list-view panel'}>
         <GenericListView
             ItemTemplate={ProjectItemView}
@@ -127,6 +129,8 @@ export const ProjectsListView = ({selectedProject, setSelectedProject, nextFocus
             focusName={'projects'}
             query={apq}
             autoFocus={false}
+            className={'grow'}
         />
+        <Toolbar><button onClick={addProject}><PlusCircle/></button></Toolbar>
     </div>
 }

@@ -15,7 +15,11 @@ import {AuthContext, BASE_URL} from '../auth.js'
 const storage = new Storage()
 const PROJECT = storage.defineTable({
     name:'project',
-    schema: {}
+    schema: {
+        title: { type: String},
+        special: { type:Boolean},
+        name: { type: String},
+    }
 })
 const ITEM = storage.defineTable({
     name:'item',
@@ -85,6 +89,7 @@ export const TodoApp = () => {
         {action: 'toggle-today',  scope: 'list', key:'t',  control:true,  shift:true },
         {action: 'toggle-today',  scope:'list',  key:'t',  alt:true },
         {action: 'delete-item',   scope:'list',  key:'backspace' },
+        {action: 'delete-item',   scope:'list',  key:'delete' },
 
         //item scope
         {action: 'edit-item',   key: 'Enter',  scope:'item',  },
@@ -136,6 +141,16 @@ const TodoAppContent = () => {
     }
     const handlers = useActionScope('list',{
         'find-item': () => setSearching(true)
+    })
+
+    const am = useContext(ActionContext)
+    am.registerAction('global','add-project',()=>{
+        storage.makeObject('project',{
+            title:'untitled',
+            special:false,
+        }).then(obj => {
+            setSelectedProject(obj)
+        })
     })
 
     const copyToServer = () => {
