@@ -76,6 +76,7 @@ const SearchBox = ({searching, setSearching, setQuery}) => {
     })
     useEffect(()=>{
         if(searching && searchBox.current) {
+            if(fm.getMasterFocus() !== 'search') fm.pushMasterFocus('search')
             searchBox.current.focus()
         }
     },[searching])
@@ -133,6 +134,7 @@ export const TodoApp = () => {
         { action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
 
         //search scope
+        {action:'start-search', key: 'f', meta:true, scope:'global'},
         {action:'exit-search', key: 'escape', scope:'search',}
     ])
 
@@ -193,9 +195,7 @@ const TodoAppContent = () => {
             setSelectedProject(obj)
         })
     })
-    am.registerAction('global','start-search',()=>{
-        console.log("starting to search everywhere")
-    })
+    am.registerAction('global','start-search',()=>setSearching(true))
 
     const copyToServer = () => {
         auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)

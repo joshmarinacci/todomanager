@@ -43,16 +43,8 @@ export class ActionManager {
     matchBinding(event, scope) {
         // console.log(`scope ${scope} key ${event.key} alt=${event.altKey} shift=${event.shiftKey} ctrl=${event.ctrlKey}`)
         if(event.key === 'Control') return
-        const binding = this.keysList.find(binding=> {
-            if(binding.scope !== scope) return false
-            if(binding.shift && !event.shiftKey) return false
-            if(binding.alt && !event.altKey) return false
-            if(binding.control && !event.ctrlKey) return false
-            if(binding.meta && !event.metaKey) return false
-            if(event.ctrlKey && !binding.control) return false
-            if(binding.key === event.key.toLowerCase()) return true
-            return false
-        })
+        let binding = this.matchBindingScope(event,scope)
+        if(!binding) binding = this.matchBindingScope(event,'global')
         return binding
     }
     globalOnKeyDownHandler() {
@@ -68,6 +60,20 @@ export class ActionManager {
         } else {
             console.warn("missing action",name)
         }
+    }
+
+    matchBindingScope(event, scope) {
+        const binding = this.keysList.find(binding=> {
+            if(binding.scope !== scope) return false
+            if(binding.shift && !event.shiftKey) return false
+            if(binding.alt && !event.altKey) return false
+            if(binding.control && !event.ctrlKey) return false
+            if(binding.meta && !event.metaKey) return false
+            if(event.ctrlKey && !binding.control) return false
+            if(binding.key === event.key.toLowerCase()) return true
+            return false
+        })
+        return binding
     }
 }
 
@@ -103,9 +109,14 @@ export const useActionScope = (scope,actions)=>{
             }
             const binding = am.matchBinding(e,scope)
             // console.log("matched the binding",binding,'actions',actions)
-            if(binding && actions[binding.action]) {
+            if(binding) {
                 e.preventDefault()
-                actions[binding.action](e,am)
+                if(actions[binding.action]) {
+                    actions[binding.action](e, am)
+                    return
+                }
+
+                am.runAction(binding.scope,binding.action)
             }
         }
     }

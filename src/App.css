@@ -91,7 +91,12 @@ input {
 input[type=search] {
   padding: 0.5rem 1.0rem;
   border-radius: 1rem;
-  border: 1px solid red;
+  background-color: var(--content-bg);
+  border: 1px solid #888888;
+}
+input[type=search]:focus {
+  border: 1px solid #333333;
+  background-color: var(--focus-bg);
 }
 
 /* ========= toolbars ========== */
