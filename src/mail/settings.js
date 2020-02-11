@@ -45,7 +45,7 @@ export const SettingsDialog = () => {
             setLoggedIn(auth.isLoggedIn())
             if(auth.isLoggedIn()) {
                 console.log("doing an authed fetch")
-                auth.fetch('https://joshbigmac.ngrok.io/docs/joshmarinacci/search')
+                auth.fetch('https://docs.josh.earth/docs/joshmarinacci/search')
                     .then(res => res.json())
                     .then((data)=>{
                         console.log("got back data",data)
@@ -59,7 +59,7 @@ export const SettingsDialog = () => {
         if(auth.isLoggedIn()) {
             auth.logout()
         } else {
-            auth.login("https://joshbigmac.ngrok.io/auth/github")
+            auth.login("https://docs.josh.earth/auth/github")
         }
     }
 
