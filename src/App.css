@@ -81,6 +81,18 @@ html {
 
 
 
+/* ========= general ========== */
+
+input {
+  padding: 0.5rem 0.5rem;
+  font-size: 100%;
+  font-family: inherit;
+}
+input[type=search] {
+  padding: 0.5rem 1.0rem;
+  border-radius: 1rem;
+  border: 1px solid red;
+}
 
 /* ========= toolbars ========== */
 .toolbar {
@@ -200,4 +212,6 @@ html {
   display: flex;
   flex-direction: row;
 }
+
+
 

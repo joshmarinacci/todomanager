@@ -35,6 +35,7 @@ const ItemEditPanel = ({item}) => {
     const title = useRef()
     useEffect(()=>{
         title.current.focus()
+        title.current.select()
     },[])
 
     return <div className={"edit-panel"} onKeyDown={handlers.onKeyDown}>

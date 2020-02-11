@@ -22,7 +22,10 @@ const ProjectItemView = ({item, selected, focusName}) => {
     useAutofocusRefWhenSelected(div, selected, focusName)
 
     useEffect(() => {
-        if (input.current) input.current.focus()
+        if (input.current) {
+            input.current.focus()
+            input.current.select()
+        }
     }, [editing])
 
     const deleteProject = () => {
