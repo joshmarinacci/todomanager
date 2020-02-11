@@ -53,13 +53,14 @@ function generate(storage) {
     console.log("making new data in storage")
     storage.makeObject('project',{title:'everything', special:true})
     storage.makeObject('project',{title:'better',special:false})
-    const best = storage.makeObject('project',{title:'best',special:false})
+    storage.makeObject('project',{title:'best',special:false}).then(best => {
+        storage.makeObject('note',   {title:'third object', body:'cool note', deleted:false, lastEdited: Date.now(), project:best})
+    })
     storage.makeObject('project',{title:'good',special:false}).then(good => {
         console.log("got the good",good)
         storage.makeObject('project',{title:'trash',special:true})
         storage.makeObject('note',   {title:'first object', body:'cool note', deleted:false, lastEdited: Date.now(), project:good})
         storage.makeObject('note',   {title:'second object', body:'cool note', deleted:false, lastEdited: Date.now(), project:good})
-        // storage.makeObject('note',   {title:'third object', body:'cool note', deleted:false, lastEdited: Date.now(), project:best})
     })
 }
 storage.init("notes",generate).then(()=>{
