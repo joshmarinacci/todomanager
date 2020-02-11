@@ -224,7 +224,6 @@ const TodoAppContent = () => {
             <button disabled={!loggedIn} onClick={deleteOnServer}>delete on server</button>
             <button onClick={deleteAll}>delete all notes</button>
             <button onClick={dumpServer}>dump server</button>
-
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
         <ItemsListView query={query} project={selectedProject}/>

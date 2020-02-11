@@ -1,5 +1,5 @@
 import {SortOrder, StorageContext, Storage, useQuery} from '../common/storage2.js'
-import {ActionContext, AM} from '../common/actions.js'
+import {ActionContext, AM, useActionScope} from '../common/actions.js'
 import {FocusContext, FocusManager, CSS, VBox} from '../common/layout.js'
 import React, {useContext, useState} from 'react'
 import './notes.css'
@@ -102,14 +102,32 @@ export const NotesApp = () => {
 }
 
 const ProjectsListView = ({query, proj, setProj}) => {
+    const fm = useContext(FocusContext)
     const projects = useQuery(query)
-    return <div className={"left-panel"}>
+    const handlers = useActionScope('list', {
+        'focus-prev-master': () => {
+        },
+        'focus-next-master': () => {
+            fm.setMasterFocus('notes')
+        },
+        'move-selection-prev': () => {
+            const index = projects.indexOf(proj)
+            if (index > 0) setProj(projects[index - 1])
+        },
+        'move-selection-next': () => {
+            const index = projects.indexOf(proj)
+            if (index < projects.length - 1) setProj(projects[index + 1])
+        },
+    })
+
+        return <div className={"left-panel panel"} onKeyDown={handlers.onKeyDown}>
         {projects.map((p,i)=>{
             return <div key={i}
                          className={CSS({
                              selected:(p===proj),
                              hbox:true,
-                             'project-item':true
+                             'project-item':true,
+                             item:true,
                          })}
                          tabIndex={0}
                          onClick={()=>setProj(p)}>

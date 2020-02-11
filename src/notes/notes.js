@@ -38,7 +38,18 @@ export const NotesListView = ({query, project, note, setNote}) => {
             }
         },
     })
-    return <div className={"left-panel"} onKeyDown={handlers.onKeyDown}>
+    useEffect(()=>{
+        const acquire = () => {
+            if(fm.getMasterFocus() === 'notes') {
+                const n = notes.indexOf(note)
+                if(n < 0 && notes.length > 0) setNote(notes[0])
+            }
+        }
+        fm.on(acquire)
+        acquire()
+        return ()=>fm.off(acquire)
+    })
+    return <div className={"left-panel panel"} onKeyDown={handlers.onKeyDown}>
         {notes.map((n,i)=>{
             return <div key={i}
                         className={CSS({
@@ -46,6 +57,7 @@ export const NotesListView = ({query, project, note, setNote}) => {
                             deleted:n.deleted,
                             'note-item':true,
                             hbox:true,
+                            item:true,
                         })}
                         tabIndex={0}
                         onClick={()=>setNote(n)}>
