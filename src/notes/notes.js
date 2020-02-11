@@ -17,6 +17,19 @@ const EmptyTrashButton = ({project}) => {
     return ""
 }
 
+const NoteItem = ({note, isSelected, selectNote})=>{
+    return <div className={CSS({
+                    selected:isSelected,
+                    deleted:note.deleted,
+                    'note-item':true,
+                    hbox:true,
+                    item:true,
+                })}
+                tabIndex={0}
+                onClick={()=>selectNote(note)}>
+        {note.title}
+    </div>
+}
 export const NotesListView = ({query, project, note, setNote}) => {
     const storage = useContext(StorageContext)
     const fm = useContext(FocusContext)
@@ -51,18 +64,7 @@ export const NotesListView = ({query, project, note, setNote}) => {
     })
     return <div className={"left-panel panel"} onKeyDown={handlers.onKeyDown}>
         {notes.map((n,i)=>{
-            return <div key={i}
-                        className={CSS({
-                            selected:n === note,
-                            deleted:n.deleted,
-                            'note-item':true,
-                            hbox:true,
-                            item:true,
-                        })}
-                        tabIndex={0}
-                        onClick={()=>setNote(n)}>
-                {n.title}
-            </div>
+            return <NoteItem note={n} key={i} isSelected={n===note} selectNote={setNote}/>
         })}
         <HBox>
             <AddNoteButton project={project}/>
