@@ -134,11 +134,12 @@ export class Storage {
         return null
     }
 
-    deleteAll() {
-        return this.lf.clear().then(()=>{
-            console.log("completely deleted data for",this.prefix)
-        }).catch(e => {
-            console.log('error deleting data',e)
+    deleteTableData(table) {
+        this._accessTableData(table)
+        this.data[table] = []
+        this.queries.forEach(q=> q.updateIfMatch(table,null))
+        return this.save().then(()=>{
+            console.log("deleted table",table)
         })
     }
 }

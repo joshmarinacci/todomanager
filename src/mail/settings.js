@@ -41,17 +41,7 @@ export const SettingsDialog = () => {
     }
 
     useEffect(()=>{
-        const h = () => {
-            setLoggedIn(auth.isLoggedIn())
-            if(auth.isLoggedIn()) {
-                console.log("doing an authed fetch")
-                auth.fetch(`${BASE_URL}joshmarinacci/search`)
-                    .then(res => res.json())
-                    .then((data)=>{
-                        console.log("got back data",data)
-                    })
-            }
-        }
+        const h = () => setLoggedIn(auth.isLoggedIn())
         auth.on(LOGIN,h)
         return ()=>auth.off(LOGIN,h)
     })

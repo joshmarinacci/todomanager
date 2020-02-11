@@ -23,43 +23,11 @@ const ITEM = storage.defineTable({
 })
 
 function makeInitialData() {
-    storage.makeObject('project', {title: 'today', special: true})
-    storage.makeObject('project', {title: 'forget'}).then(forget => {
-        storage.makeObject("item", {
-            today: true,
-            title: 'first, that I can forget',
-            notes: 'this is some notes: https://www.mozilla.com/',
-            tags: ['foo'],
-            completed: false,
-            deleted: false,
-            project: forget._id
-        })
-
-    })
-    storage.makeObject('project', {title: 'good'}).then(good => {
-        storage.makeObject("item", {
-            today: false,
-            title: 'second is good',
-            tags: ['foo', 'bar'],
-            project: good._id,
-            deleted: false,
-            completed: true,
-        })
-        storage.makeObject("item", {
-            today: true,
-            title: 'third is good',
-            tags: ['bar'],
-            project: good._id,
-            deleted: false,
-            completed: false,
-        })
-
-    })
-    storage.makeObject('project', {title: 'trash', special: true})
+    storage.makeObject('project', {title: 'today', special: true, name:'todo'})
+    storage.makeObject('project', {title: 'trash', special: true, name:'trash'})
 }
 storage.init('todos',makeInitialData).then(()=>{
     console.log("todos storage is loaded")
-    // storage.deleteAll()
 })
 
 
@@ -214,6 +182,8 @@ const TodoAppContent = () => {
                 console.log("final result",res)
             })
     }
+    const deleteAll = () =>  storage.deleteTableData('item')
+
     const [loggedIn,setLoggedIn] = useState(auth.isLoggedIn())
 
     return <VBox className={'todoapp-grid'}>
@@ -222,6 +192,7 @@ const TodoAppContent = () => {
             <button disabled={!loggedIn} onClick={copyToServer}>copy to server</button>
             <button disabled={!loggedIn} onClick={copyFromServer}>copy from server</button>
             <button disabled={!loggedIn} onClick={deleteOnServer}>delete on server</button>
+            <button onClick={deleteAll}>delete all notes</button>
 
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
