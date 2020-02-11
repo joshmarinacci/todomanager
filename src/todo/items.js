@@ -19,18 +19,18 @@ const getProjectTitle = (storage, item) => {
     return "[no project]"
 }
 
-const ItemEditPanel = ({item, setEditing}) => {
+const ItemEditPanel = ({item}) => {
     const [draft, update, save] = useDraft('item',item)
+    const storage = useContext(StorageContext)
     const endEditing = () => {
         save()
-        setEditing(false)
+        storage.updateObject('item',item,'editing',false)
     }
 
     const handlers = useActionScope('edit-item', {
         'exit-edit-item': endEditing
     })
 
-    const storage = useContext(StorageContext)
     const [projects] = useState(() => storage.createQuery({table:'project', find:(p) => !p.special}))
     const title = useRef()
     useEffect(()=>{
@@ -74,13 +74,15 @@ const ItemEditPanel = ({item, setEditing}) => {
     </div>
 }
 
-const ItemViewItem = ({item, setEditing, focusName, selected}) => {
+const ItemViewItem = ({item, focusName, selected}) => {
     const hbox = useRef()
     const storage = useContext(StorageContext)
     useAutofocusRefWhenSelected(hbox, selected, focusName)
+    const startEditing = () => storage.updateObject('item',item,'editing',true)
+    const stopEditing = () => storage.updateObject('item',item,'editing',false)
     const handlers = useActionScope('item', {
-        'edit-item': () => setEditing(true),
-        'exit-edit-item': () => setEditing(false)
+        'edit-item': () => startEditing(),
+        'exit-edit-item': () => stopEditing(),
     })
 
     const cls = makeClassNames({
@@ -92,7 +94,7 @@ const ItemViewItem = ({item, setEditing, focusName, selected}) => {
                 tabIndex={0}
                 className={cls}
                 onKeyDown={handlers.onKeyDown}
-                onDoubleClick={() => setEditing(true)}
+                onDoubleClick={startEditing}
     >
         <input type="checkbox" checked={item.completed} onChange={(e)=>{
             storage.updateObject('item',item,'completed',e.target.checked)
@@ -124,11 +126,10 @@ const NotesIndicator = ({item}) => {
     }
 }
 const TodoItemView = ({item, focusName, selected}) => {
-    const [editing, setEditing] = useState(false)
-    if (editing) {
-        return <ItemEditPanel item={item} setEditing={setEditing}/>
+    if (item.editing) {
+        return <ItemEditPanel item={item}/>
     } else {
-        return <ItemViewItem item={item} setEditing={setEditing} focusName={focusName} selected={selected}/>
+        return <ItemViewItem item={item} focusName={focusName} selected={selected}/>
     }
 }
 
@@ -143,7 +144,8 @@ export const ItemsListView = ({query, project}) => {
             completed: false,
             today: (project.special && project.title === 'today'),
             notes: "",
-            deleted: false
+            deleted: false,
+            editing:true,
         }).then(item =>  setSel(item))
     }
     const fm = useContext(FocusContext)

@@ -23,7 +23,15 @@ const PROJECT = storage.defineTable({
 })
 const ITEM = storage.defineTable({
     name:'item',
-    schema:{}
+    schema:{
+        title: { type: String},
+        project: { type: String},
+        completed: { type:Boolean},
+        today: { type: Boolean},
+        notes: { type: String},
+        deleted: { type: Boolean},
+        editing: { type: Boolean},
+    }
 })
 
 function makeInitialData() {

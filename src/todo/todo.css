@@ -32,6 +32,7 @@
 }
 .todo-item, .project-item {
     border: 2px solid transparent;
+    outline: none;
 }
 
 .todo-item .project {
