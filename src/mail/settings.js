@@ -1,5 +1,6 @@
-import React, {useContext, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import {CSS, DialogContext, HBox, Spacer} from '../common/layout.js'
+import {AuthModuleSingleton, LOGIN} from '../auth.js'
 
 const SPACING = {
     'comfortable': '1.0rem',
@@ -27,13 +28,29 @@ const COLOR_THEME = {
         '--content-bg':'#f0f0f0',
     }
 }
+const auth = new AuthModuleSingleton()
+
 export const SettingsDialog = () => {
     const dm = useContext(DialogContext)
+    const [loggedIn,setLoggedIn] = useState(auth.isLoggedIn())
     const css = CSS({
         dialog:'true'
     })
     const hide = () => {
         dm.hide()
+    }
+
+    useEffect(()=>{
+        const h = () => setLoggedIn(auth.isLoggedIn())
+        auth.on(LOGIN,h)
+        return ()=>auth.off(LOGIN,h)
+    })
+    const doLoginLogout = () => {
+        if(auth.isLoggedIn()) {
+            auth.logout()
+        } else {
+            auth.login("https://joshbigmac.ngrok.io/auth/github")
+        }
     }
 
     const [spacing,setSpacing] = useState('comfortable')
@@ -69,6 +86,7 @@ export const SettingsDialog = () => {
                     })}
                 </select>
             </HBox>
+            <button onClick={doLoginLogout}>{loggedIn?'logout':'login'}</button>
         </div>
         <footer>
             <Spacer/>
