@@ -39,6 +39,12 @@ export class SettingsManager {
                 spacing:'comfortable',
             }
         }
+        if(!this.settings) {
+            this.settings = {
+                theme:'default',
+                spacing:'comfortable',
+            }
+        }
         if(!this.settings.spacing) {
             this.settings.spacing = 'comfortable'
         }
