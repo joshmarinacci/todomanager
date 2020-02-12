@@ -1,11 +1,13 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {useActionScope} from '../common/actions.js'
 import {
+    CSS,
     FocusContext,
     GenericListView,
     HBox,
     makeClassNames,
     PopupButton,
+    PopupContext,
     Spacer,
     useAutofocusRefWhenSelected,
     VBox
@@ -134,6 +136,46 @@ const TodoItemView = ({item, focusName, selected}) => {
     }
 }
 
+const PopupMenu = ({query, onSelect}) => {
+    const items = useQuery(query)
+    const [item, setItem] = useState(items[0])
+    const div = useRef()
+    const pm = useContext(PopupContext)
+    const fm = useContext(FocusContext)
+    //run when the component first appears
+    useEffect(()=>{
+        div.current.focus()
+        fm.pushMasterFocus('popup')
+    },[])
+    const selectItem = (item) => {
+        pm.hide()
+        onSelect(item)
+        fm.popMasterFocus()
+    }
+    const handlers = useActionScope('list', {
+        'move-selection-prev': () => {
+            const index = items.indexOf(item)
+            if (index > 0) setItem(items[index - 1])
+        },
+        'move-selection-next': () => {
+            const index = items.indexOf(item)
+            if (index < items.length - 1) setItem(items[index + 1])
+        },
+        'select-menu-item':() => selectItem(item)
+    })
+    return <div ref={div} onKeyDown={handlers.onKeyDown} tabIndex={0}>
+        <ul className={'list-menu'}>
+            {items.map((proj,i)=>{
+                const css = CSS({
+                    item:true,
+                    selected:proj===item
+                })
+                return <li key={i} className={css} onClick={()=>selectItem(proj)}>{proj.title}</li>
+            })}
+        </ul>
+    </div>
+}
+
 export const ItemsListView = ({query, project}) => {
     const storage = useContext(StorageContext)
     const [sel, setSel] = useState(null)
@@ -150,6 +192,7 @@ export const ItemsListView = ({query, project}) => {
         }).then(item =>  setSel(item))
     }
     const fm = useContext(FocusContext)
+    const pm = useContext(PopupContext)
     const items = useQuery(query)
     const handlers = useActionScope('list', {
         'focus-prev-master': () => {
@@ -201,6 +244,12 @@ export const ItemsListView = ({query, project}) => {
             const newOrder = (sortA + sortB) / 2
             console.log("the new order is", newOrder)
             storage.updateObject('item', sel, 'sortOrder', newOrder)
+        },
+        'move-item':(e) =>{
+            const q = storage.createQuery({table:'project', find:p => !p.special})
+            pm.show(e.target, <PopupMenu query={q} onSelect={proj=>{
+                storage.updateObject('item',sel,'project',proj._id)
+            }}/>)
         }
 
     })

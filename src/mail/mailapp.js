@@ -194,6 +194,7 @@ const MailAppContent = () => {
         <FoldersListView selectedFolder={folder} setFolder={setFolder}/>
         <MailsListView setMail={setMail} selectedMail={mail} selectedFolder={folder}/>
         {mainView}
+        <PopupContainer/>
     </div>
 }
 

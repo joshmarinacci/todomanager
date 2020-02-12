@@ -4,6 +4,7 @@ import {StorageContext, Storage} from '../common/storage2.js'
 import {
     FocusContext,
     FocusManager,
+    PopupContainer,
     Toolbar,
     VBox
 } from '../common/layout.js'
@@ -123,6 +124,7 @@ export const TodoApp = () => {
         {action: 'toggle-today',  scope:'list',  key:'t',  alt:true },
         {action: 'delete-item',   scope:'list',  key:'backspace' },
         {action: 'delete-item',   scope:'list',  key:'delete' },
+        {action: 'move-item',     scope:'list',  key:'m'},
 
         //item scope
         {action: 'edit-item',   key: 'Enter',  scope:'item',  },
@@ -131,14 +133,13 @@ export const TodoApp = () => {
         //search scope
         {action:'start-search', key: 'f', meta:true, scope:'global', os:['mac']},
         {action:'start-search', key: 'f', control:true, scope:'global', os:['windows','linux']},
-        {action:'exit-search', key: 'escape', scope:'search',}
+        {action:'exit-search', key: 'escape', scope:'search',},
+        {action:'select-menu-item', scope:'list', key:'enter',}
     ])
 
     return <ActionContext.Provider value={am}>
         <StorageContext.Provider value={storage}>
-            <FocusContext.Provider value={new FocusManager()}>
-                <TodoAppContent/>
-            </FocusContext.Provider>
+            <TodoAppContent/>
         </StorageContext.Provider>
     </ActionContext.Provider>
 }
@@ -286,6 +287,7 @@ const TodoAppContent = () => {
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
         <ItemsListView query={query} project={selectedProject}/>
+        <PopupContainer/>
     </VBox>
 
 }

@@ -4,7 +4,9 @@ import {
     CSS,
     DialogContainer,
     DialogContext,
-    DialogManager, PopupContainer,
+    DialogManager,
+    FocusContext,
+    FocusManager,
     PopupContext,
     PopupManager,
     Spacer,
@@ -74,7 +76,6 @@ function AppContent() {
         </div>
         {appcontent}
         <DialogContainer/>
-        <PopupContainer/>
     </div>
 }
 
@@ -83,7 +84,9 @@ function App() {
         <PopupContext.Provider value={new PopupManager()}>
             <AuthContext.Provider value={new AuthModuleSingleton()}>
                 <SettingsContext.Provider value={new SettingsManager()}>
-                    <AppContent/>
+                    <FocusContext.Provider value={new FocusManager()}>
+                        <AppContent/>
+                    </FocusContext.Provider>
                 </SettingsContext.Provider>
             </AuthContext.Provider>
         </PopupContext.Provider>
