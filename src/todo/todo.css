@@ -5,7 +5,7 @@
     background-color: #dddddd;
     border: 0px solid red;
     flex: 1.0;
-    max-height: 90vh;
+    max-height: 100vh;
 }
 
 .todoapp-grid .grid-toolbar {

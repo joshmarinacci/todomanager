@@ -11,6 +11,7 @@
   bottom:0;
   background-color: #dddddd;
   box-sizing: content-box;
+  height: 100vh;
 }
 .hbox {
   display: flex;
