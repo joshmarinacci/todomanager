@@ -16,10 +16,20 @@ export class ActionManager {
         }
     }
     registerKeys(arr) {
+        console.log(navigator.oscpu)
+        let os = "none"
+        if(navigator.oscpu.match(/win/i)) {
+            os = 'windows'
+        }
+        console.log("os is",os)
         this.keysList = arr.map(binding => {
             binding.key = binding.key.toLowerCase()
             if(binding.key === 'period') binding.key = '.'
             return binding
+        }).filter(binding => {
+            if(!binding.os) return true
+            if(binding.os.includes(os)) return true
+            return false
         })
     }
     getShortcuts() {

@@ -13,7 +13,7 @@ import './todo.css'
 import {AuthContext, BASE_URL} from '../auth.js'
 
 const storage = new Storage()
-const PROJECT = storage.defineTable({
+storage.defineTable({
     name:'project',
     schema: {
         title: { type: String},
@@ -26,21 +26,16 @@ const PROJECT = storage.defineTable({
             if(p.special && p.name === 'today') return storage.updateObject('project',p,'sortOrder',0)
             if(p.special && p.name === 'trash') return storage.updateObject('project',p,'sortOrder',Number.MAX_SAFE_INTEGER)
 
-            console.log("missing a sort order. lets add one")
-            console.log("looking for from table",table)
             const data = sto.find(table,f=>true,(a,b)=>a.sortOrder-b.sortOrder)
-            console.log("fixing based on data",data)
             const last = data[data.length-1]
             const prev = data[data.length-2]
-            console.log("last is",last,'prev',prev)
             const newsort = (last.sortOrder+prev.sortOrder)/2
-            console.log('setting new sort order to',newsort)
             p.sortOrder = newsort
             sto.updateObject(table,p,'sortOrder',newsort)
         }
     }
 })
-const ITEM = storage.defineTable({
+storage.defineTable({
     name:'item',
     schema:{
         title: { type: String},
@@ -131,10 +126,11 @@ export const TodoApp = () => {
 
         //item scope
         {action: 'edit-item',   key: 'Enter',  scope:'item',  },
-        { action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
+        {action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
 
         //search scope
-        {action:'start-search', key: 'f', meta:true, scope:'global'},
+        {action:'start-search', key: 'f', meta:true, scope:'global', os:['mac']},
+        {action:'start-search', key: 'f', control:true, scope:'global', os:['windows','linux']},
         {action:'exit-search', key: 'escape', scope:'search',}
     ])
 

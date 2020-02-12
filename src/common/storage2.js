@@ -24,7 +24,7 @@ export class Storage {
         this.queries = []
     }
     log(...args) {
-        console.log("STORAGE",...args)
+        // console.log("STORAGE",...args)
         // console.log("queries",this.queries.length)
     }
     defineTable({name,schema,fixer}) {
@@ -61,7 +61,7 @@ export class Storage {
         })
     }
     save() {
-        console.log("trhing to save",this.data)
+        // console.log("trhing to save",this.data)
         return this.lf.setItem(this.prefix+'data',this.data)
             .catch((e)=>{
                 console.log("error saving",e)
@@ -215,7 +215,7 @@ class StorageQuery {
         this.listeners.forEach(cb => cb(this))
     }
     updateIfMatch(table,obj) {
-        if(this.table !== table) return console.log("different table",table)
+        if(this.table !== table) return //console.log("different table",table)
         this.listeners.forEach(cb => cb(this))
     }
 }
