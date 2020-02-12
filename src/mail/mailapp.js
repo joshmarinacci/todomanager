@@ -111,9 +111,7 @@ export const MailApp = () => {
     ])
     return <ActionContext.Provider value={am}>
         <StorageContext.Provider value={storage}>
-            <FocusContext.Provider value={new FocusManager()}>
-                <MailAppContent/>
-            </FocusContext.Provider>
+            <MailAppContent/>
         </StorageContext.Provider>
     </ActionContext.Provider>
 }

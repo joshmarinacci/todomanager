@@ -1,6 +1,6 @@
 import {SortOrder, StorageContext, Storage, useQuery} from '../common/storage2.js'
 import {ActionContext, AM, useActionScope} from '../common/actions.js'
-import {FocusContext, FocusManager, CSS, VBox} from '../common/layout.js'
+import {FocusContext, FocusManager, CSS, VBox, PopupContainer} from '../common/layout.js'
 import React, {useContext, useState} from 'react'
 import './notes.css'
 import {NoteEditor, NotesListView} from './notes.js'
@@ -94,9 +94,7 @@ export const NotesApp = () => {
 
     return <ActionContext.Provider value={AM}>
         <StorageContext.Provider value={storage}>
-            <FocusContext.Provider value={new FocusManager()}>
-                <NotesAppContent/>
-            </FocusContext.Provider>
+            <NotesAppContent/>
         </StorageContext.Provider>
     </ActionContext.Provider>
 }
@@ -184,5 +182,6 @@ const NotesAppContent = ()=>{
         <ProjectsListView query={allProjects} proj={proj} setProj={selectProject} nextFocusTarget={"notes"}/>
         <NotesListView query={query} project={proj}  note={note} setNote={setNote}/>
         <NoteEditor note={note}/>
+        <PopupContainer/>
     </VBox>
 }
