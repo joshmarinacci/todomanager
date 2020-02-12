@@ -182,6 +182,26 @@ input[type=search]:focus {
   display: block;
 }
 
+
+.list-menu {
+  border: 0px solid red;
+  list-style: none;
+  margin:0;
+  padding:0.5rem 0;
+}
+.list-menu li {
+  border: 1px solid black;
+  border-width: 0 0 1px 0;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--focus-bg);
+}
+.list-menu li:last-child {
+  border-width: 0 0 0px 0;
+}
+.list-menu li:hover {
+  background-color: var(--active-bg);
+}
+
 /* ============= dialog ============ */
 .dialog-container {
   position: fixed;

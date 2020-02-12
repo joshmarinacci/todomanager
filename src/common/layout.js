@@ -28,22 +28,20 @@ export function makeClassNames(map) {
 export const CSS = makeClassNames
 
 export const PopupButton = ({children, getItems, itemSelected, stringify})=>{
-    const [open,setOpen] = useState(false)
-    const toggleOpen = () => setOpen(!open)
-    const button = <button onClick={toggleOpen}>{children} <b>\/</b></button>
+    const button = useRef()
+    const pm = useContext(PopupContext)
     const clickItem = (item) => {
-        toggleOpen()
         itemSelected(item)
+        pm.hide()
     }
-    let popup = ""
-    if(open) {
+    const toggleOpen = () => {
         const items = getItems()
-        popup = <ul className={"popup-wrapper"}>
+        const popup = <ul className={"list-menu"}>
             {items.map((item, i) => <li key={i} onClick={() => clickItem(item)}>{stringify(item)}</li>)}
         </ul>
+        pm.show(button.current,popup)
     }
-
-    return <div className={"popup-button-wrapper"}>{button}{popup}</div>
+    return <button ref={button} onClick={toggleOpen}>{children}</button>
 }
 
 

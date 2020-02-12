@@ -4,7 +4,7 @@ import {
     CSS,
     DialogContainer,
     DialogContext,
-    DialogManager,
+    DialogManager, PopupContainer,
     PopupContext,
     PopupManager,
     Spacer,
@@ -74,6 +74,7 @@ function AppContent() {
         </div>
         {appcontent}
         <DialogContainer/>
+        <PopupContainer/>
     </div>
 }
 

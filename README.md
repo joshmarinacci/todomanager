@@ -29,4 +29,15 @@ login
     /auth/github/callback
 search
     /user/userid/search?docid=&mimetype=&doctype=&tag=&
-    searches through the files of the currently logged in user     
+    searches through the files of the currently logged in user
+    
+    
+    
+more fixes:
+
+in todo list:  m to move to a different project
+design a new generic list that works better
+focus back to the far left and choose between major apps
+rename note groups with enter
+focus back and forth in the note groups and notes list panels
+
