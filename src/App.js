@@ -14,10 +14,9 @@ import {TodoApp} from './todo/todoapp.js'
 import {MailApp} from './mail/mailapp.js'
 import {FileText, List, Mail, Maximize2, Minimize2, Settings, Wifi, WifiOff} from "react-feather"
 import {NotesApp} from './notes/notesapp.js'
-import {StorageContext} from './common/storage2.js'
-import {ActionContext} from './common/actions.js'
 import {SettingsDialog} from './mail/settings.js'
 import {AuthContext, AuthModuleSingleton} from './auth.js'
+import {SettingsManager, SettingsContext} from './common/settings.js'
 
 const ConnectedButton = () => {
     const [online, setOnline] = useState(window.navigator.onLine)
@@ -82,7 +81,9 @@ function App() {
     return  <DialogContext.Provider value={new DialogManager()}>
         <PopupContext.Provider value={new PopupManager()}>
             <AuthContext.Provider value={new AuthModuleSingleton()}>
-                <AppContent/>
+                <SettingsContext.Provider value={new SettingsManager()}>
+                    <AppContent/>
+                </SettingsContext.Provider>
             </AuthContext.Provider>
         </PopupContext.Provider>
     </DialogContext.Provider>
