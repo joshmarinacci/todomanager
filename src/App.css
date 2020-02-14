@@ -243,3 +243,12 @@ input[type=search]:focus {
 
 
 
+.column-resizer {
+  border: 0px solid red;
+  cursor: col-resize;
+  margin-left:-5px;
+  width: 10px;
+  box-sizing: border-box;
+  z-index: 1;
+  padding:0;
+}

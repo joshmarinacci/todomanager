@@ -306,3 +306,24 @@ export const useAutofocusRefWhenSelected = (ref,selected,focusName) => {
     })
 }
 
+
+export const ColumnResizer = ({width, setWidth}) => {
+    const style = {
+        gridRow:'2/3',
+    }
+    const down = (e) => {
+        const st = { x: e.clientX, y: e.clientY}
+        const off = { x:e.target.offsetLeft, y: e.target.offsetTop}
+        // console.log('event is',e, e.clientX, e.clientY, e.target.getBoundingClientRect(), e.target.offsetLeft, e.target.offsetTop)
+        const h = (e) => {
+            setWidth(e.clientX-st.x+off.x)
+        }
+        window.addEventListener('mousemove',h)
+        const h2 = (e) => {
+            window.removeEventListener('mousemove',h)
+            window.removeEventListener('mouseup',h2)
+        }
+        window.addEventListener('mouseup',h2)
+    }
+    return <div style={style} onMouseDown={down} className={'column-resizer'}/>
+}

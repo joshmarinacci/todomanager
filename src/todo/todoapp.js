@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useRef, useState} from 'react'
 import {ActionContext, ActionManager, useActionScope} from '../common/actions.js'
 import {StorageContext, Storage} from '../common/storage2.js'
 import {
+    ColumnResizer,
     FocusContext,
     FocusManager,
     PopupContainer,
@@ -276,7 +277,14 @@ const TodoAppContent = () => {
 
     const [loggedIn,setLoggedIn] = useState(auth.isLoggedIn())
 
-    return <VBox className={'todoapp-grid'}>
+    //only set the column widths here.
+    const [c1,setC1] = useState(200)
+    const [c2,setC2] = useState(500)
+    const style = {
+        gridTemplateColumns: `${c1}px 0px ${c2-c1}px 0px 1fr`,
+     }
+
+    return <div style={style} className={'todoapp-grid'}>
         <Toolbar className={'grid-toolbar'}>
             <SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>
             <button disabled={!loggedIn} onClick={copyToServer}>copy to server</button>
@@ -288,8 +296,11 @@ const TodoAppContent = () => {
             <button onClick={dumpServer}>dump server</button>
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
+        <ColumnResizer width={c1} setWidth={setC1}/>
         <ItemsListView query={query} project={selectedProject}/>
+        <ColumnResizer width={c2} setWidth={setC2}/>
         <PopupContainer/>
-    </VBox>
+    </div>
 
 }
+
