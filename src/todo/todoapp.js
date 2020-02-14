@@ -108,10 +108,10 @@ export const TodoApp = () => {
         {action: 'shift-selection-prev', key:'ArrowUp', meta:true, scope:'list'},
         {action: 'shift-selection-next', key:'ArrowDown', alt:true, scope:'list'},
         {action: 'shift-selection-next', key:'ArrowDown', meta:true, scope:'list'},
-        {action: 'move-selection-prev', key: 'ArrowUp', scope: 'list'},
-        {action: 'move-selection-prev', key: 'k', scope: 'list'},
-        {action: 'move-selection-next', key: 'ArrowDown', scope: 'list'},
-        {action: 'move-selection-next', key: 'j', scope: 'list'},
+        {action: 'move-selection-prev', key: 'ArrowUp', scope: ['list','popup']},
+        {action: 'move-selection-prev', key: 'k', scope: ['list','popup']},
+        {action: 'move-selection-next', key: 'ArrowDown', scope: ['list','popup']},
+        {action: 'move-selection-next', key: 'j', scope: ['list','popup']},
         {action: 'focus-prev-master',  key:'ArrowLeft',  scope:'list'  },
         {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
 
@@ -127,14 +127,16 @@ export const TodoApp = () => {
         {action: 'move-item',     scope:'list',  key:'m'},
 
         //item scope
-        {action: 'edit-item',   key: 'Enter',  scope:'item',  },
+        {action: 'edit-item',   scope:'item',  key: 'Enter' },
         {action: 'exit-edit-item',   key:'escape', scope:'edit-item',   },
 
         //search scope
         {action:'start-search', key: 'f', meta:true, scope:'global', os:['mac']},
         {action:'start-search', key: 'f', control:true, scope:'global', os:['windows','linux']},
-        {action:'exit-search', key: 'escape', scope:'search',},
-        {action:'select-menu-item', scope:'list', key:'enter',}
+        {action:'exit-search', key: 'escape', scope:'search' },
+
+        {action:'select-menu-item', scope:['popup'], key:'enter',},
+        {action:'exit-menu-item', scope:['popup'], key:'escape',}
     ])
 
     return <ActionContext.Provider value={am}>

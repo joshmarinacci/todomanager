@@ -148,11 +148,14 @@ const PopupMenu = ({query, onSelect}) => {
         fm.pushMasterFocus('popup')
     },[])
     const selectItem = (item) => {
-        pm.hide()
         onSelect(item)
+        closeMenu()
+    }
+    const closeMenu = () => {
+        pm.hide()
         fm.popMasterFocus()
     }
-    const handlers = useActionScope('list', {
+    const handlers = useActionScope('popup', {
         'move-selection-prev': () => {
             const index = items.indexOf(item)
             if (index > 0) setItem(items[index - 1])
@@ -161,7 +164,8 @@ const PopupMenu = ({query, onSelect}) => {
             const index = items.indexOf(item)
             if (index < items.length - 1) setItem(items[index + 1])
         },
-        'select-menu-item':() => selectItem(item)
+        'exit-menu-item':() => closeMenu(item),
+        'select-menu-item':() => selectItem(item),
     })
     return <div ref={div} onKeyDown={handlers.onKeyDown} tabIndex={0}>
         <ul className={'list-menu'}>
@@ -195,18 +199,12 @@ export const ItemsListView = ({query, project}) => {
     const pm = useContext(PopupContext)
     const items = useQuery(query)
     const handlers = useActionScope('list', {
-        'focus-prev-master': () => {
-            fm.setMasterFocus('projects')
-        },
+        'focus-prev-master': () => fm.setMasterFocus('projects'),
         'focus-next-master': () => {
         },
         'add-item-to-target-list': addItem,
-        'toggle-completed': () => {
-            storage.updateObject('item', sel, 'completed', !sel.completed)
-        },
-        'toggle-today': () => {
-            storage.updateObject('item', sel, 'today', !sel.today)
-        },
+        'toggle-completed': () => storage.updateObject('item', sel, 'completed', !sel.completed),
+        'toggle-today': () =>  storage.updateObject('item', sel, 'today', !sel.today),
         'delete-item': (e) => {
             if (e.target.classList.contains('todo-item')) {
                 storage.updateObject('item', sel, 'deleted', !sel.deleted)
@@ -254,9 +252,7 @@ export const ItemsListView = ({query, project}) => {
 
     })
     let emptyTrash = ""
-    const emptyTrashAction = () => {
-        storage.removeObjects('item', (it) => it.deleted)
-    }
+    const emptyTrashAction = () => storage.removeObjects('item', (it) => it.deleted)
     let addButton = <button onClick={addItem}>add</button>
     if (project && project.special && project.title === 'trash') {
         emptyTrash = <button onClick={emptyTrashAction}>empty</button>

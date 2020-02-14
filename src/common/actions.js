@@ -74,13 +74,16 @@ export class ActionManager {
 
     matchBindingScope(event, scope) {
         const binding = this.keysList.find(binding=> {
-            if(binding.scope !== scope) return false
             if(binding.shift && !event.shiftKey) return false
             if(binding.alt && !event.altKey) return false
             if(binding.control && !event.ctrlKey) return false
             if(binding.meta && !event.metaKey) return false
             if(event.ctrlKey && !binding.control) return false
-            if(binding.key === event.key.toLowerCase()) return true
+            if(binding.key === event.key.toLowerCase()) {
+                if(binding.scope.indexOf(scope)>=0) return true
+                if(binding.scope === scope) return true
+                return false
+            }
             return false
         })
         return binding
