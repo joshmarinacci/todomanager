@@ -4,10 +4,8 @@ import {StorageContext, Storage} from '../common/storage2.js'
 import {
     ColumnResizer,
     FocusContext,
-    FocusManager,
     PopupContainer,
-    Toolbar,
-    VBox
+    Toolbar
 } from '../common/layout.js'
 import {ProjectsListView} from './projects.js'
 import {ItemsListView} from './items.js'

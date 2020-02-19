@@ -1,7 +1,6 @@
 import {ActionContext, ActionManager, useActionScope} from '../common/actions.js'
 import React, {useContext, useState} from 'react'
 import {
-    FocusContext, FocusManager,
     PopupContainer,
     Spacer,
     Toolbar
@@ -16,7 +15,6 @@ import {
     Trash2
 } from "react-feather"
 import "./mail.css"
-import * as faker from "faker"
 import {StorageContext, Storage} from '../common/storage2.js'
 import {ReadingMailView} from './read.js'
 import {ComposingMailView} from './compose.js'
