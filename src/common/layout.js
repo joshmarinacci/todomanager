@@ -193,6 +193,7 @@ function GenericListItemView({
                                  ItemProps,
                                  focusName,
                                  autoFocus,
+                                 onClick
                              }) {
 
     const isSelected = item === selectedItem
@@ -221,6 +222,7 @@ function GenericListItemView({
         onClick={() => {
             setSelectedItem(item)
             fm.setMasterFocus(focusName)
+            if(onClick) onClick(item)
         }}
         tabIndex={0}
     >
@@ -238,7 +240,8 @@ export function GenericListView({
                              ItemProps,
                              actionHandlers,
                              focusName,
-                             autoFocus=true
+                             autoFocus=true,
+                             onItemClick
                          }) {
     const data = useQuery(query)
     if(!data) throw new Error(`no data returned for query ${query.toString()}`)
@@ -287,6 +290,7 @@ export function GenericListView({
                 selectedItem={selectedItem}
                 focusName={focusName}
                 autoFocus={autoFocus}
+                onClick={onItemClick}
             />
         })}
     </div>
@@ -325,3 +329,38 @@ export const ColumnResizer = ({width, setWidth}) => {
     }
     return <div style={style} onMouseDown={down} className={'column-resizer'}/>
 }
+
+
+export function ListViewPopup({query, onAction, ItemTemplate}) {
+    const [folders] = useQuery(query)
+    const [selFolder, setSelFolder] = useState(folders[0])
+    const pm = useContext(PopupContext)
+    const fm = useContext(FocusContext)
+    const handlers = useActionScope('list',{
+        'select-menu-item':()=>{
+            onAction(selFolder)
+            fm.popMasterFocus()
+            pm.hide()
+        },
+        'exit-menu-item':()=>{
+            fm.popMasterFocus()
+            pm.hide()
+        },
+    })
+
+    return <div className={"move-mail-popup-wrapper"} onKeyDown={handlers.onKeyDown}>
+        <GenericListView
+            query={query}
+            ItemTemplate={ItemTemplate}
+            selectedItem={selFolder}
+            setSelectedItem={setSelFolder}
+            focusName={'popup'}
+            onItemClick={()=>{
+                onAction(selFolder)
+                fm.popMasterFocus()
+                pm.hide()
+            }}
+        />
+    </div>
+}
+

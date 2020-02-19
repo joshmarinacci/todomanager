@@ -1,7 +1,7 @@
 import {Archive, FileText, Folder, Inbox, Trash2} from 'react-feather'
 import React, {useContext, useEffect, useState} from 'react'
-import {StorageContext, useQuery} from '../common/storage2.js'
-import {CSS, FocusContext, GenericListView, PopupContext, VBox} from '../common/layout.js'
+import {StorageContext} from '../common/storage2.js'
+import {CSS, FocusContext, GenericListView, ListViewPopup, PopupContext, VBox} from '../common/layout.js'
 import {useActionScope} from '../common/actions.js'
 import {archiveEmail, deleteEmail, moveMail, queryForFolder} from './actions.js'
 
@@ -62,7 +62,9 @@ export function MailsListView({setMail, selectedMail, selectedFolder}) {
         'archive-selected-emails': () => archiveEmail(storage,selectedMail),
         'move-selected-emails': (e) => {
             fm.pushMasterFocus('popup')
-            pm.show(e.target, <MoveMailPopup mail={selectedMail}/>)
+            const q = storage.createQuery({table:'folder', find:f => !f.special})
+            const onAction = (selFolder)=> moveMail(storage,selectedMail,selFolder)
+            pm.show(e.target, <ListViewPopup query={q} ItemTemplate={PopupFolderItem} onAction={onAction}/>)
         },
         'reply': () => {
             console.log("replying to this mail")
@@ -94,45 +96,8 @@ export function MailsListView({setMail, selectedMail, selectedFolder}) {
     </div>
 }
 
-function PopupFolderItem({item, moveMail}) {
-    return <span onClick={moveMail}>{item.title}</span>
-}
-function MoveMailPopup({mail}) {
-    const storage = useContext(StorageContext)
-    const [q] = useState(() => storage.createQuery({table:'folder', find:f => !f.special}))
-    const [folders] = useQuery(q)
-    const [selFolder, setSelFolder] = useState(folders[0])
-    const pm = useContext(PopupContext)
-    const fm = useContext(FocusContext)
-    const handlers = useActionScope('list',{
-        'move-mail':()=>{
-            moveMail(storage,mail,selFolder)
-            fm.popMasterFocus()
-            pm.hide()
-        },
-        'exit':()=>{
-            console.log("exiting")
-            fm.popMasterFocus()
-            pm.hide()
-        },
-    })
-
-    return <div className={"move-mail-popup-wrapper"} onKeyDown={handlers.onKeyDown}>
-        <GenericListView
-            query={q}
-            ItemTemplate={PopupFolderItem}
-            selectedItem={selFolder}
-            setSelectedItem={setSelFolder}
-            focusName={'popup'}
-            ItemProps={{
-                moveMail:()=>{
-                    moveMail(storage,mail,selFolder)
-                    fm.popMasterFocus()
-                    pm.hide()
-                }
-            }}
-        />
-    </div>
+function PopupFolderItem({item}) {
+    return <span>{item.title}</span>
 }
 
 function MailItemView({item}) {

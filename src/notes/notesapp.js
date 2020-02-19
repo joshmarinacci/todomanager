@@ -1,6 +1,6 @@
-import {SortOrder, StorageContext, Storage, useQuery} from '../common/storage2.js'
+import {SortOrder, Storage, StorageContext, useQuery} from '../common/storage2.js'
 import {ActionContext, AM, useActionScope} from '../common/actions.js'
-import {FocusContext, FocusManager, CSS, VBox, PopupContainer, GenericListView} from '../common/layout.js'
+import {FocusContext, GenericListView, PopupContainer, VBox} from '../common/layout.js'
 import React, {useContext, useState} from 'react'
 import './notes.css'
 import {NoteEditor, NotesListView} from './notes.js'

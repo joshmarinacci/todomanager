@@ -1,10 +1,9 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {useActionScope} from '../common/actions.js'
 import {
-    CSS,
     FocusContext,
     GenericListView,
-    HBox,
+    HBox, ListViewPopup,
     makeClassNames,
     PopupButton,
     PopupContext,
@@ -136,49 +135,7 @@ const TodoItemView = ({item, focusName, selected}) => {
     }
 }
 
-const PopupMenu = ({query, onSelect}) => {
-    const items = useQuery(query)
-    const [item, setItem] = useState(items[0])
-    const div = useRef()
-    const pm = useContext(PopupContext)
-    const fm = useContext(FocusContext)
-    //run when the component first appears
-    useEffect(()=>{
-        div.current.focus()
-        fm.pushMasterFocus('popup')
-    },[])
-    const selectItem = (item) => {
-        onSelect(item)
-        closeMenu()
-    }
-    const closeMenu = () => {
-        pm.hide()
-        fm.popMasterFocus()
-    }
-    const handlers = useActionScope('popup', {
-        'move-selection-prev': () => {
-            const index = items.indexOf(item)
-            if (index > 0) setItem(items[index - 1])
-        },
-        'move-selection-next': () => {
-            const index = items.indexOf(item)
-            if (index < items.length - 1) setItem(items[index + 1])
-        },
-        'exit-menu-item':() => closeMenu(item),
-        'select-menu-item':() => selectItem(item),
-    })
-    return <div ref={div} onKeyDown={handlers.onKeyDown} tabIndex={0}>
-        <ul className={'list-menu'}>
-            {items.map((proj,i)=>{
-                const css = CSS({
-                    item:true,
-                    selected:proj===item
-                })
-                return <li key={i} className={css} onClick={()=>selectItem(proj)}>{proj.title}</li>
-            })}
-        </ul>
-    </div>
-}
+const PopupProjectItem = ({item}) => <span>{item.title}</span>
 
 export const ItemsListView = ({query, project}) => {
     const storage = useContext(StorageContext)
@@ -244,10 +201,10 @@ export const ItemsListView = ({query, project}) => {
             storage.updateObject('item', sel, 'sortOrder', newOrder)
         },
         'move-item':(e) =>{
+            fm.pushMasterFocus('popup')
             const q = storage.createQuery({table:'project', find:p => !p.special})
-            pm.show(e.target, <PopupMenu query={q} onSelect={proj=>{
-                storage.updateObject('item',sel,'project',proj._id)
-            }}/>)
+            const onAction = (proj) => storage.updateObject('item',sel,'project',proj._id)
+            pm.show(e.target, <ListViewPopup query={q} ItemTemplate={PopupProjectItem} onAction={onAction}/>)
         }
     })
     let emptyTrash = ""
