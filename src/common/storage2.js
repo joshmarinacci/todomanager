@@ -113,8 +113,7 @@ export class Storage {
             newObj[key] = val
             // this.log(`set ${key} = ${val}`)
         })
-        this._idcount++
-        newObj._id = this._idcount
+        newObj._id = this.generateID()
         if(this.tables[table].fixer) this.tables[table].fixer(newObj,table,this)
         tdata.push(newObj)
         this.queries.forEach(q=> q.updateIfMatch(table,newObj))
@@ -177,6 +176,10 @@ export class Storage {
     }
     clearData() {
         return this.lf.removeItem(this.prefix + 'data').then(() => console.log("deleted all local data"))
+    }
+
+    generateID() {
+        return "obj"+Math.floor(Math.random()*100*1000*1000)
     }
 }
 
