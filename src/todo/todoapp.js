@@ -144,12 +144,10 @@ export const TodoApp = () => {
         {action:'start-search', key: 'f', control:true, scope:'global', os:['windows','linux']},
         {action:'exit-search', key: 'escape', scope:'search' },
 
+        // popup-list scope
         {action:'select-menu-item', scope:['popup'], key:'enter',},
         {action:'exit-menu-item', scope:['popup'], key:'escape',},
 
-        // popup-list scope
-        {action: 'exit-menu-item', scope: 'list', key: 'escape'},
-        {action: 'select-menu-item', scope:'list', key:'enter'},
     ])
 
     return <ActionContext.Provider value={am}>

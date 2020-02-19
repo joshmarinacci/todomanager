@@ -336,7 +336,7 @@ export function ListViewPopup({query, onAction, ItemTemplate}) {
     const [selFolder, setSelFolder] = useState(folders[0])
     const pm = useContext(PopupContext)
     const fm = useContext(FocusContext)
-    const handlers = useActionScope('list',{
+    const handlers = useActionScope('popup',{
         'select-menu-item':()=>{
             onAction(selFolder)
             fm.popMasterFocus()

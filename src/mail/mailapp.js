@@ -105,8 +105,8 @@ export const MailApp = () => {
         {action: 'reply', scope: 'global', key: 'r', alt: true},
 
         // popup-list scope
-        {action: 'exit-menu-item', scope: 'list', key: 'escape'},
-        {action: 'select-menu-item', scope:'list', key:'enter'},
+        {action:'select-menu-item', scope:['popup'], key:'enter',},
+        {action:'exit-menu-item', scope:['popup'], key:'escape',},
     ])
     return <ActionContext.Provider value={am}>
         <StorageContext.Provider value={storage}>

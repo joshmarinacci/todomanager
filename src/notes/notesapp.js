@@ -90,8 +90,8 @@ export const NotesApp = () => {
         {action: 'move-selected-notes', key: 'm', scope: 'list'},
 
         // popup-list scope
-        {action: 'exit-menu-item', scope: 'list', key: 'escape'},
-        {action: 'select-menu-item', scope:'list', key:'enter'},
+        {action:'select-menu-item', scope:['popup'], key:'enter',},
+        {action:'exit-menu-item', scope:['popup'], key:'escape',},
 
         //item scope
         {action: 'edit-item',   key: 'Enter',  scope:'item', },
@@ -107,7 +107,6 @@ export const NotesApp = () => {
 
 const ProjectsListView = ({query, proj, setProj}) => {
     const fm = useContext(FocusContext)
-    const projects = useQuery(query)
     const handlers = useActionScope('list', {
         'focus-prev-master': () => {
         },
