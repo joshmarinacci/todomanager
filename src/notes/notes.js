@@ -1,7 +1,8 @@
-import React, {useContext, useEffect, useRef, useState} from 'react'
+import React, {useContext, useEffect} from 'react'
 import {FocusContext, HBox, CSS} from '../common/layout.js'
 import {ActionContext, useActionScope} from '../common/actions.js'
 import {StorageContext, useDraft, useQuery} from '../common/storage2.js'
+import {deleteNote} from './actions.js'
 
 const AddNoteButton = ({project}) => {
     const am = useContext(ActionContext)
@@ -30,6 +31,7 @@ const NoteItem = ({note, isSelected, selectNote})=>{
         {note.title}
     </div>
 }
+
 export const NotesListView = ({query, project, note, setNote}) => {
     const storage = useContext(StorageContext)
     const fm = useContext(FocusContext)
@@ -37,18 +39,14 @@ export const NotesListView = ({query, project, note, setNote}) => {
     const handlers = useActionScope('list',{
         'focus-prev-master': () => fm.setMasterFocus('projects'),
         'focus-next-master': () => fm.setMasterFocus('editor'),
-        'delete-note':(e)=> storage.updateObject('note',note,'deleted',!note.deleted),
+        'delete-note':(e)=> deleteNote(storage,note),
         'move-selection-prev': () => {
             const index = notes.indexOf(note)
-            if (index > 0) {
-                setNote(notes[index - 1])
-            }
+            if (index > 0) setNote(notes[index - 1])
         },
         'move-selection-next': () => {
             const index = notes.indexOf(note)
-            if (index < notes.length - 1) {
-                setNote(notes[index + 1])
-            }
+            if (index < notes.length - 1) setNote(notes[index + 1])
         },
     })
     useEffect(()=>{

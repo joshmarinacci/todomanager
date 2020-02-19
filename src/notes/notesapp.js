@@ -4,6 +4,7 @@ import {FocusContext, FocusManager, CSS, VBox, PopupContainer} from '../common/l
 import React, {useContext, useState} from 'react'
 import './notes.css'
 import {NoteEditor, NotesListView} from './notes.js'
+import {addNoteToList, queryForProject, removeAllNotesDeletedNotes} from './actions.js'
 
 const storage = new Storage()
 const PROJECT = storage.defineTable({
@@ -138,47 +139,19 @@ const ProjectsListView = ({query, proj, setProj}) => {
 const NotesAppContent = ()=>{
     const actionManager = useContext(ActionContext)
     const storage = useContext(StorageContext)
-    const byLastEdited = (a,b)=> a.lastEdited-b.lastEdited
-    function calcNewQuery(proj) {
-        if(!proj) return storage.createEmptyQuery()
-        if(!proj.special) return storage.createQuery({
-            table:'note',
-            find:n => n.project === proj,
-            sort:byLastEdited,
-        })
-        if(proj.title === 'everything') return storage.createQuery({
-            table:'note',
-            find: n=> true,
-            sort:byLastEdited,
-        })
-        if(proj.title === 'trash') return storage.createQuery({
-            table:'note',
-            find:n => n.deleted,
-            sort:byLastEdited,
-        })
-        return storage.createEmptyQuery()
-    }
     const [proj,setProj] = useState(null)
-    const [query,setQuery] = useState(calcNewQuery(null))
+    const [query,setQuery] = useState(queryForProject(null,storage))
     const [note,setNote] = useState(null)
 
     const [allProjects] = useState(()=> storage.createQuery({ table:'project', find: p => true, }))
 
     const selectProject = (newProj) => {
         setProj(newProj)
-        setQuery(calcNewQuery(newProj))
+        setQuery(queryForProject(newProj,storage))
     }
-    actionManager.registerAction('global','add-note-to-target-list',()=>{
-        setNote(storage.makeObject('note',{
-            title:'my new note',
-            project:proj,
-        }))
-    })
-    actionManager.registerAction('global','empty-trash',()=>{
-        storage.removeObjects('note',(n) => n.deleted)
-    })
-    return <VBox className={'notesapp-grid'}
-                 onKeyDown={actionManager.globalOnKeyDownHandler()}>
+    actionManager.registerAction('global','add-note-to-target-list',()=> addNoteToList(storage,proj).then(note=>setNote(note)))
+    actionManager.registerAction('global','empty-trash',()=> removeAllNotesDeletedNotes(storage))
+    return <VBox className={'notesapp-grid'} onKeyDown={actionManager.globalOnKeyDownHandler()}>
         <ProjectsListView query={allProjects} proj={proj} setProj={selectProject} nextFocusTarget={"notes"}/>
         <NotesListView query={query} project={proj}  note={note} setNote={setNote}/>
         <NoteEditor note={note}/>
