@@ -3,7 +3,7 @@ export function queryForProject(proj,storage) {
     if(!proj) return storage.createEmptyQuery()
     if(!proj.special) return storage.createQuery({
         table:'note',
-        find:n => n.project === proj,
+        find:n => n.project === proj._id,
         sort:byLastEdited,
     })
     if(proj.title === 'everything') return storage.createQuery({
@@ -22,7 +22,7 @@ export function queryForProject(proj,storage) {
 export function addNoteToList(storage,proj) {
     return storage.makeObject('note',{
         title:'my new note',
-        project:proj,
+        project:proj._id,
     })
 }
 export function removeAllNotesDeletedNotes(storage) {
@@ -30,4 +30,8 @@ export function removeAllNotesDeletedNotes(storage) {
 }
 export function deleteNote(storage,note) {
     storage.updateObject('note',note,'deleted',!note.deleted)
+}
+
+export function moveNoteToProject(storage,note,project) {
+    storage.updateObject('note',note,'project',project._id)
 }

@@ -87,6 +87,11 @@ export const NotesApp = () => {
 
         //list scope
         {action: 'delete-note',   scope:'list',  key:'backspace' },
+        {action: 'move-selected-notes', key: 'm', scope: 'list'},
+
+        // popup-list scope
+        {action: 'exit-menu-item', scope: 'list', key: 'escape'},
+        {action: 'select-menu-item', scope:'list', key:'enter'},
 
         //item scope
         {action: 'edit-item',   key: 'Enter',  scope:'item', },

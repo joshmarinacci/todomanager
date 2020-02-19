@@ -1,8 +1,8 @@
-import React, {useContext, useEffect, useRef} from 'react'
-import {FocusContext, HBox, CSS, GenericListView} from '../common/layout.js'
+import React, {useContext} from 'react'
+import {FocusContext, HBox, CSS, GenericListView, ListViewPopup, PopupContext} from '../common/layout.js'
 import {ActionContext, useActionScope} from '../common/actions.js'
-import {StorageContext, useDraft, useQuery} from '../common/storage2.js'
-import {deleteNote} from './actions.js'
+import {StorageContext, useDraft} from '../common/storage2.js'
+import {deleteNote, moveNoteToProject} from './actions.js'
 
 const AddNoteButton = ({project}) => {
     const am = useContext(ActionContext)
@@ -22,13 +22,21 @@ const NoteItem = ({item, isSelected})=>{
     return <div className={CSS({deleted:item.deleted,})}>{item.title}</div>
 }
 
+const PopupFolderItem = ({item}) => <span>{item.title}</span>
 export const NotesListView = ({query, project, note, setNote}) => {
     const storage = useContext(StorageContext)
     const fm = useContext(FocusContext)
+    const pm = useContext(PopupContext)
     const handlers = useActionScope('list',{
         'focus-prev-master': () => fm.setMasterFocus('projects'),
         'focus-next-master': () => fm.setMasterFocus('editor'),
         'delete-note':(e)=> deleteNote(storage,note),
+        'move-selected-notes': (e) => {
+            fm.pushMasterFocus('popup')
+            const q = storage.createQuery({table:'project', find:f => !f.special})
+            const onAction = (proj)=> moveNoteToProject(storage,note,proj)
+            pm.show(e.target, <ListViewPopup query={q} ItemTemplate={PopupFolderItem} onAction={onAction}/>)
+        },
     })
     return <div className={"left-panel panel"} onKeyDown={handlers.onKeyDown}>
         <GenericListView

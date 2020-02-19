@@ -105,7 +105,6 @@ export const MailApp = () => {
         {action: 'reply', scope: 'global', key: 'r', alt: true},
 
         // popup-list scope
-        // popup-list scope
         {action: 'exit-menu-item', scope: 'list', key: 'escape'},
         {action: 'select-menu-item', scope:'list', key:'enter'},
     ])
