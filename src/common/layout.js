@@ -241,10 +241,8 @@ export function GenericListView({
                              autoFocus=true
                          }) {
     const data = useQuery(query)
-    if(!data) {
-        console.log("no data for",query)
-        throw new Error(`no data returned for query ${query.toString()}`)
-    }
+    if(!data) throw new Error(`no data returned for query ${query.toString()}`)
+    if(!ItemTemplate) throw new Error("missing item template")
     const css = makeClassNames({
         'generic-list-view': true
     })

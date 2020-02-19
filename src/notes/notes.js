@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react'
+import React, {useContext, useEffect, useRef} from 'react'
 import {FocusContext, HBox, CSS} from '../common/layout.js'
 import {ActionContext, useActionScope} from '../common/actions.js'
 import {StorageContext, useDraft, useQuery} from '../common/storage2.js'
@@ -19,7 +19,17 @@ const EmptyTrashButton = ({project}) => {
 }
 
 const NoteItem = ({note, isSelected, selectNote})=>{
-    return <div className={CSS({
+    const hbox = useRef()
+    const fm = useContext(FocusContext)
+    useEffect(() => {
+        const check = () => {
+            if (hbox.current && isSelected && fm.getMasterFocus() === 'notes') hbox.current.focus()
+        }
+        check()
+        fm.on(check)
+        return ()=>fm.off(check)
+    })
+    return <div ref={hbox} className={CSS({
                     selected:isSelected,
                     deleted:note.deleted,
                     'note-item':true,

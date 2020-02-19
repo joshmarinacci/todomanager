@@ -1,6 +1,6 @@
 import {SortOrder, StorageContext, Storage, useQuery} from '../common/storage2.js'
 import {ActionContext, AM, useActionScope} from '../common/actions.js'
-import {FocusContext, FocusManager, CSS, VBox, PopupContainer} from '../common/layout.js'
+import {FocusContext, FocusManager, CSS, VBox, PopupContainer, GenericListView} from '../common/layout.js'
 import React, {useContext, useState} from 'react'
 import './notes.css'
 import {NoteEditor, NotesListView} from './notes.js'
@@ -120,19 +120,23 @@ const ProjectsListView = ({query, proj, setProj}) => {
     })
 
         return <div className={"left-panel panel"} onKeyDown={handlers.onKeyDown}>
-        {projects.map((p,i)=>{
-            return <div key={i}
-                         className={CSS({
-                             selected:(p===proj),
-                             hbox:true,
-                             'project-item':true,
-                             item:true,
-                         })}
-                         tabIndex={0}
-                         onClick={()=>setProj(p)}>
-                {p.title}
-            </div>
-        })}
+            <GenericListView
+                query={query}
+                autoFocus={true}
+                focusName='projects'
+                selectedItem={proj}
+                setSelectedItem={setProj}
+                ItemTemplate={ProjectItemView}
+            />
+    </div>
+}
+
+const ProjectItemView = ({item})=>{
+    return <div  className={CSS({
+                    'project-item':true,
+                })}
+            >
+        {item.title}
     </div>
 }
 
