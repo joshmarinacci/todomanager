@@ -4,7 +4,7 @@ import {useActionScope} from '../common/actions.js'
 import {HBox, VBox} from '../common/layout.js'
 
 export function ComposingMailView({mail, done}) {
-    const [draft, update, save] = useDraft(mail)
+    const [draft, update, save] = useDraft('message',mail)
     const handlers = useActionScope('compose', {
         'send-mail': done
     })

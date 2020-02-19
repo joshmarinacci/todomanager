@@ -3,6 +3,7 @@ import React, {useContext, useEffect, useState} from 'react'
 import {StorageContext, useQuery} from '../common/storage2.js'
 import {CSS, FocusContext, GenericListView, PopupContext, VBox} from '../common/layout.js'
 import {useActionScope} from '../common/actions.js'
+import {archiveEmail, deleteEmail, moveMail, queryForFolder} from './actions.js'
 
 function FolderIcon({folder}) {
     if (folder.title === 'inbox') return <Inbox/>
@@ -52,35 +53,13 @@ export function FoldersListView({selectedFolder, setFolder}) {
 
 export function MailsListView({setMail, selectedMail, selectedFolder}) {
     const storage = useContext(StorageContext)
-    const [q, setQ] = useState(() => {
-        return storage.createQuery({table:'message', find:(m) => !m.deleted && !m.archived && m.folder === 'inbox'})
-    })
-    useEffect(() => {
-        if (selectedFolder) {
-            if (selectedFolder.title === 'trash') {
-                return setQ(storage.createQuery({table:'message', find:m => m.deleted === true}))
-            }
-            if (selectedFolder.title === 'archived') {
-                return setQ(storage.createQuery({table:'message', find:m => m.archived === true}))
-            }
-            if (selectedFolder.title === 'all') {
-                return setQ(storage.createQuery({table:'message', find:m => true}))
-            }
-            setQ(storage.createQuery({table:'message', find:m => (m.folder === selectedFolder.title
-                && !m.deleted
-                && !m.archived
-            )}))
-        }
-    }, [selectedFolder])
+    const [q, setQ] = useState(() => queryForFolder(storage,null))
+    useEffect(() => setQ(queryForFolder(storage,selectedFolder)), [selectedFolder])
     const pm = useContext(PopupContext)
     const fm = useContext(FocusContext)
     const handlers = useActionScope('list',{
-        'delete-selected-emails': () => {
-            storage.updateObject('message',selectedMail,'deleted',true)
-        },
-        'archive-selected-emails': () => {
-            storage.updateObject('message',selectedMail,'archived', true)
-        },
+        'delete-selected-emails': () => deleteEmail(storage,selectedMail),
+        'archive-selected-emails': () => archiveEmail(storage,selectedMail),
         'move-selected-emails': (e) => {
             fm.pushMasterFocus('popup')
             pm.show(e.target, <MoveMailPopup mail={selectedMail}/>)
@@ -127,8 +106,7 @@ function MoveMailPopup({mail}) {
     const fm = useContext(FocusContext)
     const handlers = useActionScope('list',{
         'move-mail':()=>{
-            console.log('moving',mail,'to',selFolder)
-            storage.updateObject('message',mail,'folder',selFolder.title)
+            moveMail(storage,mail,selFolder)
             fm.popMasterFocus()
             pm.hide()
         },
@@ -148,8 +126,7 @@ function MoveMailPopup({mail}) {
             focusName={'popup'}
             ItemProps={{
                 moveMail:()=>{
-                    console.log("clicked")
-                    console.log('moving',mail,'to',selFolder)
+                    moveMail(storage,mail,selFolder)
                     fm.popMasterFocus()
                     pm.hide()
                 }

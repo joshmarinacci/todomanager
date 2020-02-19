@@ -21,6 +21,7 @@ import {StorageContext, Storage} from '../common/storage2.js'
 import {ReadingMailView} from './read.js'
 import {ComposingMailView} from './compose.js'
 import {FoldersListView, MailsListView} from './folders.js'
+import {generateFakeEmail, makeNewMail, makeReplyMail} from './actions.js'
 
 const storage = new Storage()
 const FOLDER = storage.defineTable({
@@ -120,79 +121,36 @@ const MailAppContent = () => {
     const storage = useContext(StorageContext)
     const [mail, setMail] = useState(null)
     const [folder, setFolder] = useState(null)
-    const generateFakeEmail = () => {
-        storage.makeObject('message', {
-            sender: faker.name.firstName(),
-            receiver: 'Josh Marinacci',
-            subject: faker.random.words(3),
-            body: faker.lorem.paragraphs(20),
-            deleted: false,
-            folder: 'inbox',
-            timestamp: faker.date.recent().getTime(),
-            read: false,
-            archived: false
-        })
-    }
     const [composing, setComposing] = useState(false)
     const composeNewEmail = () => {
-        const newMail = storage.makeObject('message', {
-            sender: 'Josh Marinacci',
-            receiver: 'no one',
-            subject: '',
-            body: '',
-            deleted: false,
-            archived: false,
-            read: false,
-            folder: 'drafts',
-            timestamp: Date.now()
-        })
         setComposing(true)
-        setMail(newMail)
+        makeNewMail(storage).then(newMail => setMail(newMail))
     }
     const reply = () => {
-        const newMail = storage.makeObject('message', {
-            sender: 'Josh Marinacci',
-            receiver: mail.sender,
-            subject: `Re: ${mail.subject}`,
-            body: mail.body,
-            deleted: false,
-            archived: false,
-            read: false,
-            folder: 'drafts',
-            timestamp: Date.now()
-        })
         setComposing(true)
-        setMail(newMail)
+        makeReplyMail(storage,mail).then(newMail => setMail(newMail))
     }
 
     const handlers = useActionScope('global', {
         'compose-new-mail': composeNewEmail,
         'reply': reply
     })
-    let mainView = ""
-    if (composing) {
-        mainView = <ComposingMailView mail={mail} done={() => {
-            setComposing(false)
-        }}/>
-    } else {
-        mainView = <ReadingMailView mail={mail}/>
-    }
     return <div onKeyDown={handlers.onKeyDown} className={'mailapp-grid grow'}>
         <Toolbar className={'grid-toolbar'}>
             {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
-            <button><CornerUpLeft/>Reply</button>
+            <button onClick={reply}><CornerUpLeft/>Reply</button>
             <button onClick={composeNewEmail}><FileText/> New Mail</button>
             <button><ArrowRight/> Forward</button>
             <button><Archive/> Archive</button>
             <button><Trash2/> Delete</button>
             <Spacer/>
             <button><Layout/></button>
-            <button onClick={generateFakeEmail}><AlertOctagon/> fake</button>
+            <button onClick={()=>generateFakeEmail(storage)}><AlertOctagon/> fake</button>
         </Toolbar>
         <FoldersListView selectedFolder={folder} setFolder={setFolder}/>
         <MailsListView setMail={setMail} selectedMail={mail} selectedFolder={folder}/>
-        {mainView}
-        <PopupContainer/>
+        {composing ? <ComposingMailView mail={mail} done={() => setComposing(false)}/> : <ReadingMailView mail={mail}/>}
+            <PopupContainer/>
     </div>
 }
 
