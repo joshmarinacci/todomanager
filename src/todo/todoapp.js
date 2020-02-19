@@ -11,6 +11,16 @@ import {ProjectsListView} from './projects.js'
 import {ItemsListView} from './items.js'
 import './todo.css'
 import {AuthContext, BASE_URL} from '../auth.js'
+import {
+    addProject,
+    copyFromServer,
+    copyToServer, createQueryForProject,
+    deleteAll,
+    deleteAllLocal,
+    deleteAllProjects,
+    deleteOnServer,
+    dumpServer
+} from './actions.js'
 
 const storage = new Storage()
 storage.defineTable({
@@ -149,31 +159,10 @@ const TodoAppContent = () => {
     const auth = useContext(AuthContext)
     const storage = useContext(StorageContext)
     const [selectedProject,setSelectedProject] = useState(null)
-    const [query,setQuery] = useState(()=>{
-        return storage.createQuery({
-            table:'item',
-            find: (it)=>(selectedProject && it.project === selectedProject._id),
-            sort:(a,b)=>a.sortOrder-b.sortOrder,
-        })
-    })
+    const [query,setQuery] = useState(()=> createQueryForProject(storage,selectedProject))
     const changeSelectedProject = (project) => {
         setSelectedProject(project)
-        if(!project) return
-        if(project.special) {
-            if(project.title === 'today') return setQuery(storage.createQuery({table:'item', find:it => it.today === true}))
-            if(project.title === 'trash') return setQuery(storage.createQuery({table:'item',find:it => it.deleted === true}))
-            if(project.title === 'completed') return setQuery(storage.createQuery({
-                    table: 'item',
-                    find: it => it.completed === true,
-                    sort: (a, b) => a.completedTimestamp - b.completedTimestamp
-                }))
-        } else {
-            setQuery(storage.createQuery({
-                table: 'item',
-                find: it => it.project === project._id,
-                sort: (a, b) => a.sortOrder - b.sortOrder,
-            }))
-        }
+        setQuery(createQueryForProject(storage,project))
     }
     const [searching, setSearching] = useState(false)
     const endSearching = () => {
@@ -185,93 +174,8 @@ const TodoAppContent = () => {
     })
 
     const am = useContext(ActionContext)
-    am.registerAction('global','add-project',()=>{
-        storage.makeObject('project',{
-            title:'untitled',
-            special:false,
-        }).then(obj => {
-            setSelectedProject(obj)
-        })
-    })
+    am.registerAction('global','add-project',()=> addProject(storage).then(obj => setSelectedProject(obj)))
     am.registerAction('global','start-search',()=>setSearching(true))
-
-    const copyToServer = () => {
-        auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)
-            .then(res => res.json())
-            .then(data => {
-                console.log("data is", data)
-                let query = '?type=todoblob&mimetype=application/json&title=primary'
-                if(data.results.length === 1) {
-                    console.log("already exists. we just want to overwrite it")
-                    query += '&id='+data.results[0]._id
-                } else {
-
-                }
-                return storage.asJSON().then(json => {
-                    console.log("sending to the server",json)
-                    console.log("with the query",query)
-                    return auth.fetch(`${BASE_URL}joshmarinacci/upload/${query}`,{
-                        method:'POST',
-                        body:JSON.stringify(json),
-                        headers: {
-                            'Content-Type':'application/json'
-                        }
-                    })
-                })
-            })
-            .then(res => res.json())
-            .then(res => {
-                console.log("got result",res)
-            })
-
-    }
-    const copyFromServer = () => {
-        auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)
-            .then(res => res.json())
-            .then(data => {
-                console.log("data is",data)
-                if(data.results.length !== 1) {
-                    console.log("too many results")
-                } else {
-                    const d = data.results[0]
-                    console.log("found d",d)
-                    return auth.fetch(`${BASE_URL}joshmarinacci/data/${d._id}/latest/application/json/data.json`)
-                }
-            })
-            .then(res => res.json())
-            .then(res => {
-                console.log("final results",res)
-                storage.mergeJSON(res,(table,local,remote)=>{
-                    if(table === 'project') {
-                        console.log("same project id",local,remote)
-                        if(local.special) return local
-                    }
-                    if(table === 'item') {
-                        console.log("merging item",local,remote)
-                        if(remote && !local) return remote
-                        return local
-                    }
-                })
-            })
-    }
-    const deleteOnServer = () => {
-        auth.fetch(`${BASE_URL}joshmarinacci/delete/?type=todoblob`, {
-            method:'POST'
-        }).then(res => res.json())
-            .then(res => {
-                console.log("final result",res)
-            })
-    }
-    const deleteAll = () =>  storage.deleteTableData('item')
-    const deleteAllProjects = () =>  storage.deleteTableData('project')
-    const deleteAllLocal = () => storage.clearData()
-    const dumpServer = () => {
-        auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob`)
-            .then(res => res.json())
-            .then(data => {
-                console.log("data is", data)
-            })
-    }
 
     const [loggedIn,setLoggedIn] = useState(auth.isLoggedIn())
 
@@ -285,13 +189,13 @@ const TodoAppContent = () => {
     return <div style={style} className={'todoapp-grid'}>
         <Toolbar className={'grid-toolbar'}>
             <SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>
-            <button disabled={!loggedIn} onClick={copyToServer}>copy to server</button>
-            <button disabled={!loggedIn} onClick={copyFromServer}>merge from server</button>
-            <button disabled={!loggedIn} onClick={deleteOnServer}>delete on server</button>
-            <button onClick={deleteAll}>delete all notes</button>
-            <button onClick={deleteAllProjects}>delete all projects</button>
-            <button onClick={deleteAllLocal}>delete all local </button>
-            <button onClick={dumpServer}>dump server</button>
+            <button disabled={!loggedIn} onClick={()=>copyToServer(auth,storage)}>copy to server</button>
+            <button disabled={!loggedIn} onClick={()=>copyFromServer(auth,storage)}>merge from server</button>
+            <button disabled={!loggedIn} onClick={()=>deleteOnServer(auth,storage)}>delete on server</button>
+            <button onClick={()=>deleteAll(storage)}>delete all notes</button>
+            <button onClick={()=>deleteAllProjects(storage)}>delete all projects</button>
+            <button onClick={()=>deleteAllLocal(storage)}>delete all local </button>
+            <button onClick={()=>dumpServer(storage)}>dump server</button>
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
         <ColumnResizer width={c1} setWidth={setC1}/>
