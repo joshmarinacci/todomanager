@@ -81,14 +81,6 @@ export const ProjectsListView = ({selectedProject, setSelectedProject, nextFocus
         'focus-next-master': () => {
             fm.setMasterFocus(nextFocusTarget)
         },
-        'move-selection-prev': () => {
-            const index = projects.indexOf(selectedProject)
-            if (index > 0) setSelectedProject(projects[index - 1])
-        },
-        'move-selection-next': () => {
-            const index = projects.indexOf(selectedProject)
-            if (index < projects.length - 1) setSelectedProject(projects[index + 1])
-        },
         'shift-selection-prev': () => {
             if (selectedProject.special) {
                 console.log("cannot move special ones")

@@ -249,7 +249,6 @@ export const ItemsListView = ({query, project}) => {
                 storage.updateObject('item',sel,'project',proj._id)
             }}/>)
         }
-
     })
     let emptyTrash = ""
     const emptyTrashAction = () => storage.removeObjects('item', (it) => it.deleted)

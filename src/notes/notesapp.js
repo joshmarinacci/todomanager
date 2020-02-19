@@ -109,14 +109,6 @@ const ProjectsListView = ({query, proj, setProj}) => {
         'focus-next-master': () => {
             fm.setMasterFocus('notes')
         },
-        'move-selection-prev': () => {
-            const index = projects.indexOf(proj)
-            if (index > 0) setProj(projects[index - 1])
-        },
-        'move-selection-next': () => {
-            const index = projects.indexOf(proj)
-            if (index < projects.length - 1) setProj(projects[index + 1])
-        },
     })
 
         return <div className={"left-panel panel"} onKeyDown={handlers.onKeyDown}>
@@ -132,12 +124,7 @@ const ProjectsListView = ({query, proj, setProj}) => {
 }
 
 const ProjectItemView = ({item})=>{
-    return <div  className={CSS({
-                    'project-item':true,
-                })}
-            >
-        {item.title}
-    </div>
+    return <div  className='project-item'>{item.title}</div>
 }
 
 const NotesAppContent = ()=>{

@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef} from 'react'
-import {FocusContext, HBox, CSS} from '../common/layout.js'
+import {FocusContext, HBox, CSS, GenericListView} from '../common/layout.js'
 import {ActionContext, useActionScope} from '../common/actions.js'
 import {StorageContext, useDraft, useQuery} from '../common/storage2.js'
 import {deleteNote} from './actions.js'
@@ -18,62 +18,27 @@ const EmptyTrashButton = ({project}) => {
     return ""
 }
 
-const NoteItem = ({note, isSelected, selectNote})=>{
-    const hbox = useRef()
-    const fm = useContext(FocusContext)
-    useEffect(() => {
-        const check = () => {
-            if (hbox.current && isSelected && fm.getMasterFocus() === 'notes') hbox.current.focus()
-        }
-        check()
-        fm.on(check)
-        return ()=>fm.off(check)
-    })
-    return <div ref={hbox} className={CSS({
-                    selected:isSelected,
-                    deleted:note.deleted,
-                    'note-item':true,
-                    hbox:true,
-                    item:true,
-                })}
-                tabIndex={0}
-                onClick={()=>selectNote(note)}>
-        {note.title}
-    </div>
+const NoteItem = ({item, isSelected})=>{
+    return <div className={CSS({deleted:item.deleted,})}>{item.title}</div>
 }
 
 export const NotesListView = ({query, project, note, setNote}) => {
     const storage = useContext(StorageContext)
     const fm = useContext(FocusContext)
-    const notes = useQuery(query)
     const handlers = useActionScope('list',{
         'focus-prev-master': () => fm.setMasterFocus('projects'),
         'focus-next-master': () => fm.setMasterFocus('editor'),
         'delete-note':(e)=> deleteNote(storage,note),
-        'move-selection-prev': () => {
-            const index = notes.indexOf(note)
-            if (index > 0) setNote(notes[index - 1])
-        },
-        'move-selection-next': () => {
-            const index = notes.indexOf(note)
-            if (index < notes.length - 1) setNote(notes[index + 1])
-        },
-    })
-    useEffect(()=>{
-        const acquire = () => {
-            if(fm.getMasterFocus() === 'notes') {
-                const n = notes.indexOf(note)
-                if(n < 0 && notes.length > 0) setNote(notes[0])
-            }
-        }
-        fm.on(acquire)
-        acquire()
-        return ()=>fm.off(acquire)
     })
     return <div className={"left-panel panel"} onKeyDown={handlers.onKeyDown}>
-        {notes.map((n,i)=>{
-            return <NoteItem note={n} key={i} isSelected={n===note} selectNote={setNote}/>
-        })}
+        <GenericListView
+            query={query}
+            ItemTemplate={NoteItem}
+            selectedItem={note}
+            setSelectedItem={setNote}
+            focusName={"notes"}
+            autoFocus={true}
+        />
         <HBox>
             <AddNoteButton project={project}/>
             <EmptyTrashButton project={project}/>

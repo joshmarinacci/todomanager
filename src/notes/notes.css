@@ -42,7 +42,7 @@
     /*padding: 0.25rem 0.5rem;*/
     border: 2px solid transparent;
 }
-.note-item.deleted {
+.item .deleted {
     text-decoration: line-through;
 }
 
