@@ -25,7 +25,7 @@ export function addProject(storage) {
 }
 
 export const copyToServer = (auth,storage) => {
-    auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)
+    return auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)
         .then(res => res.json())
         .then(data => {
             console.log("data is", data)
@@ -55,7 +55,7 @@ export const copyToServer = (auth,storage) => {
 
 }
 export const copyFromServer = (auth,storage) => {
-    auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)
+    return auth.fetch(`${BASE_URL}joshmarinacci/search?type=todoblob&title=primary`)
         .then(res => res.json())
         .then(data => {
             console.log("data is",data)
@@ -92,6 +92,9 @@ export const copyFromServer = (auth,storage) => {
                 }
             })
         })
+}
+export const sync = (auth, storage) => {
+    copyFromServer(auth,storage).then(()=>copyToServer(auth,storage)).then(()=>console.log("Done syncing"))
 }
 export const deleteOnServer = (auth) => {
     auth.fetch(`${BASE_URL}joshmarinacci/delete/?type=todoblob`, {

@@ -19,7 +19,7 @@ import {
     deleteAllLocal,
     deleteAllProjects,
     deleteOnServer,
-    dumpServer
+    dumpServer, sync
 } from './actions.js'
 
 const storage = new Storage()
@@ -179,13 +179,13 @@ const TodoAppContent = () => {
     return <div style={style} className={'standard-grid'}>
         <Toolbar className={'grid-toolbar'}>
             <SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>
-            <button disabled={!loggedIn} onClick={()=>copyToServer(auth,storage)}>copy to server</button>
-            <button disabled={!loggedIn} onClick={()=>copyFromServer(auth,storage)}>merge from server</button>
-            <button disabled={!loggedIn} onClick={()=>deleteOnServer(auth,storage)}>delete on server</button>
-            <button onClick={()=>deleteAll(storage)}>delete all notes</button>
-            <button onClick={()=>deleteAllProjects(storage)}>delete all projects</button>
-            <button onClick={()=>deleteAllLocal(storage)}>delete all local </button>
-            <button onClick={()=>dumpServer(storage)}>dump server</button>
+            <button disabled={!loggedIn} onClick={()=>sync(auth,storage)}>sync</button>
+            {/*<button disabled={!loggedIn} onClick={()=>copyFromServer(auth,storage)}>merge from server</button>*/}
+            {/*<button disabled={!loggedIn} onClick={()=>deleteOnServer(auth,storage)}>delete on server</button>*/}
+            {/*<button onClick={()=>deleteAll(storage)}>delete all notes</button>*/}
+            {/*<button onClick={()=>deleteAllProjects(storage)}>delete all projects</button>*/}
+            {/*<button onClick={()=>deleteAllLocal(storage)}>delete all local </button>*/}
+            {/*<button onClick={()=>dumpServer(storage)}>dump server</button>*/}
         </Toolbar>
         <ProjectsListView selectedProject={selectedProject} setSelectedProject={changeSelectedProject}/>
         <ColumnResizer width={c1} setWidth={setC1}/>
