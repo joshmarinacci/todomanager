@@ -89,8 +89,6 @@ export const MailApp = () => {
     am.registerKeys([
         //list scope
         {action: 'delete-selected-emails', key: 'backspace', scope: 'list'},
-        {action: 'focus-prev-master',  key:'ArrowLeft',  scope:'list'  },
-        {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
         {action: 'archive-selected-emails', key: 'a', scope: 'list'},
         {action: 'reply', key: 'r', scope: 'list'},
         {action: 'move-selected-emails', key: 'm', scope: 'list'},

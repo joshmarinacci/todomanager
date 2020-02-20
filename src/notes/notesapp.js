@@ -80,8 +80,6 @@ export const NotesApp = () => {
         //navigation
         {action: 'shift-selection-prev', key:'ArrowUp', alt:true, scope:'list'},
         {action: 'shift-selection-next', key:'ArrowDown', alt:true, scope:'list'},
-        {action: 'focus-prev-master',  key:'ArrowLeft',  scope:'list'  },
-        {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
 
         //list scope
         {action: 'delete-note',   scope:'list',  key:'backspace' },
