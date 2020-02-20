@@ -82,10 +82,10 @@ export class Storage {
             remote.forEach(row => {
                 console.log("processing remote",row)
                 const lrow = local.find(r => r._id === row._id)
-                const res = cb(table,lrow,row)
+                const res = cb(table,lrow,row,this)
                 if(res) {
                     let n = local.indexOf(lrow)
-                    console.log(`replacing -${lrow}- with -${res}-`)
+                    console.log(`replacing -`,lrow,`- with -`,res,`-`)
                     if(n>=0) {
                         local[n] = res
                     } else {

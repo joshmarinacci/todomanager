@@ -70,7 +70,7 @@ export const copyFromServer = (auth,storage) => {
         .then(res => res.json())
         .then(res => {
             console.log("final results",res)
-            storage.mergeJSON(res,(table,local,remote)=>{
+            storage.mergeJSON(res,(table,local,remote,storage)=>{
                 console.log("comparing",table,local,remote)
                 if(table === 'project') {
                     if(!local) {
