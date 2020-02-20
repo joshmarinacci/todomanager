@@ -77,12 +77,17 @@ export const copyFromServer = (auth,storage) => {
                         console.log("no local, just use the remote version",remote)
                         return remote
                     }
-                    console.log("same project id",local,remote)
-                    if(local.special) return local
+                    if(local.special) {
+                        console.log("local is special")
+                        return local
+                    }
                 }
                 if(table === 'item') {
-                    console.log("merging item",local,remote)
-                    if(remote && !local) return remote
+                    if(remote && !local) {
+                        console.log("no local, using remote")
+                        return remote
+                    }
+                    console.log("using local")
                     return local
                 }
             })

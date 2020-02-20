@@ -85,7 +85,7 @@ export class Storage {
                 const res = cb(table,lrow,row)
                 if(res) {
                     let n = local.indexOf(lrow)
-                    console.log("replacing",lrow,'with',res)
+                    console.log(`replacing -${lrow}- with -${res}-`)
                     if(n>=0) {
                         local[n] = res
                     } else {
