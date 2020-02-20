@@ -84,14 +84,11 @@ storage.init('email',makeInitialData).then(()=>{
 })
 
 export const MailApp = () => {
-    const am = new ActionManager()
+    const amParent = useContext(ActionContext)
+    const am = new ActionManager(amParent)
     am.registerKeys([
         //list scope
         {action: 'delete-selected-emails', key: 'backspace', scope: 'list'},
-        {action: 'move-selection-prev', key: 'ArrowUp', scope: 'list'},
-        {action: 'move-selection-prev', key: 'k', scope: 'list'},
-        {action: 'move-selection-next', key: 'ArrowDown', scope: 'list'},
-        {action: 'move-selection-next', key: 'j', scope: 'list'},
         {action: 'focus-prev-master',  key:'ArrowLeft',  scope:'list'  },
         {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
         {action: 'archive-selected-emails', key: 'a', scope: 'list'},
@@ -104,9 +101,6 @@ export const MailApp = () => {
         {action: 'compose-new-mail', scope: 'global', key: 'n', alt: true},
         {action: 'reply', scope: 'global', key: 'r', alt: true},
 
-        // popup-list scope
-        {action:'select-menu-item', scope:['popup'], key:'enter',},
-        {action:'exit-menu-item', scope:['popup'], key:'escape',},
     ])
     return <ActionContext.Provider value={am}>
         <StorageContext.Provider value={storage}>

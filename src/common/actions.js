@@ -2,9 +2,10 @@ import React, {createContext} from 'react'
 import {useContext} from 'react'
 
 export class ActionManager {
-    constructor() {
+    constructor(parent) {
         this.keysList = []
         this.actionsList = {}
+        this.parent = parent
         this._globalOnKeyDownHandler = (e) => {
             const binding = this.matchBinding(e,'global')
             if(binding) {
@@ -55,6 +56,7 @@ export class ActionManager {
         if(event.key === 'Control') return
         let binding = this.matchBindingScope(event,scope)
         if(!binding) binding = this.matchBindingScope(event,'global')
+        if(!binding && this.parent) return this.parent.matchBinding(event,scope)
         return binding
     }
     globalOnKeyDownHandler() {

@@ -9,8 +9,7 @@ import {
     FocusManager,
     PopupContext,
     PopupManager,
-    Spacer,
-    Toolbar
+    Spacer
 } from './common/layout.js'
 import {TodoApp} from './todo/todoapp.js'
 import {MailApp} from './mail/mailapp.js'
@@ -19,6 +18,7 @@ import {NotesApp} from './notes/notesapp.js'
 import {SettingsDialog} from './mail/settings.js'
 import {AuthContext, AuthModuleSingleton} from './auth.js'
 import {SettingsManager, SettingsContext} from './common/settings.js'
+import {ActionContext, ActionManager} from './common/actions.js'
 
 const ConnectedButton = () => {
     const [online, setOnline] = useState(window.navigator.onLine)
@@ -80,12 +80,26 @@ function AppContent() {
 }
 
 function App() {
+    const am = new ActionManager()
+    am.registerKeys([
+        {action: 'move-selection-prev', key: 'ArrowUp', scope: ['list','popup']},
+        {action: 'move-selection-prev', key: 'k', scope: ['list','popup']},
+        {action: 'move-selection-next', key: 'ArrowDown', scope: ['list','popup']},
+        {action: 'move-selection-next', key: 'j', scope: ['list','popup']},
+        {action: 'focus-prev-master',  key:'ArrowLeft',  scope:'list'  },
+        {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
+        // popup-list scope
+        {action:'select-menu-item', scope:['popup'], key:'enter',},
+        {action:'exit-menu-item', scope:['popup'], key:'escape',},
+    ])
     return  <DialogContext.Provider value={new DialogManager()}>
         <PopupContext.Provider value={new PopupManager()}>
             <AuthContext.Provider value={new AuthModuleSingleton()}>
                 <SettingsContext.Provider value={new SettingsManager()}>
                     <FocusContext.Provider value={new FocusManager()}>
-                        <AppContent/>
+                        <ActionContext.Provider value={am}>
+                            <AppContent/>
+                        </ActionContext.Provider>
                     </FocusContext.Provider>
                 </SettingsContext.Provider>
             </AuthContext.Provider>

@@ -1,5 +1,5 @@
 import {SortOrder, Storage, StorageContext, useQuery} from '../common/storage2.js'
-import {ActionContext, AM, useActionScope} from '../common/actions.js'
+import {ActionContext, ActionManager, AM, useActionScope} from '../common/actions.js'
 import {FocusContext, GenericListView, PopupContainer, VBox} from '../common/layout.js'
 import React, {useContext, useState} from 'react'
 import './notes.css'
@@ -70,7 +70,9 @@ storage.init("notes",generate).then(()=>{
 
 
 export const NotesApp = () => {
-    AM.registerKeys([
+    const amParent = useContext(ActionContext)
+    const am = new ActionManager(amParent)
+    am.registerKeys([
         //global. anywhere in the app
         {action: 'add-note-to-target-list',  scope:'global',  key: 'N',  control:true,  shift:true, },
         {action: 'add-note-to-target-list',  scope:'global',  key: 'N',  alt:true, },
@@ -78,10 +80,6 @@ export const NotesApp = () => {
         //navigation
         {action: 'shift-selection-prev', key:'ArrowUp', alt:true, scope:'list'},
         {action: 'shift-selection-next', key:'ArrowDown', alt:true, scope:'list'},
-        {action: 'move-selection-prev', key: 'ArrowUp', scope: 'list'},
-        {action: 'move-selection-prev', key: 'k', scope: 'list'},
-        {action: 'move-selection-next', key: 'ArrowDown', scope: 'list'},
-        {action: 'move-selection-next', key: 'j', scope: 'list'},
         {action: 'focus-prev-master',  key:'ArrowLeft',  scope:'list'  },
         {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
 
@@ -89,16 +87,12 @@ export const NotesApp = () => {
         {action: 'delete-note',   scope:'list',  key:'backspace' },
         {action: 'move-selected-notes', key: 'm', scope: 'list'},
 
-        // popup-list scope
-        {action:'select-menu-item', scope:['popup'], key:'enter',},
-        {action:'exit-menu-item', scope:['popup'], key:'escape',},
-
         //item scope
         {action: 'edit-item',   key: 'Enter',  scope:'item', },
         {action: 'exit-edit-item',   key:'escape', scope:'edit-item', },
     ])
 
-    return <ActionContext.Provider value={AM}>
+    return <ActionContext.Provider value={am}>
         <StorageContext.Provider value={storage}>
             <NotesAppContent/>
         </StorageContext.Provider>

@@ -109,7 +109,8 @@ const SearchBox = ({searching, setSearching, setQuery}) => {
 }
 
 export const TodoApp = () => {
-    const am = new ActionManager()
+    const amParent = useContext(ActionContext)
+    const am = new ActionManager(amParent)
     am.registerKeys([
 
         //navigation
@@ -117,12 +118,6 @@ export const TodoApp = () => {
         {action: 'shift-selection-prev', key:'ArrowUp', meta:true, scope:'list'},
         {action: 'shift-selection-next', key:'ArrowDown', alt:true, scope:'list'},
         {action: 'shift-selection-next', key:'ArrowDown', meta:true, scope:'list'},
-        {action: 'move-selection-prev', key: 'ArrowUp', scope: ['list','popup']},
-        {action: 'move-selection-prev', key: 'k', scope: ['list','popup']},
-        {action: 'move-selection-next', key: 'ArrowDown', scope: ['list','popup']},
-        {action: 'move-selection-next', key: 'j', scope: ['list','popup']},
-        {action: 'focus-prev-master',  key:'ArrowLeft',  scope:'list'  },
-        {action: 'focus-next-master',  key:'ArrowRight',  scope:'list'  },
 
         //list scope
         {action: 'add-item-to-target-list',  scope:'list',  key: 'N',  control:true,  shift:true,  },
@@ -143,10 +138,6 @@ export const TodoApp = () => {
         {action:'start-search', key: 'f', meta:true, scope:'global', os:['mac']},
         {action:'start-search', key: 'f', control:true, scope:'global', os:['windows','linux']},
         {action:'exit-search', key: 'escape', scope:'search' },
-
-        // popup-list scope
-        {action:'select-menu-item', scope:['popup'], key:'enter',},
-        {action:'exit-menu-item', scope:['popup'], key:'escape',},
 
     ])
 
