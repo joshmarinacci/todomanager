@@ -252,3 +252,25 @@ input[type=search]:focus {
   z-index: 1;
   padding:0;
 }
+
+.standard-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 20rem 40rem 1fr;
+  grid-template-rows: calc(1rem + 2 * var(--spacing)) 1fr;
+  background-color: #dddddd;
+  border: 0px solid red;
+  flex: 1.0;
+  max-height: 100vh;
+}
+
+.standard-grid .grid-toolbar {
+  grid-column: 1 / span 5;
+}
+
+.col1 {
+  grid-row: 2/3;
+}
+.col2 {
+  grid-row: 2/3;
+}

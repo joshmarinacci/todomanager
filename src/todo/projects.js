@@ -122,7 +122,7 @@ export const ProjectsListView = ({selectedProject, setSelectedProject, nextFocus
     })
     const am = useContext(ActionContext)
     const addProject = () => am.runAction('global','add-project')
-    return <div onKeyDown={handlers.onKeyDown} className={'projects-list-view panel'}>
+    return <div onKeyDown={handlers.onKeyDown} className={'projects-list-view panel col1'}>
         <GenericListView
             ItemTemplate={ProjectItemView}
             selectedItem={selectedProject}

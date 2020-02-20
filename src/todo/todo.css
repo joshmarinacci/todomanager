@@ -1,31 +1,13 @@
-.todoapp-grid {
-    position: relative;
-    display: grid;
-    grid-template-columns: 20rem 40rem 1fr;
-    grid-template-rows: calc(1rem + 2 * var(--spacing)) 1fr;
-    background-color: #dddddd;
-    border: 0px solid red;
-    flex: 1.0;
-    max-height: 100vh;
-}
 
-.todoapp-grid .grid-toolbar {
-    grid-column: 1 / span 5;
-}
+.standard-grid .projects-list-view {
 
-
-.todoapp-grid .projects-list-view {
-    /*grid-column: 1/2;*/
-    grid-row: 2/3;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
 }
 
 
-.todoapp-grid .items-list-view {
-    /*grid-column: 3/4;*/
-    grid-row: 2/3;
+.standard-grid .items-list-view {
     display: flex;
     flex-direction: column;
     overflow-y: auto;

@@ -1,6 +1,14 @@
 import {SortOrder, Storage, StorageContext, useQuery} from '../common/storage2.js'
 import {ActionContext, ActionManager, AM, useActionScope} from '../common/actions.js'
-import {FocusContext, GenericListView, PopupContainer, VBox} from '../common/layout.js'
+import {
+    ColumnResizer,
+    FocusContext,
+    GenericListView,
+    PopupContainer,
+    Toolbar,
+    useColumns2,
+    VBox
+} from '../common/layout.js'
 import React, {useContext, useState} from 'react'
 import './notes.css'
 import {NoteEditor, NotesListView} from './notes.js'
@@ -107,7 +115,7 @@ const ProjectsListView = ({query, proj, setProj}) => {
         },
     })
 
-        return <div className={"left-panel panel"} onKeyDown={handlers.onKeyDown}>
+        return <div className={"left-panel panel col1"} onKeyDown={handlers.onKeyDown}>
             <GenericListView
                 query={query}
                 autoFocus={true}
@@ -138,10 +146,19 @@ const NotesAppContent = ()=>{
     }
     actionManager.registerAction('global','add-note-to-target-list',()=> addNoteToList(storage,proj).then(note=>setNote(note)))
     actionManager.registerAction('global','empty-trash',()=> removeAllNotesDeletedNotes(storage))
-    return <VBox className={'notesapp-grid'} onKeyDown={actionManager.globalOnKeyDownHandler()}>
+
+    //only set the column widths here.
+    const [c1,setC1, c2, setC2, style] = useColumns2(200,500)
+
+    return <div style={style} className={'standard-grid'} onKeyDown={actionManager.globalOnKeyDownHandler()}>
+        <Toolbar className={'grid-toolbar'}>
+            <button>stuff</button>
+        </Toolbar>
         <ProjectsListView query={allProjects} proj={proj} setProj={selectProject} nextFocusTarget={"notes"}/>
+        <ColumnResizer width={c1} setWidth={setC1}/>
         <NotesListView query={query} project={proj}  note={note} setNote={setNote}/>
+        <ColumnResizer width={c2} setWidth={setC2}/>
         <NoteEditor note={note}/>
         <PopupContainer/>
-    </VBox>
+    </div>
 }

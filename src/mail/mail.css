@@ -1,16 +1,17 @@
 /* ============ layout =========== */
 .mailapp-grid {
+    position: relative;
     display: grid;
     grid-template-columns: 20rem 40rem 1fr;
     grid-template-rows: calc(1rem + 2 * var(--spacing)) 1fr;
+    max-height: 100vh;
     background-color: #dddddd;
     border: 0px solid red;
     flex: 1.0;
-    max-height: 90vh;
 }
 
 .mailapp-grid .grid-toolbar {
-    grid-column: 1 / span 3;
+    grid-column: 1 / span 5;
 }
 
 
@@ -35,7 +36,6 @@
 
 .reading-mail-view {
     padding: 1rem;
-    grid-column: 3/4;
     grid-row:2/3;
     overflow: auto;
     display:flex;

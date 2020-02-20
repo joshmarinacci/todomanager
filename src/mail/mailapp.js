@@ -1,9 +1,10 @@
 import {ActionContext, ActionManager, useActionScope} from '../common/actions.js'
 import React, {useContext, useState} from 'react'
 import {
+    ColumnResizer,
     PopupContainer,
     Spacer,
-    Toolbar
+    Toolbar, useColumns2
 } from '../common/layout.js'
 import {
     AlertOctagon,
@@ -125,7 +126,10 @@ const MailAppContent = () => {
         'compose-new-mail': composeNewEmail,
         'reply': reply
     })
-    return <div onKeyDown={handlers.onKeyDown} className={'mailapp-grid grow'}>
+    //only set the column widths here.
+    const [c1,setC1, c2, setC2, style] = useColumns2(300,500)
+
+    return <div onKeyDown={handlers.onKeyDown} className={'mailapp-grid grow'} style={style}>
         <Toolbar className={'grid-toolbar'}>
             {/*<SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>*/}
             <button onClick={reply}><CornerUpLeft/>Reply</button>
@@ -138,7 +142,9 @@ const MailAppContent = () => {
             <button onClick={()=>generateFakeEmail(storage)}><AlertOctagon/> fake</button>
         </Toolbar>
         <FoldersListView selectedFolder={folder} setFolder={setFolder}/>
+        <ColumnResizer width={c1} setWidth={setC1}/>
         <MailsListView setMail={setMail} selectedMail={mail} selectedFolder={folder}/>
+        <ColumnResizer width={c2} setWidth={setC2}/>
         {composing ? <ComposingMailView mail={mail} done={() => setComposing(false)}/> : <ReadingMailView mail={mail}/>}
             <PopupContainer/>
     </div>

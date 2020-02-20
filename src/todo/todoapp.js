@@ -5,7 +5,7 @@ import {
     ColumnResizer,
     FocusContext,
     PopupContainer,
-    Toolbar
+    Toolbar, useColumns2
 } from '../common/layout.js'
 import {ProjectsListView} from './projects.js'
 import {ItemsListView} from './items.js'
@@ -148,6 +148,7 @@ export const TodoApp = () => {
     </ActionContext.Provider>
 }
 
+
 const TodoAppContent = () => {
     const auth = useContext(AuthContext)
     const storage = useContext(StorageContext)
@@ -173,13 +174,9 @@ const TodoAppContent = () => {
     const [loggedIn,setLoggedIn] = useState(auth.isLoggedIn())
 
     //only set the column widths here.
-    const [c1,setC1] = useState(200)
-    const [c2,setC2] = useState(500)
-    const style = {
-        gridTemplateColumns: `${c1}px 0px ${c2-c1}px 0px 1fr`,
-     }
+    const [c1,setC1, c2, setC2, style] = useColumns2(200,500)
 
-    return <div style={style} className={'todoapp-grid'}>
+    return <div style={style} className={'standard-grid'}>
         <Toolbar className={'grid-toolbar'}>
             <SearchBox searching={searching} setSearching={endSearching} setQuery={setQuery}/>
             <button disabled={!loggedIn} onClick={()=>copyToServer(auth,storage)}>copy to server</button>

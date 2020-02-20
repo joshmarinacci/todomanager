@@ -330,6 +330,16 @@ export const ColumnResizer = ({width, setWidth}) => {
     return <div style={style} onMouseDown={down} className={'column-resizer'}/>
 }
 
+export function useColumns2(w1,w2) {
+    const [c1,setC1] = useState(w1)
+    const [c2,setC2] = useState(w2)
+    const style = {
+        gridTemplateColumns: `${c1}px 0px ${c2-c1}px 0px 1fr`,
+    }
+    return [c1,setC1, c2, setC2, style]
+}
+
+
 
 export function ListViewPopup({query, onAction, ItemTemplate}) {
     const [folders] = useQuery(query)

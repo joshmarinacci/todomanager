@@ -214,7 +214,7 @@ export const ItemsListView = ({query, project}) => {
         emptyTrash = <button onClick={emptyTrashAction}>empty</button>
         addButton = ""
     }
-    return <div onKeyDown={handlers.onKeyDown} className={'items-list-view panel'}>
+    return <div onKeyDown={handlers.onKeyDown} className={'items-list-view panel col2'}>
         <GenericListView
             ItemTemplate={TodoItemView}
             selectedItem={sel}

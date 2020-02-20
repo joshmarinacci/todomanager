@@ -38,7 +38,7 @@ export const NotesListView = ({query, project, note, setNote}) => {
             pm.show(e.target, <ListViewPopup query={q} ItemTemplate={PopupFolderItem} onAction={onAction}/>)
         },
     })
-    return <div className={"left-panel panel"} onKeyDown={handlers.onKeyDown}>
+    return <div className={"left-panel panel col2"} onKeyDown={handlers.onKeyDown}>
         <GenericListView
             query={query}
             ItemTemplate={NoteItem}
