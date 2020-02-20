@@ -80,7 +80,7 @@ export class Storage {
             let remote = data[table]?data[table]:[]
             console.log("remote is",remote)
             remote.forEach(row => {
-                // console.log("processing remote",row)
+                console.log("processing remote",row)
                 const lrow = local.find(r => r._id === row._id)
                 const res = cb(table,lrow,row)
                 if(res) {
